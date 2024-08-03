@@ -2,7 +2,7 @@
 export default defineNuxtConfig({
     compatibilityDate: '2024-04-03',
     devtools: {enabled: true},
-    modules: ["@nuxt/eslint"],
+    modules: ["@nuxt/eslint", "@nuxtjs/google-fonts"],
     components: [
         {path: '~/shared/ui', prefix: 'Ui', extensions: ['.vue']},
         {path: '~/shared/icons', prefix: 'Icon'},
