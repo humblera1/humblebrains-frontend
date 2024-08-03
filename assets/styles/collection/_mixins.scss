@@ -1,0 +1,18 @@
+@use "./fonts" as fonts;
+@use "./functions" as functions;
+
+@mixin font($name, $weight, $size, $color, $height, $style) {
+    font-family: $name;
+    font-style: $style;
+    font-weight: $weight;
+    font-size: functions.pxToRem($size);
+    color: $color;
+
+    @if $height != 1 {
+        line-height: calc($height / $size);
+    }
+}
+
+@mixin mainFont($weight, $size, $color: null, $height: 1, $style: normal) {
+    @include font(fonts.$mainFont, $weight, $size, $color, $height, $style);
+}

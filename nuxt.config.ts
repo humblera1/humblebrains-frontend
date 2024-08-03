@@ -9,9 +9,19 @@ export default defineNuxtConfig({
         {path: '~/features', prefix: 'Feature', extensions: ['.ts']},
         {path: '~/widgets', prefix: 'Widget', extensions: ['.vue']},
     ],
+    css: ['~/assets/styles/index.scss'],
     runtimeConfig: {
         public: {
             api: process.env.API_URL ?? '',
+        },
+    },
+    vite: {
+        css: {
+            preprocessorOptions: {
+                scss: {
+                    additionalData: '@use "~/assets/styles/collection/index.scss" as *;',
+                },
+            },
         },
     },
 })
