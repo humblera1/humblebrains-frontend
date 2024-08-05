@@ -16,3 +16,13 @@
 @mixin mainFont($weight, $size, $color: null, $height: 1, $style: normal) {
     @include font(fonts.$mainFont, $weight, $size, $color, $height, $style);
 }
+
+@mixin boxShadow($x, $y, $blur, $spread, $color) {
+    -webkit-box-shadow: #{$x}px #{$y}px #{$blur}px #{$spread}px $color;
+    -moz-box-shadow: #{$x}px #{$y}px #{$blur}px #{$spread}px $color;
+    box-shadow: #{$x}px #{$y}px #{$blur}px #{$spread}px $color;
+}
+
+@mixin mainShadow() {
+    @include boxShadow(-10, 10, 30, 0, rgba(#37406d, 10%));
+}
