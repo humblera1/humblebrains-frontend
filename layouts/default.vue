@@ -21,12 +21,18 @@
 
 <script setup lang="ts"></script>
 
-<style scoped>
+<style scoped lang="scss">
 .app {
-    padding: 20px 20px 18px 20px;
-    max-width: 1920px;
-    width: 100%;
+    display: flex;
+    justify-content: center;
     min-height: 100dvh;
     height: 100dvh;
+    width: 100%;
+
+    &__page {
+        padding: 25px;
+        max-width: 1920px;
+        width: 100%;
+    }
 }
 </style>
