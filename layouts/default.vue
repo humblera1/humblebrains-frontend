@@ -33,6 +33,7 @@
         padding: 25px;
         max-width: 1920px;
         width: 100%;
+        background-color: var(--secondary-bg);
     }
 }
 </style>

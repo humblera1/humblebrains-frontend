@@ -12,6 +12,7 @@
 
         // todo: dark mode
         background-color: var(--white);
+        @include mainShadowMobile();
     }
 
     &__icon {

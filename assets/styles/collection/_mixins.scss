@@ -27,6 +27,10 @@
     @include boxShadow(-10, 10, 30, 0, rgba(#37406d, 10%));
 }
 
+@mixin mainShadowMobile() {
+    @include boxShadow(-5, 5, 15, 0, rgba(#37406d, 5%));
+}
+
 @mixin lineclamp($lines) {
     text-overflow: ellipsis;
     display: -webkit-box;

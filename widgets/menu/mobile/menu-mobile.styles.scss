@@ -1,0 +1,13 @@
+.menu-mobile {
+    width: 100%;
+    border: 1px solid var(--stroke-gray);
+    border-radius: 24px;
+
+    &__content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 12px;
+        row-gap: 8px;
+        padding: 16px 32px;
+    }
+}
