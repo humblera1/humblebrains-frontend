@@ -1,5 +1,6 @@
 .menu-item {
     display: flex;
+    flex-direction: row;
     align-items: center;
     gap: 8px;
 
@@ -32,10 +33,11 @@
     }
 
     &__label {
-        @include mainFont(400, 14, var(--text-gray-to-light));
+        @include lineclamp(1);
+        @include mainFont(400, 14, var(--text-gray-to-light), 16);
 
         @include tablet {
-            @include mainFont(400, 12, var(--text-gray-to-light));
+            @include mainFont(400, 12, var(--text-gray-to-light), 14);
         }
 
         @include mobile {

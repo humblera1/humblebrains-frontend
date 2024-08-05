@@ -26,3 +26,13 @@
 @mixin mainShadow() {
     @include boxShadow(-10, 10, 30, 0, rgba(#37406d, 10%));
 }
+
+@mixin lineclamp($lines) {
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: $lines;
+    line-clamp: $lines;
+    -webkit-box-orient: vertical;
+    overflow-wrap: anywhere;
+    overflow: hidden;
+}

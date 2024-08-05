@@ -1,7 +1,6 @@
 <template>
     <div v-on-click-outside="closePopover" :class="popoverClasses">
         <slot />
-        {{ model }}
         <button v-if="closeButton" class="popover__close">
             <IconCross @click="closePopover" />
         </button>
