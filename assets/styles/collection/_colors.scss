@@ -1,9 +1,21 @@
 :root {
     --primary-bg: #eeeff7;
     --secondary-bg: #fafafa;
+    --blue: #4149a0;
+    --white: #ffffff;
+
+
+    // текст
+    --white-to-light-text: #ffffff;
+    --white-to-pale-text: #ffffff;
 }
 
 .dark {
     --primary-bg: #1e2239;
     --secondary-bg: #232744;
+    --blue: #2d347d;
+
+    // текст
+    --white-to-light-text: #dbdff1;
+    --white-to-pale-text: #b6bacf;
 }

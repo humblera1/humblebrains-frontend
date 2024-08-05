@@ -1,0 +1,52 @@
+.button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 32px;
+    border-radius: 24px;
+    cursor: pointer;
+    transition: all 0.4s ease-in-out;
+
+    @include mainFont(600, 16, var(--white-to-light-text));
+
+    @include tablet {
+        padding: 12px 24px;
+        font-size: 14px;
+    }
+
+    // todo: disabled buttons styles
+    &:disabled {
+        background-color: gray;
+    }
+
+    svg {
+        max-width: 16px;
+        max-height: 16px;
+    }
+
+    // themes
+    &_blue {
+        background-color: var(--blue);
+        border: 2px solid var(--blue);
+
+        // todo: hovered/active buttons styles
+        &:hover {
+            background-color: transparent;
+            border: 2px solid var(--blue);
+            color: var(--blue);
+        }
+    }
+
+    &_blue-outline {
+        background-color: transparent;
+        border: 2px solid var(--blue);
+        color: var(--blue);
+
+        // todo: hovered/active buttons styles
+        &:hover {
+            background-color: var(--blue);
+            color: var(--white-to-light-text);
+        }
+    }
+}
