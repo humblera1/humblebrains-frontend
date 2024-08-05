@@ -6,8 +6,13 @@
 
 
     // текст
-    --white-to-light-text: #ffffff;
-    --white-to-pale-text: #ffffff;
+    --text-white-to-light: #ffffff;
+    --text-white-to-pale: #ffffff;
+
+    --text-gray-to-light: #6771a2;
+    --text-gray-to-light-hovered: #828dc1;
+
+    --text-gray-to-pale: #6771a2;
 }
 
 .dark {
@@ -16,6 +21,11 @@
     --blue: #2d347d;
 
     // текст
-    --white-to-light-text: #dbdff1;
-    --white-to-pale-text: #b6bacf;
+    --text-white-to-light: #dbdff1;
+    --text-white-to-pale: #b6bacf;
+
+    --text-gray-to-light: #dbdff1;
+    --text-gray-to-light-hovered: #828dc1;
+
+    --text-gray-to-pale: #b6bacf;
 }

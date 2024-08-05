@@ -8,7 +8,7 @@
     cursor: pointer;
     transition: all 0.4s ease-in-out;
 
-    @include mainFont(600, 16, var(--white-to-light-text));
+    @include mainFont(600, 16, var(--text-white-to-light));
 
     @include tablet {
         padding: 12px 24px;
@@ -46,7 +46,7 @@
         // todo: hovered/active buttons styles
         &:hover {
             background-color: var(--blue);
-            color: var(--white-to-light-text);
+            color: var(--text-white-to-light);
         }
     }
 }
