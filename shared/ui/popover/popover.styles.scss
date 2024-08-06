@@ -1,7 +1,7 @@
 .popover {
     position: absolute;
     z-index: 3;
-    padding: 24px 48px 16px 16px;
+    padding: 16px;
     border-radius: 12px;
     opacity: 0;
     visibility: hidden;
@@ -31,6 +31,10 @@
     &_active {
         opacity: 1;
         visibility: visible;
+    }
+
+    &_close-button {
+        padding: 24px 48px 16px 16px;
     }
 
     &__close {
