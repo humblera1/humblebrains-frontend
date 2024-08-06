@@ -1,0 +1,50 @@
+.language-select {
+    position: relative;
+    width: fit-content;
+
+    &__display {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        cursor: pointer;
+        background-color: transparent;
+        text-transform: uppercase;
+
+        @include mainFont(500, 16, var(--text-blue-to-light));
+    }
+
+    &__arrow {
+        display: flex;
+        align-items: center;
+        transition: transform 0.3s ease;
+
+
+        svg {
+            color: var(--text-blue-to-light);
+            width: 11px;
+            height: 6px;
+        }
+
+        &_active {
+            transform: rotate(-180deg);
+        }
+    }
+
+    &__controls {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+    }
+
+    &__locale {
+        cursor: pointer;
+        text-transform: uppercase;
+
+        @include mainFont(500, 16, var(--text-blue-to-light));
+
+        &:hover {
+            color: var(--text-blue-to-light-hovered);
+        }
+    }
+}

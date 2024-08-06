@@ -6,7 +6,8 @@ export default defineNuxtConfig({
         "@nuxt/eslint",
         "@nuxtjs/google-fonts",
         "@nuxtjs/color-mode",
-        "@nuxt/image"
+        "@nuxt/image",
+        "@nuxtjs/i18n"
     ],
     components: [
         {path: '~/shared/ui', prefix: 'Ui', extensions: ['.vue']},
@@ -19,6 +20,11 @@ export default defineNuxtConfig({
         public: {
             api: process.env.API_URL ?? '',
         },
+    },
+    i18n: {
+        strategy: 'prefix_except_default',
+        defaultLocale: 'ru',
+        locales: ['ru', 'en'],
     },
     vite: {
         css: {
