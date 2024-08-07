@@ -21,11 +21,19 @@
     --text-blue-to-light: #37406d;
     --text-blue-to-light-hovered: #3c52bb;
 
-
     // Text
     --text-primary: #082567;
     --text-secondary-gray: #6771a2;
     --text-secondary-graylight: #828cb7;
+
+    --text-graylight: #b6bbd0;
+
+    //Input
+    --input-bg: #f6f6fa;
+    --input-border: #e2e5f4;
+    --input-invalid: #d79b9b;
+    --input-icon: #b8bdda;
+    --input-label: #969cc0;
 }
 
 .dark-mode {
@@ -54,4 +62,10 @@
     --text-primary: #dbdff1;
     --text-secondary-gray: #b6bacf;
     --text-secondary-graylight: #dbdff1;
+
+    //Input
+    --input-bg: #2d325a;
+    --input-border: #353b62;
+
+    --input-label: #b6bacf;
 }
