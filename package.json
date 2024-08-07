@@ -28,6 +28,7 @@
         "vue": "latest"
     },
     "dependencies": {
+        "@nuxtjs/eslint-config": "^12.0.0",
         "@nuxtjs/eslint-config-typescript": "^12.1.0",
         "@vueuse/components": "^10.11.0",
         "typescript": "^5.5.4",
