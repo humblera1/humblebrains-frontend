@@ -1,7 +1,7 @@
 <template>
     <div :class="['input', 'input_' + theme, { 'input_invalid': hasError }]">
         <div class="input__wrapper">
-            <label :for="props.id" class="input__label">{{ props.label }}</label>
+            <label :for="props.id" :class="['input__label', { 'input__label_required': required }]">{{ props.label }}</label>
             <input
                 :id="props.id"
                 v-model="model"
@@ -61,6 +61,17 @@ const hasError = computed((): boolean => {
             border-radius: 18px;
             border: 1px solid var(--input-border);
             background-color: var(--input-bg);
+
+            transition: border-color 0.2s ease-in-out;
+
+            &:has(> input:focus:not([readonly])) {
+                border: 1px solid var(--input-border-focused);
+            }
+
+            @include mobile {
+                gap: 6px;
+                padding: 12px 16px;
+            }
         }
 
         &__icon {
@@ -85,6 +96,15 @@ const hasError = computed((): boolean => {
 
         &__label {
             @include mainFont(500, 12, var(--input-label));
+
+            @include mobile {
+                @include mainFont(500, 10, var(--input-label));
+            }
+
+            &_required:after {
+                content: ' *';
+                color: var(--input-asterisk);
+            }
         }
 
         &__input {
@@ -94,6 +114,18 @@ const hasError = computed((): boolean => {
             background-color: transparent;
 
             @include mainFont(600, 14, var(--text-primary));
+
+            @include mobile {
+                @include mainFont(600, 12, var(--text-primary));
+            }
+
+            &::placeholder {
+                @include mainFont(500, 14, var(--input-icon), 1, italic);
+
+                @include mobile {
+                    @include mainFont(500, 12, var(--input-icon), 1, italic);
+                }
+            }
         }
 
         &__error {
