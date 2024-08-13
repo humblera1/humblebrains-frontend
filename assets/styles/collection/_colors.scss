@@ -36,6 +36,11 @@
     --input-icon: #b8bdda;
     --input-label: #969cc0;
     --input-asterisk: #656fa2;
+
+
+    // Modal
+    --modal-backdrop: rgba(0, 0, 0, .75);
+    --modal-close: rgba(255, 255, 255, 0.5);
 }
 
 .dark-mode {
@@ -70,4 +75,8 @@
     --input-border: #353b62;
 
     --input-label: #b6bacf;
+
+    // Modal
+    --modal-backdrop: rgba(0, 0, 0, 0.9);
+    --modal-close: rgba(255, 255, 255, 0.8);
 }

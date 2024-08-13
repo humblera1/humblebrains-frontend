@@ -1,0 +1,54 @@
+.modal {
+    &__backdrop {
+        z-index: 10;
+        position: absolute;
+        left: 0;
+        top: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100vw;
+        height: 100vh;
+        background-color: var(--modal-backdrop);
+        transition: display .5s linear;
+    }
+
+    &__inner {
+        z-index: 11;
+        position: relative;
+    }
+
+    &__content {
+        //width: 100%;
+        display: flex;
+        border-radius: 48px;
+    }
+
+    &__close {
+        cursor: pointer;
+        z-index: 11;
+        position: absolute;
+        right: -22px;
+        top: -22px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: transparent;
+        transition: opacity 0.3s ease;
+
+        svg {
+            width: 16px;
+            height: 16px;
+            color: var(--modal-close);
+
+            @include mobile {
+                width: 14px;
+                height: 14px;
+            }
+        }
+
+        &:hover {
+            opacity: 0.8;
+        }
+    }
+}
