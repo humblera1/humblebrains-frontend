@@ -1,0 +1,135 @@
+.auth-modal {
+    position: relative;
+    display: flex;
+    width: 900px;
+    height: 700px;
+    background-color: var(--secondary-bg);
+    border-radius: 48px;
+
+    &_signin {
+        .auth-modal__section_image {
+            transform: translateX(-100%);
+        }
+
+        .auth-modal__section_signin {
+            padding-left: calc(60px + 20px);
+            margin-right: 60px;
+        }
+
+        .auth-modal__section_signup {
+            opacity: 0;
+        }
+
+        .auth-modal__image_signup {
+            transform: translateX(calc(60px - 100%));
+            opacity: 0;
+        }
+    }
+
+    &_signup {
+        .auth-modal__section_signup {
+            padding-right: calc(60px + 20px);
+            margin-left: 60px;
+        }
+
+        .auth-modal__section_signin {
+            opacity: 0;
+        }
+
+        .auth-modal__image_signin {
+            transform: translateX(calc(60px + 100%));
+            opacity: 0;
+        }
+    }
+
+    &__section {
+        display: grid;
+        grid-template-rows: auto auto 1fr;
+        gap: 48px;
+        width: 50%;
+        height: 100%;
+        transition: all .25s ease-in-out, transform .3s ease-in-out;
+        padding: 48px 60px;
+
+        &_signup {
+            padding-left: unset;
+            margin-left: 10px;
+        }
+
+        &_signin {
+            padding-right: unset;
+            margin-right: 10px;
+        }
+
+        &_image {
+            position: absolute;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--primary-bg);
+            border-radius: 48px;
+            overflow: hidden;
+
+            img {
+                object-fit: contain;
+                width: 100%;
+            }
+        }
+    }
+
+    &__block {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    &__form {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    &__inputs {
+        display: flex;
+        gap: 10px;
+    }
+
+    &__image {
+        position: absolute;
+        padding: 60px;
+        transition: transform .35s ease-in-out, opacity .3s ease-in-out;
+    }
+
+    &__footer {
+        align-self: end;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    &__title {
+        cursor: pointer;
+        @include mainFont(500, 20, var(--text-secondary-gray));
+
+        &_active {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+    }
+
+    &__subtitle {
+        @include mainFont(500, 14, var(--text-secondary-graylight));
+
+        margin-bottom: 2px;
+    }
+
+    &__policy {
+        @include mainFont(400, 12, var(--text-secondary-gray));
+
+        a {
+            cursor: pointer;
+            color: var(--blue)
+        }
+    }
+}
