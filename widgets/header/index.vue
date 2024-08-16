@@ -15,13 +15,13 @@
                 <WidgetColorMode />
             </div>
             <div class="header__buttons">
-                <UiButton class="header__signin">
+                <UiButton class="header__signin" @click="openSignin">
                     <template #leading>
                         <IconUserLock />
                     </template>
                     {{ $t('signIn') }}
                 </UiButton>
-                <UiButton theme="blue-outline" class="header__signup">
+                <UiButton theme="blue-outline" class="header__signup" @click="openSignup">
                     <template #leading>
                         <IconUserPlus />
                     </template>
@@ -33,10 +33,22 @@
             <IconTrophy />
         </div>
     </div>
+    <WidgetModalAuth v-model:show="showAuthModal" v-model:state="authState" />
 </template>
 
 <script setup lang="ts">
+const showAuthModal = ref<boolean>(false);
+const authState = ref<string>('signin');
 
+const openSignin = () => {
+    authState.value = 'signin';
+    showAuthModal.value = true;
+};
+
+const openSignup = () => {
+    authState.value = 'signup';
+    showAuthModal.value = true;
+};
 </script>
 
 <style scoped lang="scss">
