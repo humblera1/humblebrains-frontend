@@ -5,19 +5,14 @@
     height: 700px;
     background-color: var(--secondary-bg);
     border-radius: 48px;
+    overflow: hidden;
 
     &_signin {
-        .auth-modal__section_image {
-            transform: translateX(-100%);
-        }
-
         .auth-modal__section_signin {
+            opacity: 1;
+            visibility: visible;
             padding-left: calc(60px + 20px);
             margin-right: 60px;
-        }
-
-        .auth-modal__section_signup {
-            opacity: 0;
         }
 
         .auth-modal__image_signup {
@@ -28,17 +23,72 @@
 
     &_signup {
         .auth-modal__section_signup {
+            opacity: 1;
+            visibility: visible;
             padding-right: calc(60px + 20px);
             margin-left: 60px;
         }
 
-        .auth-modal__section_signin {
+        .auth-modal__section_image {
+            transform: translateX(100%);
+        }
+
+        .auth-modal__image_signin {
+            transform: translateX(calc(60px + 100%));
+            opacity: 0;
+        }
+    }
+
+    &_final-signup {
+        .auth-modal__section_signup {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+
+        .auth-modal__section_image {
+            transform: translateX(200%);
             opacity: 0;
         }
 
         .auth-modal__image_signin {
             transform: translateX(calc(60px + 100%));
             opacity: 0;
+        }
+
+        .auth-modal__section_final {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .auth-modal__image_final,
+        .auth-modal__instructions
+        {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    &_final-signin {
+        .auth-modal__section_signin {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+
+        .auth-modal__section_image {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+
+        .auth-modal__section_final {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .auth-modal__image_final,
+        .auth-modal__instructions
+        {
+            transform: translateY(0);
+            opacity: 1;
         }
     }
 
@@ -52,18 +102,21 @@
         padding: 48px 60px;
 
         &_signup {
+            opacity: 0;
+            visibility: hidden;
             padding-left: unset;
             margin-left: 10px;
         }
 
         &_signin {
+            opacity: 0;
+            visibility: hidden;
             padding-right: unset;
             margin-right: 10px;
         }
 
         &_image {
             position: absolute;
-            right: 0;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -75,6 +128,20 @@
                 object-fit: contain;
                 width: 100%;
             }
+        }
+
+        &_final {
+            position: absolute;
+            right: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            margin: auto;
+            opacity: 0;
+            visibility: hidden;
         }
     }
 
@@ -98,7 +165,14 @@
     &__image {
         position: absolute;
         padding: 60px;
-        transition: transform .35s ease-in-out, opacity .3s ease-in-out;
+        transition: transform .35s ease-in-out, opacity .2s ease-in-out;
+
+        &_final {
+            position: unset;
+            transform: translateY(calc(-150%));
+            opacity: 0;
+            padding: unset;
+        }
     }
 
     &__footer {
@@ -131,5 +205,26 @@
             cursor: pointer;
             color: var(--blue)
         }
+    }
+
+    &__instructions {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+        text-align: center;
+        transform: translateY(calc(150%));
+        transition: transform .35s ease-in-out, opacity .2s ease-in-out;
+        opacity: 0;
+
+        p {
+            width: 60%;
+            @include mainFont(400, 16, var(--text-secondary-gray));
+        }
+
+    }
+
+    &__thanks {
+        @include mainFont(600, 24, var(--text-primary));
     }
 }

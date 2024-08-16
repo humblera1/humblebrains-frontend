@@ -1,4 +1,5 @@
 <template>
+    {{ state }}
     <UiModal v-model="model">
         <div class="auth-modal" :class="`auth-modal_${state}`">
             <section class="auth-modal__section auth-modal__section_signup">
@@ -72,7 +73,7 @@
                     </div>
                 </div>
                 <div class="auth-modal__footer">
-                    <UiButton>Зарегистрироваться</UiButton>
+                    <UiButton @click="submitForm">Зарегистрироваться</UiButton>
                     <p class="auth-modal__policy">
                         Данный сайт защищен reCAPTCHA с соответствующей <NuxtLink>политикой конфиденциальности Google</NuxtLink>
                     </p>
@@ -114,16 +115,23 @@
                     </div>
                 </div>
                 <div class="auth-modal__footer">
-                    <UiButton theme="blue-outline">Войти</UiButton>
+                    <UiButton theme="blue-outline" @click="submitForm">Войти</UiButton>
                     <p class="auth-modal__policy">
                         Данный сайт защищен reCAPTCHA с соответствующей <NuxtLink>политикой конфиденциальности Google</NuxtLink>
                     </p>
                 </div>
             </section>
             <section class="auth-modal__section auth-modal__section_image">
-                <NuxtImg src="/images/modals/auth/sign-up.png" class="auth-modal__image auth-modal__image_signup" :class="`auth-modal__image_`"/>
-                <NuxtImg src="/images/modals/auth/sign-in.png" class="auth-modal__image auth-modal__image_signin" :class="`auth-modal__image_${state}`"/>
+                <NuxtImg src="/images/modals/auth/sign-up.png" class="auth-modal__image auth-modal__image_signup" />
+                <NuxtImg src="/images/modals/auth/sign-in.png" class="auth-modal__image auth-modal__image_signin" />
             </section>
+            <div class="auth-modal__section auth-modal__section_final">
+                <NuxtImg src="/images/modals/auth/final.png" class="auth-modal__image auth-modal__image_final" />
+                <div class="auth-modal__instructions">
+                    <h3 class="auth-modal__thanks">Благодарим за регистрацию!</h3>
+                    <p>Для завершения регистрации следуйте инструкциям, отправенным на ваш почтовый ящик</p>
+                </div>
+            </div>
         </div>
     </UiModal>
 </template>
@@ -155,6 +163,14 @@ const errors = reactive({
     lastname: '',
     email: '',
     password: '',
+});
+
+const submitForm = () => {
+    state.value = 'final-' + state.value;
+};
+
+onMounted(() => {
+    state.value = 'signup';
 });
 </script>
 
