@@ -1,12 +1,12 @@
 <template>
-    {{ state }}
-    <UiModal v-model="model">
+    {{ authState }}
+    <UiModal v-model="show">
         <div class="auth-modal" :class="`auth-modal_${state}`">
             <section class="auth-modal__section auth-modal__section_signup">
                 <h2 class="auth-modal__title">
                     <span class="auth-modal__title_active">Регистрация</span> / <span @click="state = 'signin'">Вход</span>
                 </h2>
-                <div class="auth-modal__form">
+                <form class="auth-modal__form">
                     <div class="auth-modal__block">
                         <h3 class="auth-modal__subtitle">Заполните обязательные поля</h3>
                         <UiInput
@@ -71,7 +71,7 @@
                             />
                         </div>
                     </div>
-                </div>
+                </form>
                 <div class="auth-modal__footer">
                     <UiButton @click="submitForm">Зарегистрироваться</UiButton>
                     <p class="auth-modal__policy">
@@ -83,11 +83,11 @@
                 <h2 class="auth-modal__title">
                     <span class="auth-modal__title_active">Вход</span> / <span @click="state = 'signup'">Регистрация</span>
                 </h2>
-                <div class="auth-modal__form auth-modal__form_signin">
+                <form class="auth-modal__form auth-modal__form_signin">
                     <div class="auth-modal__block">
                         <h3 class="auth-modal__subtitle">Введите почту и пароль</h3>
                         <UiInput
-                            id="email"
+                            id="email-signin"
                             v-model="form.email"
                             :error="errors.email"
                             label="E-mail"
@@ -100,7 +100,7 @@
                             </template>
                         </UiInput>
                         <UiInput
-                            id="password"
+                            id="password-signin"
                             v-model="form.password"
                             :error="errors.password"
                             label="Password"
@@ -113,7 +113,7 @@
                             </template>
                         </UiInput>
                     </div>
-                </div>
+                </form>
                 <div class="auth-modal__footer">
                     <UiButton theme="blue-outline" @click="submitForm">Войти</UiButton>
                     <p class="auth-modal__policy">
@@ -137,9 +137,8 @@
 </template>
 
 <script setup lang="ts">
-const model = defineModel<boolean>();
-
-const state = ref<string>('signup');
+const show = defineModel<boolean>('show');
+const state = defineModel<string>('state');
 
 type Form = {
     username: string;
@@ -168,10 +167,6 @@ const errors = reactive({
 const submitForm = () => {
     state.value = 'final-' + state.value;
 };
-
-onMounted(() => {
-    state.value = 'signup';
-});
 </script>
 
 <style scoped lang="scss" src="./auth-modal.styles.scss"></style>

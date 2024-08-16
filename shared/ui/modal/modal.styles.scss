@@ -19,9 +19,12 @@
     }
 
     &__content {
-        //width: 100%;
         display: flex;
-        border-radius: 48px;
+
+        @include mobile {
+            width: 100vw;
+            height: 100vh;
+        }
     }
 
     &__close {
@@ -36,14 +39,21 @@
         background-color: transparent;
         transition: opacity 0.3s ease;
 
+        @include mobile {
+            right: 16px;
+            top: 16px;
+        }
+
         svg {
             width: 16px;
             height: 16px;
             color: var(--modal-close);
 
             @include mobile {
-                width: 14px;
-                height: 14px;
+                color: var(--text-secondary-gray);
+
+                width: 12px;
+                height: 12px;
             }
         }
 

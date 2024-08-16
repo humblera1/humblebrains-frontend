@@ -1,3 +1,3 @@
 export interface Modal {
-    withoutCloseBtn: boolean;
+    withoutCloseBtn?: boolean;
 }
