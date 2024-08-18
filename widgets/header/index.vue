@@ -1,8 +1,6 @@
 <template>
     <div class="header">
-        <div class="header__logo">
-
-        </div>
+        <div class="header__logo"></div>
         <div class="header__bars">
             <IconBars />
         </div>
@@ -60,11 +58,23 @@ const openSignup = () => {
     width: 100%;
     padding: 0 64px;
 
+    @include small-desktop {
+        padding: 0 36px;
+    }
+
+    @include tablet {
+        padding: 0 0 0 50px;
+    }
+
     &__content {
         display: flex;
         justify-content: space-between;
         gap: 32px;
         width: 100%;
+
+        @include mobile {
+            justify-content: flex-end;
+        }
     }
 
     &__menu {
@@ -72,13 +82,26 @@ const openSignup = () => {
         align-items: center;
         justify-content: center;
         flex: 1;
+
+        @include mobile {
+            display: none;
+        }
     }
 
     &__controls {
         display: flex;
         align-items: center;
-        gap: 32px;
+        justify-content: center;
+        gap: 24px;
         flex: 1;
+
+        @include small-desktop {
+            flex: unset;
+        }
+
+        @include tablet {
+            display: none;
+        }
     }
 
     &__buttons {
