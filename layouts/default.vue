@@ -1,21 +1,17 @@
 <template>
     <div class="app">
         <div class="app__page">
-            <div class="app__header">
-
-            </div>
-            <div class="app__content">
-                <aside class="app__sidebar">
-
-                </aside>
-                <div class="content">
-                    <slot />
+            <div class="app__inner">
+                <div class="app__header"></div>
+                <div class="app__content">
+                    <aside class="app__sidebar"></aside>
+                    <div class="content">
+                        <slot />
+                    </div>
                 </div>
             </div>
         </div>
-        <aside class="app__aside">
-
-        </aside>
+        <aside class="app__aside"></aside>
     </div>
 </template>
 
@@ -23,17 +19,29 @@
 
 <style scoped lang="scss">
 .app {
-    display: flex;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: 75vw 25vw;
     min-height: 100dvh;
     height: 100dvh;
-    width: 100%;
 
     &__page {
+        display: flex;
+        justify-content: flex-end;
         padding: 25px;
-        max-width: 1920px;
-        width: 100%;
         background-color: var(--secondary-bg);
+        border-radius: 0 48px 48px 0;
+
+        @include boxShadow(4, -4, 25, 0, rgba(55, 64, 109, 0.1));
+    }
+
+    &__inner {
+        max-width: 1520px;
+        height: 100%;
+    }
+
+    &__aside {
+        width: 25vw;
+        max-width: 400px;
     }
 }
 </style>
