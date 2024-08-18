@@ -1,8 +1,8 @@
 <template>
     <nav class="menu-mobile">
         <ul class="menu-mobile__content">
-            <li class="menu-mobile__item" v-for="item in menuItems" :key="item.label">
-                <WidgetMenuItem :label="item.label" :icon="item.icon" :to="item.to"/>
+            <li v-for="item in menuItems" :key="item.label" class="menu-mobile__item">
+                <WidgetMenuItem :label="item.label" :icon="item.icon" :to="item.to" />
             </li>
         </ul>
     </nav>
@@ -15,18 +15,18 @@ const menuItems: MenuItem[] = [
     {
         label: 'О проекте',
         icon: '/icons/about.svg',
-        to: '/about'
+        to: '/about',
     },
     {
         label: 'Поддержать нас',
         icon: '/icons/coins.svg',
-        to: '/support'
+        to: '/support',
     },
     {
         label: 'FAQ',
         icon: '/icons/faq.svg',
-        to: '/faq'
-    }
+        to: '/faq',
+    },
 ];
 </script>
 

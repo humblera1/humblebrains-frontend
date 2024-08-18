@@ -5,8 +5,8 @@
     justify-content: flex-start;
     align-items: center;
     gap: 16px;
-    min-width: 155px;
-    width: 155px;
+    min-width: 140px;
+    width: 140px;
     height: 50px;
     border-radius: 100px;
     padding: 5px;
@@ -14,7 +14,7 @@
 
     &_dark {
         .color-mode__circle {
-            transform: translateX(calc(150px - 40px - 5px)) rotate(360deg);
+            transform: translateX(calc(140px - 40px - 10px)) rotate(360deg);
         }
     }
 
@@ -45,7 +45,7 @@
             transform: translateX(calc(-40px));
         }
 
-        @include mainFont(400, 16, var(--text-secondary-graylight));
+        @include mainFont(400, 14, var(--text-secondary-graylight));
     }
 
     &_visible,

@@ -1,8 +1,8 @@
 <template>
     <nav ref="menu" class="menu">
         <ul class="menu__content">
-            <li class="menu__item" v-for="item in itemsInHeader" :key="item.label">
-                <WidgetMenuItem :label="item.label" :icon="item.icon" :to="item.to"/>
+            <li v-for="item in itemsInHeader" :key="item.label" class="menu__item">
+                <WidgetMenuItem :label="item.label" :icon="item.icon" :to="item.to" />
             </li>
             <li v-show="!isEnoughWidth" class="menu__item menu__item_ellipsis" @click="isPopoverVisible = true">
                 <IconEllipsis />
@@ -10,8 +10,8 @@
         </ul>
         <UiPopover v-if="!isEnoughWidth" v-model="isPopoverVisible" align="right">
             <ul class="menu__popover">
-                <li class="menu__item" v-for="item in itemsInPopover" :key="item.label">
-                    <WidgetMenuItem :label="item.label" :icon="item.icon" :to="item.to"/>
+                <li v-for="item in itemsInPopover" :key="item.label" class="menu__item">
+                    <WidgetMenuItem :label="item.label" :icon="item.icon" :to="item.to" />
                 </li>
             </ul>
         </UiPopover>
@@ -19,43 +19,43 @@
 </template>
 
 <script setup lang="ts">
-import type {MenuItem} from "~/widgets/menu/item/menu-item.types";
 import { useElementSize } from '@vueuse/core';
+import type { MenuItem } from '~/widgets/menu/item/menu-item.types';
 
 const isPopoverVisible = ref<boolean>(false);
 
 const menu = ref(null);
 
-const { width } = useElementSize(menu)
+const { width } = useElementSize(menu);
 
 const menuItems: MenuItem[] = [
     {
         label: 'О проекте',
         icon: '/icons/about.svg',
-        to: '/about'
+        to: '/about',
     },
     {
         label: 'Поддержать нас',
         icon: '/icons/coins.svg',
-        to: '/support'
+        to: '/support',
     },
     {
         label: 'FAQ',
         icon: '/icons/faq.svg',
-        to: '/faq'
-    }
+        to: '/faq',
+    },
 ];
 
 const isEnoughWidth = computed((): boolean => {
-    return width.value > 300;
+    return width.value >= 325;
 });
 
 const itemsInHeader = computed((): MenuItem[] => {
-    if (width.value < 255) {
+    if (width.value < 285) {
         return menuItems.slice(0, 1);
     }
 
-    if (width.value < 300) {
+    if (width.value < 325) {
         return menuItems.slice(0, 2);
     }
 
@@ -63,11 +63,11 @@ const itemsInHeader = computed((): MenuItem[] => {
 });
 
 const itemsInPopover = computed((): MenuItem[] => {
-    if (width.value < 255) {
+    if (width.value < 285) {
         return menuItems.slice(1);
     }
 
-    if (width.value < 300) {
+    if (width.value < 325) {
         return menuItems.slice(2);
     }
 

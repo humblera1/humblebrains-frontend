@@ -10,7 +10,7 @@
         background-color: transparent;
         text-transform: uppercase;
 
-        @include mainFont(500, 16, var(--text-primary));
+        @include mainFont(500, 14, var(--text-primary));
     }
 
     &__arrow {
@@ -21,8 +21,8 @@
 
         svg {
             color: var(--text-primary);
-            width: 11px;
-            height: 6px;
+            width: 9px;
+            height: 5px;
         }
 
         &_active {
@@ -41,7 +41,7 @@
         cursor: pointer;
         text-transform: uppercase;
 
-        @include mainFont(500, 16, var(--text-primary));
+        @include mainFont(500, 14, var(--text-primary));
 
         // todo: hovered state
         &:hover {
