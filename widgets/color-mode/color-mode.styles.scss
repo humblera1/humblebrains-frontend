@@ -45,7 +45,7 @@
             transform: translateX(calc(-40px));
         }
 
-        @include mainFont(400, 16, var(--text-gray-to-light));
+        @include mainFont(400, 16, var(--text-secondary-graylight));
     }
 
     &_visible,

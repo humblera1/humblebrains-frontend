@@ -10,23 +10,28 @@
     --stroke-gray: #edeef2;
 
     // текст
-    --text-white-to-light: #ffffff;
-    --text-white-to-pale: #ffffff;
-
-    --text-gray-to-light: #6771a2;
-    --text-gray-to-light-hovered: #828dc1;
-
-    --text-gray-to-pale: #6771a2;
-
-    --text-blue-to-light: #37406d;
-    --text-blue-to-light-hovered: #3c52bb;
+    //--text-white-to-light: #ffffff;
+    //--text-white-to-pale: #ffffff;
+    //
+    //--text-gray-to-light: #6771a2;
+    //--text-gray-to-light-hovered: #828dc1;
+    //
+    //--text-gray-to-pale: #6771a2;
+    //
+    //--text-blue-to-light: #37406d;
+    //--text-blue-to-light-hovered: #3c52bb;
 
     // Text
     --text-primary: #082567;
+
     --text-secondary-gray: #6771a2;
     --text-secondary-graylight: #828cb7;
 
-    --text-graylight: #b6bbd0;
+    --text-accent-white: #ffffff;
+    --text-accent-blue: #4149a0;
+    --text-accent-gray: #828cb7;
+
+    --text-btn-white: #ffffff;
 
     //Input
     --input-bg: #f6f6fa;
@@ -36,7 +41,6 @@
     --input-icon: #b8bdda;
     --input-label: #969cc0;
     --input-asterisk: #656fa2;
-
 
     // Modal
     --modal-backdrop: rgba(0, 0, 0, .75);
@@ -54,21 +58,27 @@
     --stroke-gray: #edeef2;
 
     // текст
-    --text-white-to-light: #dbdff1;
-    --text-white-to-pale: #b6bacf;
-
-    --text-gray-to-light: #dbdff1;
-    --text-gray-to-light-hovered: #828dc1;
-
-    --text-gray-to-pale: #b6bacf;
-
-    --text-blue-to-light: #dbdff1;
-    --text-blue-to-light-hovered: #9a9fb8;
+    //--text-white-to-light: #dbdff1;
+    //--text-white-to-pale: #b6bacf;
+    //
+    //--text-gray-to-light: #dbdff1;
+    //--text-gray-to-light-hovered: #828dc1;
+    //
+    //--text-gray-to-pale: #b6bacf;
+    //
+    //--text-blue-to-light: #dbdff1;
+    //--text-blue-to-light-hovered: #9a9fb8;
 
     // Text
-    --text-primary: #dbdff1;
-    --text-secondary-gray: #b6bacf;
-    --text-secondary-graylight: #dbdff1;
+    --text-primary: #cbd0e5;
+
+    --text-secondary-gray: #747996;
+    --text-secondary-graylight: #abb0c3;
+
+    --text-accent-white: #dbdff1;
+    --text-accent-gray: #9ea8d2;
+
+    --text-btn-white: #cbd0e5;
 
     //Input
     --input-bg: #2d325a;

@@ -10,7 +10,7 @@
         background-color: transparent;
         text-transform: uppercase;
 
-        @include mainFont(500, 16, var(--text-blue-to-light));
+        @include mainFont(500, 16, var(--text-primary));
     }
 
     &__arrow {
@@ -20,7 +20,7 @@
 
 
         svg {
-            color: var(--text-blue-to-light);
+            color: var(--text-primary);
             width: 11px;
             height: 6px;
         }
@@ -41,10 +41,11 @@
         cursor: pointer;
         text-transform: uppercase;
 
-        @include mainFont(500, 16, var(--text-blue-to-light));
+        @include mainFont(500, 16, var(--text-primary));
 
+        // todo: hovered state
         &:hover {
-            color: var(--text-blue-to-light-hovered);
+            color: var(--text-primary);
         }
     }
 }
