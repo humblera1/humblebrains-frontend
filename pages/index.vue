@@ -1,6 +1,6 @@
 <template>
     <NuxtLayout>
-        hello
+        <WidgetSidebar />
     </NuxtLayout>
 </template>
 
