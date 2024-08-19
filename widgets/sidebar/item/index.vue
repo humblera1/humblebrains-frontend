@@ -3,30 +3,27 @@
         <div class="sidebar-item__icon">
             <component :is="icon" />
         </div>
-        <p class="sidebar-item__name">{{ title }}</p>
+        <p class="sidebar-item__title">{{ title }}</p>
     </NuxtLink>
 </template>
 
 <script setup lang="ts">
 import type { SidebarItem } from '~/widgets/sidebar/item/sidebar-item.types';
 
-defineProps<SidebarItem>();
+const { title, to } = defineProps<SidebarItem>();
+
+const route = useRoute();
+const linkIsActive = ref<boolean>(false);
+
+onMounted(() => {
+    if (route.path === '/' && to === '/' ) {
+        linkIsActive.value = true;
+    }
+
+    if (route.matched.some(({ path }) => path.startsWith(`/${title.toLowerCase()}`))) {
+        linkIsActive.value = true;
+    }
+});
 </script>
 
-<style scoped lang="scss">
-.sidebar-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    width: 100px;
-    min-width: 100px;
-    height: 80px;
-    border-radius: 24px;
-
-    background-color: var(--secondary-bg);
-
-    @include mainShadow();
-}
-</style>
+<style scoped lang="scss" src="./sidebar-item.styles.scss"></style>

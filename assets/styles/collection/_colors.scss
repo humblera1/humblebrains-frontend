@@ -45,6 +45,9 @@
     // Modal
     --modal-backdrop: rgba(0, 0, 0, .75);
     --modal-close: rgba(255, 255, 255, 0.5);
+
+    // Border
+    --border-primary: #edeef2;
 }
 
 .dark-mode {
@@ -89,4 +92,7 @@
     // Modal
     --modal-backdrop: rgba(0, 0, 0, 0.9);
     --modal-close: rgba(255, 255, 255, 0.8);
+
+    // Border
+    --border-primary: #37394e;
 }
