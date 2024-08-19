@@ -1,16 +1,17 @@
 <template>
     <NuxtLink :to="to" class="menu-item">
         <div class="menu-item__icon">
-            <NuxtImg :src="icon" :alt="label" />
+            <component :is="icon" />
         </div>
         <span class="menu-item__label">
             {{ label }}
         </span>
     </NuxtLink>
-</template> />
+</template>
+/>
 
 <script setup lang="ts">
-import type {MenuItem} from "~/widgets/menu/item/menu-item.types";
+import type { MenuItem } from '~/widgets/menu/item/menu-item.types';
 
 defineProps<MenuItem>();
 </script>

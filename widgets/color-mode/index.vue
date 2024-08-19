@@ -5,7 +5,7 @@
                 <IconColorModeMoon :class="isDark ? 'color-mode_visible' : 'color-mode_hidden'" />
                 <IconColorModeSun :class="isDark ? 'color-mode_hidden' : 'color-mode_visible'" />
             </div>
-            <p class="color-mode__label" :class="isDark ? 'color-mode__label_dark' : ''">{{ isDark ? 'Darkmode': 'Daymode' }}</p>
+            <p class="color-mode__label">{{ isDark ? 'Darkmode' : 'Daymode' }}</p>
         </div>
     </ClientOnly>
 </template>

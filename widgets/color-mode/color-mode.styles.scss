@@ -16,6 +16,10 @@
         .color-mode__circle {
             transform: translateX(calc(140px - 40px - 10px)) rotate(360deg);
         }
+
+        .color-mode__label {
+            transform: translateX(calc(-40px));
+        }
     }
 
     svg {
@@ -40,10 +44,6 @@
         z-index: 1;
         right: 21px;
         transition: transform 0.15s ease-in-out;
-
-        &_dark {
-            transform: translateX(calc(-40px));
-        }
 
         @include mainFont(400, 14, var(--text-secondary-graylight));
     }

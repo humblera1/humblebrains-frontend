@@ -24,12 +24,13 @@
                 min-width: 14px;
                 max-width: 14px;
                 height: 4px;
-                color: var(--text-gray-to-light);
+                color: var(--text-secondary-gray);
             }
 
+            // todo: hovered
             &:hover {
                 svg {
-                    color: var(--text-gray-to-light-hovered);
+                    color: var(--text-secondary-gray);
                 }
             }
         }

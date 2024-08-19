@@ -21,6 +21,9 @@
 <script setup lang="ts">
 import { useElementSize } from '@vueuse/core';
 import type { MenuItem } from '~/widgets/menu/item/menu-item.types';
+import About from '~/shared/icons/menu/about.vue';
+import Coins from '~/shared/icons/menu/coins.vue';
+import Faq from '~/shared/icons/menu/faq.vue';
 
 const isPopoverVisible = ref<boolean>(false);
 
@@ -30,18 +33,18 @@ const { width } = useElementSize(menu);
 
 const menuItems: MenuItem[] = [
     {
+        icon: About,
         label: 'О проекте',
-        icon: '/icons/about.svg',
         to: '/about',
     },
     {
+        icon: Coins,
         label: 'Поддержать нас',
-        icon: '/icons/coins.svg',
         to: '/support',
     },
     {
+        icon: Faq,
         label: 'FAQ',
-        icon: '/icons/faq.svg',
         to: '/faq',
     },
 ];
