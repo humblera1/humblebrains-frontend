@@ -6,11 +6,14 @@
                     <WidgetHeader />
                 </div>
                 <div class="app__content">
-                    <aside class="app__sidebar"></aside>
+                    <div class="app__sidebar">
+                        <WidgetSidebar />
+                    </div>
                     <div class="content">
                         <slot />
                     </div>
                 </div>
+                <div class="app__footer"></div>
             </div>
         </div>
         <aside class="app__aside"></aside>
@@ -46,6 +49,9 @@
     }
 
     &__inner {
+        display: flex;
+        flex-direction: column;
+        gap: 50px;
         width: 100%;
         max-width: 1520px;
         height: 100%;
@@ -54,6 +60,21 @@
     &__aside {
         width: 25vw;
         max-width: 400px;
+
+        @include tablet {
+            display: none;
+        }
+    }
+
+    &__content {
+        display: flex;
+        gap: 60px;
+        height: 100%;
+    }
+
+    &__sidebar {
+        width: fit-content;
+        height: 100%;
 
         @include tablet {
             display: none;
