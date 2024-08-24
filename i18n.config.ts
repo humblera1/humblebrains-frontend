@@ -5,10 +5,12 @@ export default defineI18nConfig(() => ({
         ru: {
             signUp: 'Регистрация',
             signIn: 'Вход',
+            gamesList: 'Список упражнений',
         },
         en: {
             signUp: 'Sign Up',
             signIn: 'Sign In',
+            gamesList: 'Games List',
         },
     },
 }));
