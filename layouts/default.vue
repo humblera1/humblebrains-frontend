@@ -81,4 +81,8 @@
         }
     }
 }
+
+.content {
+    width: 100%;
+}
 </style>
