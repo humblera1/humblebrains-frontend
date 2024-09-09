@@ -4,7 +4,7 @@
             <label :for="props.id" :class="['input__label', { input__label_required: required }]">{{ props.label }}</label>
             <input
                 :id="props.id"
-                v-model="model"
+                v-model="value"
                 :name="props.id"
                 :type="props.type"
                 :maxlength="props.maxlength"
@@ -12,14 +12,14 @@
                 :readonly="readonly"
                 autocomplete="off"
                 class="input__input"
-                @change="() => emit('change')"
+                @change="handleChanges"
             />
             <div class="input__icon">
                 <slot name="trailing" />
             </div>
         </div>
         <div v-show="hasError" class="input__error">
-            <p>{{ props.error }}</p>
+            <p>{{ error }}</p>
         </div>
     </div>
 </template>
@@ -27,7 +27,10 @@
 <script setup lang="ts">
 import type { Input } from '~/shared/ui/input/input.types';
 
-const model = defineModel<string>();
+const value = defineModel<string>('value');
+const error = defineModel<string>('error');
+
+const emit = defineEmits(['change']);
 
 const props = withDefaults(defineProps<Input>(), {
     type: 'text',
@@ -39,8 +42,23 @@ const props = withDefaults(defineProps<Input>(), {
 });
 
 const hasError = computed((): boolean => {
-    return props.error !== '';
+    return error.value !== '';
 });
+
+const handleChanges = (): void => {
+    error.value = '';
+
+    emit('change');
+};
+
+// watch(
+//     () => props.error,
+//     (newValue) => {
+//         localError.value = newValue;
+//
+//         console.log(props.error);
+//     },
+// );
 </script>
 
 <style scoped lang="scss">

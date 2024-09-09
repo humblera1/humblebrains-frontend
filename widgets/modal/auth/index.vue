@@ -83,39 +83,14 @@
                 <h2 class="auth-modal__title">
                     <span class="auth-modal__title_active">Вход</span> / <span @click="state = 'signup'">Регистрация</span>
                 </h2>
-                <form class="auth-modal__form auth-modal__form_signin">
+                <div class="auth-modal__form auth-modal__form_signin">
                     <div class="auth-modal__block">
                         <h3 class="auth-modal__subtitle">Введите почту и пароль</h3>
-                        <UiInput
-                            id="email-signin"
-                            v-model="form.email"
-                            :error="errors.email"
-                            label="E-mail"
-                            placeholder="Введите почту"
-                            type="text"
-                            required
-                        >
-                            <template #trailing>
-                                <IconEnvelope />
-                            </template>
-                        </UiInput>
-                        <UiInput
-                            id="password-signin"
-                            v-model="form.password"
-                            :error="errors.password"
-                            label="Password"
-                            placeholder="Введите пароль"
-                            type="password"
-                            required
-                        >
-                            <template #trailing>
-                                <IconLock />
-                            </template>
-                        </UiInput>
+                        <WidgetFormLogin ref="loginForm" />
                     </div>
-                </form>
+                </div>
                 <div class="auth-modal__footer">
-                    <UiButton theme="blue-outline" @click="submitForm">Войти</UiButton>
+                    <UiButton theme="blue-outline" @click="submitLoginForm">Войти</UiButton>
                     <p class="auth-modal__policy">
                         Данный сайт защищен reCAPTCHA с соответствующей <NuxtLink>политикой конфиденциальности Google</NuxtLink>
                     </p>
@@ -137,8 +112,15 @@
 </template>
 
 <script setup lang="ts">
+import type { LoginForm } from '~/entities/interfaces/forms/login/LoginForm';
+import type { LoginFormErrors } from '~/entities/interfaces/forms/login/LoginFormErrors';
+
 const show = defineModel<boolean>('show');
 const state = defineModel<string>('state');
+
+const loginForm = ref();
+
+const authService = useAuthService();
 
 type Form = {
     username: string;
@@ -163,6 +145,10 @@ const errors = reactive({
     email: '',
     password: '',
 });
+
+const submitLoginForm = () => {
+    loginForm.value.login();
+};
 
 const submitForm = () => {
     state.value = 'final-' + state.value;

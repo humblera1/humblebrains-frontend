@@ -1,5 +1,12 @@
+import { RequestMethodEnum } from '~/entities/enums/RequestMethodEnum';
+import type { User } from '~/entities/interfaces/user/User';
+import type { BaseResponse } from '~/entities/interfaces/responses/BaseResponse';
+import type { LoginForm } from '~/entities/interfaces/forms/login/LoginForm';
+
 export const useAuthService = () => {
     const config = useRuntimeConfig();
+
+    const { $api } = useNuxtApp();
 
     const baseUrl: string = config.public.api;
 
@@ -15,8 +22,12 @@ export const useAuthService = () => {
         }
     };
 
-    const login = async () => {
-        // login user by provided credentials
+    const login = async (loginForm: LoginForm): Promise<User> => {
+        return await $api('/v1/users/login', {
+            method: RequestMethodEnum.post,
+            credentials: 'include',
+            body: loginForm,
+        });
     };
 
     const register = async () => {
@@ -24,13 +35,15 @@ export const useAuthService = () => {
     };
 
     // helpers
-
-    const setUser = async () => {
-        // fetch user data from the server and store it
-    };
-
     const isXsrfCookieExpired = (): boolean => {
         return useCookie('XSRF-TOKEN').value === undefined;
+    };
+
+    const fetchUser = async (): Promise<User> => {
+        return await $api<User>('/v1/users/me', {
+            method: RequestMethodEnum.get,
+            credentials: 'include',
+        });
     };
 
     const setXsrfCookie = async (): Promise<void> => {
@@ -45,5 +58,5 @@ export const useAuthService = () => {
         return useCookie('XSRF-TOKEN').value ?? '';
     };
 
-    return { setXsrfHeader, login, register };
+    return { setXsrfHeader, login, register, fetchUser };
 };

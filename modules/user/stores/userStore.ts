@@ -1,16 +1,21 @@
 import { defineStore } from 'pinia';
+import type { User } from '~/entities/interfaces/user/User';
 
 export const useUserStore = defineStore('userStorage', () => {
-    const user = ref<object>({});
+    const user = ref<User>({} as User);
     const isAnonymous = ref<boolean>(false);
 
-    const setUser = (userData: object) => {
+    const authService = useAuthService();
+
+    const setUserData = (userData: User) => {
         user.value = userData;
     };
 
-    const getUser = (): object => {
-        return user.value;
+    const setUser = async () => {
+        const userResponse = await authService.fetchUser();
+
+        setUserData(userResponse);
     };
 
-    return { setUser, getUser };
+    return { setUser, setUserData, user };
 });
