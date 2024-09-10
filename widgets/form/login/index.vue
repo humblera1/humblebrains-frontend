@@ -2,9 +2,9 @@
     <form class="login-form" @submit="console.log('submitted')">
         <UiInput
             id="email-signin"
-            v-model:value="loginForm.usermail"
-            v-model:error="loginFormErrors.usermail"
-            :label="$t('usernameOrEmail')"
+            v-model:value="form.fields.usermail"
+            v-model:error="form.errors.usermail"
+            :label="$t('usermail')"
             placeholder="Введите почту"
             type="text"
             required
@@ -15,8 +15,8 @@
         </UiInput>
         <UiInput
             id="password-signin"
-            v-model:value="loginForm.password"
-            v-model:error="loginFormErrors.password"
+            v-model:value="form.fields.password"
+            v-model:error="form.errors.password"
             :label="$t('password')"
             placeholder="Введите пароль"
             type="password"
@@ -26,50 +26,38 @@
                 <IconLock />
             </template>
         </UiInput>
-        {{ loginFormErrors.general }}
+        {{ form.errors.general }}
     </form>
 </template>
 
 <script setup lang="ts">
-import type { LoginForm } from '~/entities/interfaces/forms/login/LoginForm';
-import type { LoginFormErrors } from '~/entities/interfaces/forms/login/LoginFormErrors';
+import type { ILoginFormErrors } from '~/entities/interfaces/forms/login/ILoginFormErrors';
 import { useUserStore } from '~/modules/user/stores/userStore';
 import type { User } from '~/entities/interfaces/user/User';
 import type { BaseErrorResponse } from '~/entities/interfaces/responses/BaseErrorResponse';
+import { loginForm as form } from '~/entities/objects/forms/login/loginForm';
 
 const authService = useAuthService();
 
-const { setErrors, clearErrors } = useFormService();
 const { setUserData } = useUserStore();
 
-const loginForm: LoginForm = reactive({
-    usermail: '',
-    password: '',
-});
-
-const loginFormErrors: LoginFormErrors = reactive({
-    usermail: '',
-    password: '',
-    general: '',
-});
-
 const login = async () => {
-    try {
-        const user: User = await authService.login(loginForm);
+    form.clearErrors();
 
+    try {
+        const user: User = await authService.login(form.fields);
         setUserData(user);
     } catch (errorResponse) {
         // cast response to a specific type
-        const typedErrorResponse = errorResponse as BaseErrorResponse;
-
-        setErrors(typedErrorResponse.data.errors, loginFormErrors);
+        const typedErrorResponse = errorResponse as BaseErrorResponse<ILoginFormErrors>;
+        form.setErrors(typedErrorResponse.data.errors);
     }
 };
 
 defineExpose({ login });
 
 onUnmounted(() => {
-    clearErrors(loginFormErrors);
+    form.clearErrors();
 });
 </script>
 

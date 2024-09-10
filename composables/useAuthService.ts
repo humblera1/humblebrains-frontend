@@ -1,7 +1,6 @@
 import { RequestMethodEnum } from '~/entities/enums/RequestMethodEnum';
 import type { User } from '~/entities/interfaces/user/User';
-import type { BaseResponse } from '~/entities/interfaces/responses/BaseResponse';
-import type { LoginForm } from '~/entities/interfaces/forms/login/LoginForm';
+import type { ILoginFormFields } from '~/entities/interfaces/forms/login/ILoginFormFields';
 
 export const useAuthService = () => {
     const config = useRuntimeConfig();
@@ -22,11 +21,11 @@ export const useAuthService = () => {
         }
     };
 
-    const login = async (loginForm: LoginForm): Promise<User> => {
+    const login = async (fields: ILoginFormFields): Promise<User> => {
         return await $api('/v1/users/login', {
             method: RequestMethodEnum.post,
             credentials: 'include',
-            body: loginForm,
+            body: fields,
         });
     };
 
