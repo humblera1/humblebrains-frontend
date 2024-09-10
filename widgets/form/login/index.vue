@@ -1,32 +1,35 @@
 <template>
-    <form class="login-form" @submit="console.log('submitted')">
-        <UiInput
-            id="email-signin"
-            v-model:value="form.fields.usermail"
-            v-model:error="form.errors.usermail"
-            :label="$t('usermail')"
-            placeholder="Введите почту"
-            type="text"
-            required
-        >
-            <template #trailing>
-                <IconEnvelope />
-            </template>
-        </UiInput>
-        <UiInput
-            id="password-signin"
-            v-model:value="form.fields.password"
-            v-model:error="form.errors.password"
-            :label="$t('password')"
-            placeholder="Введите пароль"
-            type="password"
-            required
-        >
-            <template #trailing>
-                <IconLock />
-            </template>
-        </UiInput>
-        {{ form.errors.general }}
+    <form class="login-form">
+        <div class="login-form__section">
+            <h3 class="auth-modal__subtitle">Введите почту и пароль</h3>
+            <UiInput
+                id="email-signin"
+                v-model:value="form.fields.usermail"
+                v-model:error="form.errors.usermail"
+                :label="$t('usermail')"
+                placeholder="Введите почту"
+                type="text"
+                required
+            >
+                <template #trailing>
+                    <IconEnvelope />
+                </template>
+            </UiInput>
+            <UiInput
+                id="password-signin"
+                v-model:value="form.fields.password"
+                v-model:error="form.errors.password"
+                :label="$t('password')"
+                placeholder="Введите пароль"
+                type="password"
+                required
+            >
+                <template #trailing>
+                    <IconLock />
+                </template>
+            </UiInput>
+            {{ form.errors.general }}
+        </div>
     </form>
 </template>
 

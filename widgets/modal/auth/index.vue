@@ -1,5 +1,4 @@
 <template>
-    {{ authState }}
     <UiModal v-model="show">
         <div class="auth-modal" :class="`auth-modal_${state}`">
             <section class="auth-modal__section auth-modal__section_signup">
@@ -85,7 +84,6 @@
                 </h2>
                 <div class="auth-modal__form auth-modal__form_signin">
                     <div class="auth-modal__block">
-                        <h3 class="auth-modal__subtitle">Введите почту и пароль</h3>
                         <WidgetFormLogin ref="loginForm" />
                     </div>
                 </div>
@@ -112,9 +110,6 @@
 </template>
 
 <script setup lang="ts">
-import type { LoginForm } from '~/entities/interfaces/forms/login/LoginForm';
-import type { LoginFormErrors } from '~/entities/interfaces/forms/login/LoginFormErrors';
-
 const show = defineModel<boolean>('show');
 const state = defineModel<string>('state');
 
