@@ -1,6 +1,7 @@
 import { RequestMethodEnum } from '~/entities/enums/RequestMethodEnum';
 import type { User } from '~/entities/interfaces/user/User';
 import type { ILoginFormFields } from '~/entities/interfaces/forms/login/ILoginFormFields';
+import type { IRegisterFormFields } from '~/entities/interfaces/forms/register/IRegisterFormFields';
 
 export const useAuthService = () => {
     const config = useRuntimeConfig();
@@ -22,16 +23,20 @@ export const useAuthService = () => {
     };
 
     const login = async (fields: ILoginFormFields): Promise<User> => {
-        return await $api('/v1/users/login', {
+        return await sendCredentials('login', fields);
+    };
+
+    const register = async (fields: IRegisterFormFields) => {
+        return await sendCredentials('register', fields);
+    };
+
+    const sendCredentials = async (path: 'login' | 'register', fields: ILoginFormFields | IRegisterFormFields): Promise<User> => {
+        return await $api<User>(`/v1/users/${path}`, {
             method: RequestMethodEnum.post,
             credentials: 'include',
             body: fields,
         });
-    };
-
-    const register = async () => {
-        // register new user (not anonymous!)
-    };
+    }
 
     // helpers
     const isXsrfCookieExpired = (): boolean => {
