@@ -1,7 +1,9 @@
+import type { ComputedRef } from 'vue';
+
 export interface IUserProxyContext {
-    readonly id: string;
-    readonly username: string;
-    readonly email: string;
-    readonly firstName: string;
-    readonly secondName: string;
+    readonly isAnonymous: ComputedRef<boolean>;
+    readonly username: ComputedRef<string>;
+    readonly email: ComputedRef<string>;
+    readonly firstName: ComputedRef<string>;
+    readonly secondName: ComputedRef<string>;
 }
