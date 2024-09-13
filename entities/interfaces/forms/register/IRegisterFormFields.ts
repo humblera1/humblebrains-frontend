@@ -3,5 +3,5 @@ export interface IRegisterFormFields {
     password: string;
     username: string;
     firstName: string;
-    lastName: string;
+    secondName: string;
 }

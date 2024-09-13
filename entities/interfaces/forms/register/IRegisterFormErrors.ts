@@ -3,5 +3,5 @@ export interface IRegisterFormErrors {
     password: string;
     username: string;
     firstName: string;
-    lastName: string;
+    secondName: string;
 }

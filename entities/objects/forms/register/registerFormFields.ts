@@ -5,5 +5,5 @@ export const registerFormFields: IRegisterFormFields  = reactive({
     password: '',
     username: '',
     firstName: '',
-    lastName: '',
+    secondName: '',
 })
