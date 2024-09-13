@@ -69,7 +69,7 @@
 
 <script setup lang="ts">
 import { registerForm as form } from '~/entities/objects/forms/register/registerForm';
-import type { User } from '~/entities/interfaces/user/User';
+import type { User } from '~/modules/user/entities/interfaces/User';
 import { useUserStore } from '~/modules/user/stores/userStore';
 import type { BaseErrorResponse } from '~/entities/interfaces/responses/BaseErrorResponse';
 import type { IRegisterFormErrors } from '~/entities/interfaces/forms/register/IRegisterFormErrors';

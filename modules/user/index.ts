@@ -1,8 +1,12 @@
-import { defineNuxtModule } from 'nuxt/kit';
+import { addPlugin, createResolver, defineNuxtModule } from 'nuxt/kit';
 
 export default defineNuxtModule({
     meta: {
-        name: 'humble-user',
+        name: 'user',
     },
-    setup() {},
+    setup() {
+        const { resolve } = createResolver(import.meta.url);
+
+        addPlugin(resolve('./plugins/user'));
+    },
 });

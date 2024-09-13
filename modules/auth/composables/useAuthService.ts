@@ -1,7 +1,7 @@
-import { RequestMethodEnum } from '~/entities/enums/RequestMethodEnum';
-import type { User } from '~/entities/interfaces/user/User';
+import type { User } from '~/modules/user/entities/interfaces/User';
 import type { ILoginFormFields } from '~/entities/interfaces/forms/login/ILoginFormFields';
 import type { IRegisterFormFields } from '~/entities/interfaces/forms/register/IRegisterFormFields';
+import { RequestMethodEnum } from '~/entities/enums/RequestMethodEnum';
 
 export const useAuthService = () => {
     const config = useRuntimeConfig();
@@ -36,7 +36,7 @@ export const useAuthService = () => {
             credentials: 'include',
             body: fields,
         });
-    }
+    };
 
     // helpers
     const isXsrfCookieExpired = (): boolean => {
@@ -44,8 +44,8 @@ export const useAuthService = () => {
     };
 
     const fetchUser = async (): Promise<User> => {
-        return await $api<User>('/v1/users/me', {
-            method: RequestMethodEnum.get,
+        return await $api<User>('/v1/users/me?XDEBUG_SESSION=XDEBUG_ECLIPSE', {
+            method: RequestMethodEnum.post,
             credentials: 'include',
         });
     };

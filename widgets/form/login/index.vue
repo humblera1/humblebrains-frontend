@@ -34,11 +34,14 @@
 </template>
 
 <script setup lang="ts">
+import { FetchError } from 'ofetch';
 import type { ILoginFormErrors } from '~/entities/interfaces/forms/login/ILoginFormErrors';
 import { useUserStore } from '~/modules/user/stores/userStore';
-import type { User } from '~/entities/interfaces/user/User';
-import type { BaseErrorResponse } from '~/entities/interfaces/responses/BaseErrorResponse';
+import type { User } from '~/modules/user/entities/interfaces/User';
 import { loginForm as form } from '~/entities/objects/forms/login/loginForm';
+import { ResponseStatusCodeEnum } from '~/entities/enums/ResponseStatusCodeEnum';
+import type { IAuthorizationErrorResponse } from '~/entities/interfaces/responses/auth/IAuthorizationErrorResponse';
+import type { IValidationErrorResponse } from '~/entities/interfaces/responses/auth/IValidationErrorResponse';
 
 const authService = useAuthService();
 
@@ -51,9 +54,24 @@ const login = async () => {
         const user: User = await authService.login(form.fields);
         setUserData(user);
     } catch (errorResponse) {
-        // cast response to a specific type
-        const typedErrorResponse = errorResponse as BaseErrorResponse<ILoginFormErrors>;
-        form.setErrors(typedErrorResponse.data.errors);
+        const unknownResponse = errorResponse as FetchError;
+
+        if (unknownResponse.statusCode === ResponseStatusCodeEnum.Forbidden) {
+            const authorizationErrorResponse = unknownResponse as IAuthorizationErrorResponse;
+
+            // todo: обработчик ошибки при повторном логине/регистрации
+            // eslint-disable-next-line no-console
+            console.log('Ошибка авторизации: ' + authorizationErrorResponse.data.message);
+        }
+
+        if (unknownResponse.statusCode === ResponseStatusCodeEnum.UnprocessableEntity) {
+            const validationErrorResponse = unknownResponse as IValidationErrorResponse<ILoginFormErrors>;
+            form.setErrors(validationErrorResponse.data.errors);
+        }
+
+        // todo: обработчик неизвестной ошибки
+        // eslint-disable-next-line no-console
+        console.log('Неизвестная ошибка');
     }
 };
 
