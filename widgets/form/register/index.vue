@@ -68,32 +68,52 @@
 </template>
 
 <script setup lang="ts">
+import { FetchError } from 'ofetch';
 import { registerForm as form } from '~/entities/objects/forms/register/registerForm';
 import type { User } from '~/modules/user/entities/interfaces/User';
 import { useUserStore } from '~/modules/user/stores/userStore';
-import type { BaseErrorResponse } from '~/entities/interfaces/responses/BaseErrorResponse';
 import type { IRegisterFormErrors } from '~/entities/interfaces/forms/register/IRegisterFormErrors';
+import { ResponseStatusCodeEnum } from '~/entities/enums/ResponseStatusCodeEnum';
+import type { IAuthorizationErrorResponse } from '~/entities/interfaces/responses/auth/IAuthorizationErrorResponse';
+import type { IValidationErrorResponse } from '~/entities/interfaces/responses/auth/IValidationErrorResponse';
 
 const authService = useAuthService();
 
 const { setUserData } = useUserStore();
 
 const register = async () => {
-    form.clearErrors()
+    form.clearErrors();
 
     try {
         const user: User = await authService.register(form.fields);
         setUserData(user);
     } catch (errorResponse) {
-        const typedErrorResponse = errorResponse as BaseErrorResponse<IRegisterFormErrors>;
-        form.setErrors(typedErrorResponse.data.errors);
-    }
+        const unknownResponse = errorResponse as FetchError;
 
+        if (unknownResponse.statusCode === ResponseStatusCodeEnum.Forbidden) {
+            const authorizationErrorResponse = unknownResponse as IAuthorizationErrorResponse;
+
+            // todo: обработчик ошибки при повторном логине/регистрации
+            // eslint-disable-next-line no-console
+            console.log('Ошибка авторизации: ' + authorizationErrorResponse.data.message);
+
+            return;
+        }
+
+        if (unknownResponse.statusCode === ResponseStatusCodeEnum.UnprocessableEntity) {
+            const validationErrorResponse = unknownResponse as IValidationErrorResponse<IRegisterFormErrors>;
+            form.setErrors(validationErrorResponse.data.errors);
+
+            return;
+        }
+
+        // todo: обработчик неизвестной ошибки
+        // eslint-disable-next-line no-console
+        console.log('Неизвестная ошибка');
+    }
 };
 
 defineExpose({ register });
 </script>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

@@ -62,11 +62,15 @@ const login = async () => {
             // todo: обработчик ошибки при повторном логине/регистрации
             // eslint-disable-next-line no-console
             console.log('Ошибка авторизации: ' + authorizationErrorResponse.data.message);
+
+            return;
         }
 
         if (unknownResponse.statusCode === ResponseStatusCodeEnum.UnprocessableEntity) {
             const validationErrorResponse = unknownResponse as IValidationErrorResponse<ILoginFormErrors>;
             form.setErrors(validationErrorResponse.data.errors);
+
+            return;
         }
 
         // todo: обработчик неизвестной ошибки
