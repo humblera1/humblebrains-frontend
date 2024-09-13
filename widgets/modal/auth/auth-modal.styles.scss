@@ -135,8 +135,8 @@
     }
 
     &__section {
-        display: grid;
-        grid-template-rows: auto auto 1fr;
+        display: flex;
+        flex-direction: column;
         gap: 48px;
         width: 50%;
         height: 100%;
@@ -212,21 +212,14 @@
         }
     }
 
-    &__block {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
+    //&__block {
+    //    display: flex;
+    //    flex-direction: column;
+    //    gap: 10px;
+    //}
 
     &__form {
-        display: flex;
-        flex-direction: column;
-        gap: 24px;
-    }
-
-    &__inputs {
-        display: flex;
-        gap: 10px;
+        height: 100%;
     }
 
     &__image {

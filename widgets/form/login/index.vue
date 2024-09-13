@@ -1,7 +1,7 @@
 <template>
     <form class="login-form">
         <div class="login-form__section">
-            <h3 class="auth-modal__subtitle">Введите почту и пароль</h3>
+            <h3 class="login-form__subtitle">Введите почту и пароль</h3>
             <UiInput
                 id="email-signin"
                 v-model:value="form.fields.usermail"
@@ -28,7 +28,16 @@
                     <IconLock />
                 </template>
             </UiInput>
-            {{ form.errors.general }}
+            <div v-show="showGeneralError" class="login-form__error">
+                <IconExclamation />
+                <p>{{ form.errors.general }}</p>
+            </div>
+        </div>
+        <div class="login-form__footer">
+            <UiButton theme="blue-outline" @click="login">Войти</UiButton>
+            <p class="login-form__policy">
+                Данный сайт защищен reCAPTCHA с соответствующей <NuxtLink>политикой конфиденциальности Google</NuxtLink>
+            </p>
         </div>
     </form>
 </template>
@@ -47,12 +56,15 @@ const authService = useAuthService();
 
 const { setUserData } = useUserStore();
 
+const state = useState('authState');
+
 const login = async () => {
     form.clearErrors();
 
     try {
         const user: User = await authService.login(form.fields);
         setUserData(user);
+        setFinalState();
     } catch (errorResponse) {
         const unknownResponse = errorResponse as FetchError;
 
@@ -79,11 +91,17 @@ const login = async () => {
     }
 };
 
-defineExpose({ login });
+const showGeneralError = computed((): boolean => {
+    return form.errors.general !== '';
+});
+
+const setFinalState = (): void => {
+    state.value = 'final';
+};
 
 onUnmounted(() => {
     form.clearErrors();
 });
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss" src="./form-login.styles.scss"></style>

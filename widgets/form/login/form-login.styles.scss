@@ -1,0 +1,55 @@
+.login-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+
+    &__section {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    &__footer {
+        align-self: end;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    &__error {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        svg {
+            min-width: 16px;
+            width: 16px;
+            height: 18px;
+            color: var(--input-invalid);
+        }
+
+        p {
+            @include mainFont(500, 14, var(--input-invalid));
+        }
+    }
+
+    &__subtitle {
+        margin-bottom: 6px;
+
+        @include mainFont(500, 16, var(--text-secondary-graylight));
+
+        @include tablet {
+            @include mainFont(500, 14, var(--text-secondary-graylight));
+        }
+    }
+
+    &__policy {
+        @include mainFont(400, 12, var(--text-secondary-gray));
+
+        a {
+            cursor: pointer;
+            color: var(--blue)
+        }
+    }
+}

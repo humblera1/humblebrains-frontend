@@ -1,28 +1,20 @@
 <template>
-    <UiModal v-model="show">
+    <UiModal>
         <div class="auth-modal" :class="`auth-modal_${state}`">
             <section class="auth-modal__section auth-modal__section_signup">
                 <h2 class="auth-modal__title">
                     <span class="auth-modal__title_active">Регистрация</span> / <span @click="state = 'signin'">Вход</span>
                 </h2>
-                <WidgetFormRegister ref="registerForm" />
-                <div class="auth-modal__footer">
-                    <UiButton @click="submitRegisterForm">Зарегистрироваться</UiButton>
-                    <p class="auth-modal__policy">
-                        Данный сайт защищен reCAPTCHA с соответствующей <NuxtLink>политикой конфиденциальности Google</NuxtLink>
-                    </p>
+                <div class="auth-modal__form">
+                    <WidgetFormRegister />
                 </div>
             </section>
             <section class="auth-modal__section auth-modal__section_signin">
                 <h2 class="auth-modal__title">
                     <span class="auth-modal__title_active">Вход</span> / <span @click="state = 'signup'">Регистрация</span>
                 </h2>
-                <WidgetFormLogin ref="loginForm" />
-                <div class="auth-modal__footer">
-                    <UiButton theme="blue-outline" @click="submitLoginForm">Войти</UiButton>
-                    <p class="auth-modal__policy">
-                        Данный сайт защищен reCAPTCHA с соответствующей <NuxtLink>политикой конфиденциальности Google</NuxtLink>
-                    </p>
+                <div class="auth-modal__form">
+                    <WidgetFormLogin />
                 </div>
             </section>
             <section class="auth-modal__section auth-modal__section_image">
@@ -41,52 +33,7 @@
 </template>
 
 <script setup lang="ts">
-const show = defineModel<boolean>('show');
-const state = defineModel<string>('state');
-
-const loginForm = ref();
-const registerForm = ref();
-
-const authService = useAuthService();
-
-type Form = {
-    username: string;
-    firstname: string;
-    lastname: string;
-    email: string;
-    password: string;
-};
-
-const form: Form = reactive({
-    username: '',
-    firstname: '',
-    lastname: '',
-    email: '',
-    password: '',
-});
-
-const errors = reactive({
-    username: '',
-    firstname: '',
-    lastname: '',
-    email: '',
-    password: '',
-});
-
-const submitLoginForm = () => {
-    loginForm.value.login();
-    // setFinalState()
-};
-
-const submitRegisterForm = () => {
-    registerForm.value.register();
-    // setFinalState()
-}
-
-const setFinalState = () => {
-    state.value = 'final-' + state.value;
-}
-
+const state = useState('authState');
 </script>
 
 <style scoped lang="scss" src="./auth-modal.styles.scss"></style>
