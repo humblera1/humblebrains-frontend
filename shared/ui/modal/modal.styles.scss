@@ -1,21 +1,45 @@
 .modal {
+    pointer-events: auto;
+    z-index: 11;
+    position: absolute;
+    width: fit-content;
+
+    &_center {
+        top: 50%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%);
+    }
+
+    &_bottom {
+        bottom: 0;
+    }
+
+    &__container {
+        pointer-events: none;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+    }
+
     &__backdrop {
+        pointer-events: auto;
         z-index: 10;
         position: absolute;
         left: 0;
         top: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        display: none;
         width: 100vw;
         height: 100vh;
-        background-color: var(--modal-backdrop);
         transition: display .5s linear;
-    }
 
-    &__inner {
-        z-index: 11;
-        position: relative;
+        &_active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--modal-backdrop);
+        }
     }
 
     &__content {

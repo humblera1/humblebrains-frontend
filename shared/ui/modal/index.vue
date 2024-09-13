@@ -17,13 +17,9 @@ import type { Modal } from '~/shared/ui/modal/modal.types';
 const model = defineModel<boolean>();
 
 withDefaults(defineProps<Modal>(), {
-        withoutCloseBtn: false,
-    },
-);
-
-const closeModal = () => {
-    model.value = false;
-}
+    withoutCloseBtn: false,
+    position: 'center',
+});
 </script>
 
 <style scoped lang="scss" src="./modal.styles.scss"></style>
