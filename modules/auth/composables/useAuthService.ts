@@ -44,7 +44,7 @@ export const useAuthService = () => {
     };
 
     const fetchUser = async (): Promise<User> => {
-        return await $api<User>('/v1/users/me?XDEBUG_SESSION=XDEBUG_ECLIPSE', {
+        return await $api<User>('/v1/users/me', {
             method: RequestMethodEnum.post,
             credentials: 'include',
         });

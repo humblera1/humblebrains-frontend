@@ -7,13 +7,14 @@ export const useUserStore = defineStore('userStorage', () => {
     const authService = useAuthService();
 
     const setUserData = (userData: User) => {
+        console.log(userData);
         user.value = userData;
     };
 
     const setUser = async () => {
-        const userResponse = await authService.fetchUser();
+        const user = await authService.fetchUser();
 
-        setUserData(userResponse);
+        setUserData(user);
     };
 
     return { setUser, setUserData, user };

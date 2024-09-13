@@ -1,4 +1,5 @@
 // middleware/auth.js
+// todo: place it in the auth module... maybe...
 import { useUserStore } from '~/modules/user/stores/userStore';
 import { useAuthService } from '~/modules/auth/composables/useAuthService';
 import type { User } from '~/modules/user/entities/interfaces/User';
