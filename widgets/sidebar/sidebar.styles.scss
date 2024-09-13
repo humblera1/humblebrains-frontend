@@ -12,10 +12,12 @@
         justify-content: unset;
         gap: 24px;
         width: 100%;
+        height: fit-content;
         padding: 40px 0;
     }
 
     @include mobile {
+        align-items: center;
         gap: 14px;
         padding: 24px 0;
     }
@@ -27,13 +29,15 @@
 
         @include tablet {
             flex-direction: row;
+            justify-content: center;
             gap: 16px;
         }
 
-        @include tablet {
+        @include mobile {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 14px;
+            width: fit-content;
         }
     }
 
