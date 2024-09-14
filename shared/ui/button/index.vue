@@ -11,7 +11,7 @@ import type { Button } from '~/shared/ui/button/button.types';
 import { NuxtLink } from '#components';
 
 const props = withDefaults(defineProps<Button>(), {
-    theme: 'blue',
+    theme: 'pure-blue',
 });
 
 const classObject = computed(() => ({

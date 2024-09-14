@@ -1,16 +1,35 @@
 :root {
-    --primary-bg: #eeeff7;
-    --secondary-bg: #fafafa;
     --blue: #4149a0;
     --blue-secondary: #4149a0;
-    --blue-badge: #e2e5f4;
     --white: #ffffff;
-    --white-to-black: #ffffff;
+    //--white-to-black: #ffffff;
 
     --stroke-gray: #edeef2;
 
+    // Badges
+    --blue-badge: #e2e5f4;
+
     // Backgrounds
-    --badge-bg: #FEFEFE;
+    --primary-bg: #fafafa;
+    --secondary-bg: #eeeff7;
+    --badge-bg: #ffffff;
+
+    // Типографика основного фона
+    --primary-title: #082567;
+    --primary-subtitle: #828cb7;
+
+    --primary-subtitle-hovered: #404a78;
+
+    // Типографика дополнительного фона
+
+    // Типографика карточек
+    --card-title: #2d457e;
+    --card-subtitle: #9ba1c3;
+
+    --card-subtitle-hovered: #828cb7;
+
+    // Дополнительная типографика
+    --text-accent-white: #ffffff; // кнопки, активные элементы сайдбара, все белые заголовки на синем фоне
 
     // Text
     --text-primary: #082567;
@@ -18,7 +37,6 @@
     --text-secondary-gray: #6771a2;
     --text-secondary-graylight: #828cb7;
 
-    --text-accent-white: #ffffff;
     --text-accent-blue: #4149a0;
     --text-accent-gray: #828cb7;
 
@@ -39,20 +57,55 @@
 
     // Border
     --border-primary: #edeef2;
+
+    // Shadows
+    --main-shadow: #dddfe5;
+
+    // Color-mode control
+    --color-mode-item-bg: #4149a0;
+    --color-mode-item-bg-hovered: #5961bd;
+
+    // Buttons
+    --btn-blue: #4149a0;
+    --btn-grayblue: #4149a0;
+
+    --btn-border-blue: #4149a0;
+
+    --btn-blue-hovered: #5961bd;
+    --btn-grayblue-hovered: #323245;
 }
 
 .dark-mode {
-    --primary-bg: #1e2239;
-    --secondary-bg: #232744;
-    --blue: #2d347d;
+    --blue: #282f87;
     --blue-secondary: #1e2249;
-    --blue-badge: #2d325a;
-    --white-to-black: #06070f;
+    //--white-to-black: #06070f;
 
     --stroke-gray: #edeef2;
 
     // Backgrounds
-    --badge-bg: #343653;
+    --primary-bg: #23232f;
+    --secondary-bg: #1f1f28;
+    --badge-bg: #2a2a3a;
+
+    // Badges
+    --blue-badge: #2a2a3a;
+
+    // Типографика основного фона
+    --primary-title: #bbbfd3;
+    --primary-subtitle: #747996;
+
+    --primary-subtitle-hovered: #bbbfd3;
+
+    // Типографика дополнительного фона
+
+    // Типографика карточек
+    --card-title: #afb4ca;
+    --card-subtitle: #747996;
+
+    --card-subtitle-hovered: #9da2be;
+
+    // Дополнительная типографика
+    --text-accent-white: #cbd0e5; // кнопки, активные элементы сайдбара, все белые заголовки на синем фоне
 
     // Text
     --text-primary: #cbd0e5;
@@ -60,7 +113,6 @@
     --text-secondary-gray: #747996;
     --text-secondary-graylight: #abb0c3;
 
-    --text-accent-white: #dbdff1;
     --text-accent-gray: #9ea8d2;
 
     --text-btn-white: #cbd0e5;
@@ -77,4 +129,20 @@
 
     // Border
     --border-primary: #37394e;
+
+    // Shadows
+    --main-shadow: unset;
+
+    // Color-mode control
+    --color-mode-item-bg: #212131;
+    --color-mode-item-bg-hovered: #252537;
+
+    // Buttons
+    --btn-blue: #282f87;
+    --btn-grayblue: #2a2a3a;
+
+    --btn-border-blue: #747996;
+
+    --btn-blue-hovered: #323995;
+    --btn-grayblue-hovered: #323245;
 }

@@ -1,5 +1,5 @@
 body {
-    background-color: var(--primary-bg);
+    background-color: var(--secondary-bg);
     @include mainFont(500, 16, black);
 }
 
@@ -14,4 +14,8 @@ ul {
     -webkit-user-select: none; /* Chrome/Safari/Opera */
     -moz-user-select: none; /* Firefox */
     -ms-user-select: none; /* Internet Explorer/Edge */
+}
+
+.no-transition .sidebar-item {
+    transition: none !important;
 }

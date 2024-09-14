@@ -25,7 +25,7 @@
                     </template>
                     {{ $t('signIn') }}
                 </UiButton>
-                <UiButton theme="blue-outline" class="header__signup" @click="openSignup">
+                <UiButton theme="outline" class="header__signup" @click="openSignup">
                     <template #leading>
                         <IconUserPlus />
                     </template>

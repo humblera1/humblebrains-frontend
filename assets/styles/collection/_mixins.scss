@@ -24,11 +24,11 @@
 }
 
 @mixin mainShadow() {
-    @include boxShadow(-10, 10, 30, 0, rgba(#37406d, 10%));
+    @include boxShadow(-10, 10, 30, 0, var(--main-shadow));
 }
 
 @mixin mainShadowMobile() {
-    @include boxShadow(-5, 5, 15, 0, rgba(#37406d, 5%));
+    @include boxShadow(-5, 5, 15, 0, var(--main-shadow));
 }
 
 @mixin lineclamp($lines) {
