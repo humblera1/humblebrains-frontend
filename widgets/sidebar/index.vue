@@ -1,10 +1,10 @@
 <template>
     <aside class="sidebar">
         <div class="sidebar__main">
-            <WidgetSidebarItem v-for="(item, idx) in items" :key="idx" :title="item.title" :icon="item.icon" :to="item.to" />
+            <WidgetSidebarItem v-for="(item, idx) in items" :key="idx" :title="$t(item.title)" :icon="item.icon" :to="item.to" />
         </div>
         <div class="sidebar__last">
-            <WidgetSidebarItem :title="lastItem.title" :icon="lastItem.icon" :to="lastItem.to" />
+            <WidgetSidebarItem :title="$t(lastItem.title)" :icon="lastItem.icon" :to="lastItem.to" />
         </div>
     </aside>
 </template>
@@ -14,6 +14,7 @@ import type { SidebarItem } from '~/widgets/sidebar/item/sidebar-item.types';
 import House from '~/shared/icons/sidebar/house.vue';
 import User from '~/shared/icons/sidebar/user.vue';
 import Gear from '~/shared/icons/sidebar/gear.vue';
+import Puzzle from '~/shared/icons/sidebar/puzzle.vue';
 
 const items: SidebarItem[] = [
     {
@@ -25,6 +26,11 @@ const items: SidebarItem[] = [
         icon: User,
         to: '/users',
         title: 'Profile',
+    },
+    {
+        icon: Puzzle,
+        to: '/games',
+        title: 'Games',
     },
 ];
 
