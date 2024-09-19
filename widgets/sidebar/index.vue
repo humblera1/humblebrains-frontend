@@ -1,10 +1,10 @@
 <template>
     <aside class="sidebar">
         <div class="sidebar__main">
-            <WidgetSidebarItem v-for="(item, idx) in items" :key="idx" :title="$t(item.title)" :icon="item.icon" :to="item.to" />
+            <WidgetSidebarItem v-for="(item, idx) in items" :key="idx" :title="item.title" :icon="item.icon" :to="item.to" />
         </div>
         <div class="sidebar__last">
-            <WidgetSidebarItem :title="$t(lastItem.title)" :icon="lastItem.icon" :to="lastItem.to" />
+            <WidgetSidebarItem :title="lastItem.title" :icon="lastItem.icon" :to="lastItem.to" />
         </div>
     </aside>
 </template>
@@ -20,24 +20,24 @@ const items: SidebarItem[] = [
     {
         icon: House,
         to: '/',
-        title: 'Home',
+        title: 'home',
     },
     {
         icon: User,
-        to: '/users',
-        title: 'Profile',
+        to: '/profile',
+        title: 'profile',
     },
     {
         icon: Puzzle,
         to: '/games',
-        title: 'Games',
+        title: 'games',
     },
 ];
 
 const lastItem: SidebarItem = {
     icon: Gear,
     to: '/settings',
-    title: 'Settings',
+    title: 'settings',
 };
 </script>
 

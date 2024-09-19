@@ -3,7 +3,7 @@
         <div class="sidebar-item__icon">
             <component :is="icon" />
         </div>
-        <p class="sidebar-item__title">{{ title }}</p>
+        <p class="sidebar-item__title">{{ $t(title) }}</p>
     </NuxtLink>
 </template>
 
@@ -16,7 +16,7 @@ const route = useRoute();
 const linkIsActive = ref<boolean>(false);
 
 onMounted(() => {
-    if (route.path === '/' && to === '/' ) {
+    if (route.path === '/' && to === '/') {
         linkIsActive.value = true;
     }
 
