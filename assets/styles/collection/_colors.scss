@@ -75,6 +75,17 @@
 
     --btn-blue-hovered: #5961bd;
     --btn-grayblue-hovered: #323245;
+
+    // Games
+    --game-field-bg: #F2F2F8;
+
+    // Matrix
+    --matrix-cell: #D9DBEF;
+    --matrix-cell-hovered: #e1e3f4;
+    --matrix-cell-active: #E6E8F8;
+    --matrix-cell-valid: #A2D999;
+    --matrix-cell-invalid: #ED9797;
+
 }
 
 .dark-mode {
@@ -149,4 +160,14 @@
 
     --btn-blue-hovered: #323995;
     --btn-grayblue-hovered: #323245;
+
+    // Games
+    --game-field-bg: #1F1F28;
+
+    // Matrix
+    --matrix-cell: #2A2A3A;
+    --matrix-cell-hovered: #2F2F42;
+    --matrix-cell-active: #333345;
+    --matrix-cell-valid: #5F9A55;
+    --matrix-cell-invalid: #A54E4E;
 }
