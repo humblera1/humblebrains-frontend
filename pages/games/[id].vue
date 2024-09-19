@@ -1,7 +1,9 @@
 <template>
     <NuxtLayout>
-        <component :is="component" v-if="component" />
-        <span v-else> loading... </span>
+        <WidgetGameUiLayout>
+            <component :is="component" v-if="component" />
+            <span v-else> loading... </span>
+        </WidgetGameUiLayout>
     </NuxtLayout>
 </template>
 
