@@ -1,81 +1,149 @@
 <template>
-    <div ref="cell" class="cell" @click="handleClick">
-        <div v-for="wave in waves" :key="wave.id" class="cell__wave" :style="wave.style" />
+    <div :class="cellClasses" @click="store.openCell(number)">
+        <div class="cell__inner">
+            <div class="cell__front" />
+            <div :class="backClasses">
+                <div :class="iconClass">
+                    <IconGameSuccess v-show="showCorrectCell" />
+                    <IconGameError v-show="showWrongCell" />
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
 <script setup lang="ts">
-type Wave = {
-    id: number;
-    style: {
-        width: string;
-        height: string;
-        left: string;
-        top: string;
-    };
-};
+import { useMatrixStore } from '~/stores/matrixStore';
 
-const emit = defineEmits(['select']);
+const { number } = defineProps<{ number: number }>();
 
-const waves = ref<Wave[]>([]);
+const store = useMatrixStore();
 
-const handleClick = (event: MouseEvent): void => {
-    makeWave(event);
-    emit('select');
-};
+// Открыта ли текущая ячейка пользователем
+const isCellOpened = computed(() => {
+    return store.isCellOpened(number);
+});
 
-const makeWave = (event: MouseEvent) => {
-    const cell = event.currentTarget as HTMLElement;
-    const rect = cell.getBoundingClientRect();
-    const x = event.clientX - rect.left - rect.width;
-    const y = event.clientY - rect.top - rect.width;
+// Является ли текущая ячейка верным ответом
+const isCellCorrect = computed((): boolean => {
+    return store.isCellCorrect(number);
+});
 
-    const wave = {
-        id: Date.now(),
-        style: {
-            width: `${rect.width * 2}px`,
-            height: `${rect.width * 2}px`,
-            left: `${x}px`,
-            top: `${y}px`,
+// Стоит ли показывать правильный ответ: да, если правильная ячейка открыта пользователем
+const showCorrectCell = computed((): boolean => {
+    return isCellOpened.value && isCellCorrect.value;
+});
+
+// Стоит ли показывать правильный ответ: да, если неправильная ячейка открыта пользователем
+const showWrongCell = computed((): boolean => {
+    return isCellOpened.value && !isCellCorrect.value;
+});
+
+const cellClasses = computed(() => {
+    return [
+        'cell',
+        {
+            cell_opened: isCellOpened.value,
         },
-    };
+    ];
+});
 
-    waves.value.push(wave);
+const backClasses = computed(() => {
+    return [
+        'cell__back',
+        {
+            cell__back_success: showCorrectCell.value,
+            cell__back_error: showWrongCell.value,
+        },
+    ];
+});
 
-    setTimeout(() => {
-        waves.value = waves.value.filter((w) => w.id !== wave.id);
-    }, 500); // Длительность анимации
-};
+const iconClass = computed(() => {
+    return [
+        'cell__icon',
+        {
+            cell__icon_visible: isCellOpened.value,
+        },
+    ];
+});
+
+onMounted(() => {
+    store.setMatrixStore();
+})
 </script>
 
 <style lang="scss">
 .cell {
-    position: relative;
-    cursor: pointer;
-
     aspect-ratio: 1/ 1;
-    display: flex;
-    background-color: var(--matrix-cell);
+    perspective: 1000px;
     overflow: hidden;
-    transition: background-color 200ms ease;
-    border-radius: 16px;
+    //background-color: var(--matrix-cell);
+    transition: color 1000ms linear;
 
-    &:hover {
-        background-color: var(--matrix-cell-hovered);
+    &__inner {
+        width: 100%;
+        height: 100%;
+        transition: transform 300ms;
+        transform-style: preserve-3d;
+        position: relative;
     }
 
-    &__wave {
+    &__front,
+    &__back {
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
         position: absolute;
-        border-radius: 50%;
-        background-color: var(--matrix-cell-active);
-        transform: scale(0);
-        animation: wave 500ms linear;
+        backface-visibility: hidden;
+        border-radius: 16px;
+        font-size: 24px;
+        color: white;
+        transition: background-color 200ms ease;
+
+        &:hover {
+            background-color: var(--matrix-cell-hovered);
+        }
     }
 
-    @keyframes wave {
-        to {
-            transform: scale(2);
-            opacity: 0;
+    &__front {
+        background-color: var(--matrix-cell);
+    }
+
+    &__back {
+        transform: rotateY(180deg);
+        &_success {
+            background-color: var(--matrix-cell-valid);
+
+            &:hover {
+                background-color: var(--matrix-cell-valid);
+            }
+        }
+
+        &_error {
+            background-color: var(--matrix-cell-invalid);
+
+            &:hover {
+                background-color: var(--matrix-cell-invalid);
+            }
+        }
+    }
+
+    &_opened {
+        .cell__inner {
+            transform: rotateY(180deg);
+        }
+    }
+
+    &__icon {
+        visibility: hidden;
+        opacity: 0;
+
+        &_visible {
+            visibility: visible;
+            opacity: 1;
         }
     }
 }

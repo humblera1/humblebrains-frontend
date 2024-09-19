@@ -1,6 +1,6 @@
 <template>
     <div class="field" :style="fieldStyles">
-        <WidgetGameMatrixCell v-for="key in cellsAmount" :key="key" @select="handleSelection(key)" />
+        <WidgetGameMatrixCell v-for="key in cellsAmount" :key="key" :number="key" @select="handleSelection(key)" />
     </div>
 </template>
 
