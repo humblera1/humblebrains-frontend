@@ -3,7 +3,7 @@
     display: flex;
     width: 900px;
     height: 700px;
-    background-color: var(--secondary-bg);
+    background-color: var(--primary-bg);
     border-radius: 48px;
     overflow: hidden;
 
@@ -183,7 +183,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: var(--primary-bg);
+            background-color: var(--secondary-bg);
             border-radius: 48px;
             overflow: hidden;
 
@@ -211,12 +211,6 @@
             visibility: hidden;
         }
     }
-
-    //&__block {
-    //    display: flex;
-    //    flex-direction: column;
-    //    gap: 10px;
-    //}
 
     &__form {
         height: 100%;

@@ -19,7 +19,8 @@
         min-width: 16px;
         max-width: 16px;
         height: 16px;
-        color: var(--text-secondary-gray);
+        color: var(--primary-subtitle);
+        transition: color 0.25s ease;
 
         @include tablet {
             min-width: 14px;
@@ -35,11 +36,12 @@
     }
 
     &__label {
+        transition: color 0.25s ease;
         @include lineclamp(1);
-        @include mainFont(400, 14, var(--text-secondary-gray), 16);
+        @include mainFont(400, 14, var(--primary-subtitle), 16);
 
         @include tablet {
-            @include mainFont(400, 12, var(--text-secondary-gray), 14);
+            @include mainFont(400, 12, var(--primary-subtitle), 14);
         }
 
         @include mobile {
@@ -50,8 +52,10 @@
 
     // todo: hovered state
     &:hover {
-        .menu-item__label {
-            color: var(--text-secondary-gray);
+        .menu-item__label,
+        .menu-item__icon
+        {
+            color: var(--primary-subtitle-hovered);
         }
     }
 }

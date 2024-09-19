@@ -1,4 +1,5 @@
 .button {
+    z-index: 1;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -6,9 +7,9 @@
     padding: 12px 24px;
     border-radius: 24px;
     cursor: pointer;
-    transition: all 0.4s ease-in-out;
+    transition: all 0.5s ease-in;
 
-    @include mainFont(600, 14, var(--text-btn-white));
+    @include mainFont(600, 14, var(--text-accent-white));
 
     // todo: disabled buttons styles
     &:disabled {
@@ -21,26 +22,29 @@
     }
 
     // themes
-    &_blue {
-        background-color: var(--blue);
-        border: 2px solid var(--blue);
+    &_pure-blue {
+        background-color: var(--btn-blue);
+        border: 2px solid var(--btn-blue);
 
-        // todo: hovered/active buttons styles
         &:hover {
+            transition: all 0.25s ease-in;
+            z-index: 0;
             background-color: transparent;
-            border: 2px solid var(--blue);
-            color: var(--blue);
+            border-color: var(--btn-border-blue);
+            color: var(--btn-blue-hovered);
         }
     }
 
-    &_blue-outline {
+    &_outline {
         background-color: transparent;
-        border: 2px solid var(--blue);
+        border: 2px solid var(--btn-border-blue);
         color: var(--blue);
 
-        // todo: hovered/active buttons styles
         &:hover {
-            background-color: var(--blue);
+            transition: all 0.25s ease-in;
+            z-index: 0;
+            background-color: var(--btn-blue-hovered);
+            border-color: var(--btn-blue-hovered);
             color: var(--text-btn-white);
         }
     }

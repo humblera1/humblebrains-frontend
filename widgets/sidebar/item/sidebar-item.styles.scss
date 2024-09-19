@@ -10,16 +10,33 @@
     border-radius: 24px;
 
     background-color: var(--badge-bg);
+    transition: box-shadow 0.25s ease;
 
-    @include mainShadow();
+    @include boxShadow(-5, 5, 20, 0, var(--main-shadow));
+
+    &:hover {
+        @include boxShadow(-10, 10, 30, 0, var(--main-shadow));
+    }
 
     &__icon {
-        color: var(--text-secondary-gray);
+        color: var(--card-subtitle);
         height: 24px;
+
+        transition: color 0.25s ease;
     }
 
     &__title {
-        @include mainFont(500, 14, var(--text-secondary-gray));
+        @include mainFont(500, 14, var(--card-subtitle));
+
+        transition: color 0.25s ease;
+    }
+
+    &:hover {
+        .sidebar-item__title,
+        .sidebar-item__icon
+        {
+            color: var(--card-subtitle-hovered);
+        }
     }
 
     &_active {
@@ -29,6 +46,16 @@
         .sidebar-item__icon
         {
             color: var(--text-accent-white);
+        }
+
+        &:hover {
+            @include boxShadow(-5, 5, 20, 0, var(--main-shadow));
+
+            .sidebar-item__title,
+            .sidebar-item__icon
+            {
+                color: var(--text-accent-white);
+            }
         }
     }
 }

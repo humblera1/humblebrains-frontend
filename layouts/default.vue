@@ -37,10 +37,10 @@
         display: flex;
         justify-content: flex-end;
         padding: 25px;
-        background-color: var(--secondary-bg);
+        background-color: var(--primary-bg);
         border-radius: 0 48px 48px 0;
 
-        @include boxShadow(4, -4, 25, 0, rgba(55, 64, 109, 0.1));
+        @include mainShadow();
 
         @include tablet {
             padding: 15px;
