@@ -83,6 +83,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
 
             // Очищаем массивы с ответами
             clearCorrectlyOpenedCells();
+            orderedNumbers.value = [];
             setActiveColor();
 
             gameStore.setRoundPreparingState();
@@ -269,7 +270,6 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     const openCell = (cellNumber: number) => {
         openedCells.value.add(cellNumber);
 
-        console.log('hi im open cell ' + isCellCorrect(cellNumber));
         if (isCellCorrect(cellNumber)) {
             openCorrectCell(cellNumber);
 
@@ -409,7 +409,11 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * Сравнивает номер ячейки с номером, расположенным в массиве упорядоченных номеров под соответствующим индексом
      */
     const isCellOrderCorrect = (cellNumber: number): boolean => {
+        if (level.hasDirection && !correctlyOpenedCells.has(cellNumber)) {
+            const cellOrder = openedCells.value.size - 1;
 
+            return orderedNumbers.value[cellOrder] === cellNumber;
+        }
 
         return true;
     };
@@ -426,6 +430,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         colorizedCells,
         orderedNumbers,
         activeRoundColor,
+        openedCells,
 
         showCorrectlyOpenedCell,
         showIncorrectlyOpenedCell,
