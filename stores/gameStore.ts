@@ -13,6 +13,14 @@ export const useGameStore = defineStore('gameStorage', () => {
         return gameState.value === state;
     };
 
+    const setLevelPreparingState = (): void => {
+        setState(GameStateEnum.levelPreparing);
+    };
+
+    const setRoundPreparingState = (): void => {
+        setState(GameStateEnum.roundPreparing);
+    };
+
     const setContemplationState = (): void => {
         setState(GameStateEnum.contemplation);
     };
@@ -21,12 +29,26 @@ export const useGameStore = defineStore('gameStorage', () => {
         setState(GameStateEnum.interactive);
     };
 
-    const setBuildingState = (): void => {
-        setState(GameStateEnum.building);
+    const setRoundFinishingState = (): void => {
+        setState(GameStateEnum.roundFinishing);
+    };
+
+    const setLevelFinishingState = (): void => {
+        setState(GameStateEnum.levelFinishing);
     };
 
     const setPromptState = (): void => {
         setState(GameStateEnum.prompt);
+    };
+
+    /** Проверки */
+
+    const isLevelPreparingState = (): boolean => {
+        return isState(GameStateEnum.levelPreparing);
+    };
+
+    const isRoundPreparingState = (): boolean => {
+        return isState(GameStateEnum.roundPreparing);
     };
 
     const isContemplationState = (): boolean => {
@@ -37,8 +59,12 @@ export const useGameStore = defineStore('gameStorage', () => {
         return isState(GameStateEnum.interactive);
     };
 
-    const isBuildingState = (): boolean => {
-        return isState(GameStateEnum.building);
+    const isRoundFinishingState = (): boolean => {
+        return isState(GameStateEnum.roundFinishing);
+    };
+
+    const isLevelFinishingState = (): boolean => {
+        return isState(GameStateEnum.levelFinishing);
     };
 
     const isPromptState = (): boolean => {
@@ -46,13 +72,20 @@ export const useGameStore = defineStore('gameStorage', () => {
     };
 
     return {
+        setLevelPreparingState,
+        setRoundPreparingState,
         setContemplationState,
         setInteractiveState,
-        setBuildingState,
+        setRoundFinishingState,
+        setLevelFinishingState,
         setPromptState,
+        gameState,
+        isLevelPreparingState,
+        isRoundPreparingState,
         isContemplationState,
         isInteractiveState,
-        isBuildingState,
+        isRoundFinishingState,
+        isLevelFinishingState,
         isPromptState,
     };
 });
