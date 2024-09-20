@@ -1,7 +1,7 @@
 <template>
     <div :class="cellClasses" @click="store.openCell(number)">
         <div class="cell__inner">
-            <div class="cell__front" />
+            <div class="cell__front" :style="frontStyles" />
             <div :class="backClasses">
                 <div :class="iconClass">
                     <IconGameSuccess v-show="showCorrectCell" />
@@ -48,6 +48,10 @@ const cellClasses = computed(() => {
     ];
 });
 
+const frontStyles = computed(() => {
+    return store.showColorizedCell(number) ? `background-color: ${store.getCellColor(number)}` : '';
+})
+
 const backClasses = computed(() => {
     return [
         'cell__back',
@@ -66,10 +70,6 @@ const iconClass = computed(() => {
         },
     ];
 });
-
-onMounted(() => {
-    store.setMatrixStore();
-})
 </script>
 
 <style lang="scss">
@@ -101,7 +101,7 @@ onMounted(() => {
         border-radius: 16px;
         font-size: 24px;
         color: white;
-        transition: background-color 200ms ease;
+        //transition: background-color 200ms ease-in-out;
 
         &:hover {
             background-color: var(--matrix-cell-hovered);
@@ -110,6 +110,11 @@ onMounted(() => {
 
     &__front {
         background-color: var(--matrix-cell);
+        transition: background-color 1000ms ease-in-out;
+
+        //&_colorized {
+        //    background-color: coral;
+        //}
     }
 
     &__back {
