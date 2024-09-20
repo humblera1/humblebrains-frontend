@@ -43,6 +43,11 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     let levelColors: string[] = [];
 
     /**
+     * Массив номеров ячеек, расположенных в порядке их показа пользователю. Устанавливается в методе colorizeCells.
+     */
+    const orderedNumbers = ref<number[]>([]);
+
+    /**
      * Ячейки данного цвета пользователю необходимо запоминанть в текущем раунде.
      */
     const activeRoundColor = ref<string>('');
@@ -58,7 +63,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         correctAnswersBeforePromotion: 5,
         incorrectAnswersBeforeDemotion: 2,
         pointsForAnswer: 20,
-        hasDirection: false,
+        hasDirection: true,
         hasRotation: false,
     };
 
@@ -76,14 +81,16 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
             // Убираем цветные ячейки (пока стор в состоянии завершения и их не видно на поле)
             discolorCells();
 
-            gameStore.setRoundPreparingState();
-
             // Очищаем массивы с ответами
             clearCorrectlyOpenedCells();
             setActiveColor();
 
+            gameStore.setRoundPreparingState();
+
             // Заново раскрашиваем ячейки
-            colorizeCells().then(() => gameStore.setContemplationState());
+            colorizeCells().then(() => {
+                gameStore.setContemplationState();
+            });
         });
     };
 
@@ -135,52 +142,80 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     };
 
     const setMatrixStore = () => {
-        // prompt maybe
-        gameStore.setContemplationState();
+        // level maybe
+        gameStore.setRoundPreparingState();
 
         setLevelColors();
         setActiveColor();
 
-        colorizeCells();
+        colorizeCells().then(() => {
+            gameStore.setContemplationState();
+        });
 
         // Установка состояния...
     };
 
+    /**
+     * Раскрашиваем ячейки: с определнным интервалом добавляем в colorizedCells номер ячейки в качестве ключа
+     * и цвет ячейки под этим номером в виде значения.
+     */
     const colorizeCells = (): Promise<void> => {
+        const availableNumbers = generateAvailableNumbers();
+
+        // Получаем массивы допустимых цветов и номеров, которые мы можем использовать для раскрашивания
+        const shuffledNumbers = useShuffle(availableNumbers);
+        const shuffledColors = useShuffle(levelColors);
+
         return new Promise((resolve) => {
-            const cells = useRange(1, 9);
-            const shuffledArray = useShuffle(cells);
-            const colors = levelColors;
-            let i = 0;
+            let colorsIndex = 0;
 
-            function addColors() {
-                if (i < level.colorsAmount) {
-                    let j = 0;
-                    const color = colors[i];
+            // Итерируем по массиву цветов, пока не упремся в colorsAmount
+            // Пока не кончатся цвета, мы итерируем по допустимым номерам, составляя комбинации на основании cellsAmountToReproduce
+            // Если цвета закончились, возвращаем успешно завершённый промис
+            const addColors = () => {
+                if (colorsIndex < level.colorsAmount) {
+                    const color = shuffledColors.pop() as string;
 
-                    function addNumbers() {
-                        if (j < level.cellsAmountToReproduce) {
-                            const number = shuffledArray.pop();
-                            colorizeCell(number, color);
-                            j++;
-                            setTimeout(addNumbers, 100);
-                        } else {
-                            i++;
-                            setTimeout(addColors, 0);
-                        }
-                    }
-
-                    addNumbers();
+                    addNumbers(color, 0, () => {
+                        colorsIndex++;
+                        setTimeout(addColors, 0);
+                    });
                 } else {
                     resolve();
                 }
-            }
+            };
+
+            // Получаем цвет из внешнего цикла и функцию, в которую мы вернемся по окончании итерации
+            // Пока не наберётся нужно количество номеров (cellsAmountToReproduce), продолжаем добавлять номера переданнымому цвету
+            const addNumbers = (color: string, numbersIndex: number, resolveAddColors: () => void) => {
+                if (numbersIndex < level.cellsAmountToReproduce) {
+                    const number = shuffledNumbers.pop() as number;
+                    numbersIndex++;
+
+                    colorizeCell(number, color);
+
+                    setTimeout(() => addNumbers(color, numbersIndex, resolveAddColors), 100);
+                } else {
+                    resolveAddColors();
+                }
+            };
 
             setTimeout(() => addColors(), 500);
         });
     };
 
+    /**
+     * Возвращает массив всех допустимых номеров ячеек в порядке возрастания, основываясь на значении squareSide
+     */
+    const generateAvailableNumbers = (): number[] => {
+        return useRange(1, level.squareSide ** 2);
+    };
+
     const colorizeCell = (cellNumber: number, color: string): void => {
+        if (color === activeRoundColor.value) {
+            orderedNumbers.value.push(cellNumber);
+        }
+
         colorizedCells.value.set(cellNumber, color);
     };
 
@@ -188,13 +223,31 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         return colorizedCells.value.get(cellNumber);
     };
 
-    const isCellColorized = (cellNumber: number) => {
-        return colorizedCells.value.has(cellNumber);
-    };
-
-    // Стоит ли показывать цвет ячейки: да, если игра в состоянии 'contemplation' или 'roundPreparing' и ячейка была раскрашена
+    /**
+     * Стоит ли показывать цвет ячейки: да, если игра в состоянии 'contemplation' или 'roundPreparing' и ячейка была раскрашена
+     */
     const showColorizedCell = (cellNumber: number): boolean => {
         return (gameStore.isContemplationState() || gameStore.isRoundPreparingState()) && isCellColorized(cellNumber);
+    };
+
+    /**
+     * Будет ли отображена ячейка с корректным ответом: да, если она является правильной ячейкой и уже была открыта пользователем.
+     * @param cellNumber
+     */
+    const showCorrectlyOpenedCell = (cellNumber: number): boolean => {
+        return (
+            (gameStore.isInteractiveState() || gameStore.isRoundFinishingState()) && isCellOpened(cellNumber) && isCellCorrect(cellNumber)
+        );
+    };
+
+    /**
+     * Будет ли отображена ячейка с некорректным ответом: да, если она не является правильной ячейкой и уже была открыта пользователем.
+     * @param cellNumber
+     */
+    const showIncorrectlyOpenedCell = (cellNumber: number): boolean => {
+        return (
+            (gameStore.isInteractiveState() || gameStore.isRoundFinishingState()) && isCellOpened(cellNumber) && !isCellCorrect(cellNumber)
+        );
     };
 
     /** ************************************************************************************************************************** Ячейки */
@@ -216,6 +269,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     const openCell = (cellNumber: number) => {
         openedCells.value.add(cellNumber);
 
+        console.log('hi im open cell ' + isCellCorrect(cellNumber));
         if (isCellCorrect(cellNumber)) {
             openCorrectCell(cellNumber);
 
@@ -265,6 +319,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * Завершает успешный раунд, увеличиваия серию успешных раундов.
      */
     const successfullyFinishRound = () => {
+        unsuccessfulRoundsStreak = 0;
         successfulRoundsStreak++;
 
         finishRound();
@@ -342,27 +397,37 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         return isCellColorized(cellNumber) && isCellColorCorrect(cellNumber) && isCellOrderCorrect(cellNumber);
     };
 
-    /**
-     * todo:
-     */
-    const isCellOrderCorrect = (cellNumber: number): boolean => {
-        return true;
+    const isCellColorized = (cellNumber: number): boolean => {
+        return colorizedCells.value.has(cellNumber);
     };
 
     const isCellColorCorrect = (cellNumber: number): boolean => {
         return activeRoundColor.value === colorizedCells.value.get(cellNumber);
     };
 
+    /**
+     * Сравнивает номер ячейки с номером, расположенным в массиве упорядоченных номеров под соответствующим индексом
+     */
+    const isCellOrderCorrect = (cellNumber: number): boolean => {
+
+
+        return true;
+    };
+
     return {
         setMatrixStore,
         isCellCorrect,
         handleCellOpening,
-        closeCell,
         isCellOpened,
         isCellColorized,
         showColorizedCell,
         getCellColor,
+
         colorizedCells,
+        orderedNumbers,
         activeRoundColor,
+
+        showCorrectlyOpenedCell,
+        showIncorrectlyOpenedCell,
     };
 });
