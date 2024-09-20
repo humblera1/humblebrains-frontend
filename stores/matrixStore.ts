@@ -68,31 +68,24 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     const availableColors: string[] = ['#59AF8E', '#E9CA6D', '#EE8670', '#C38AC1', '#9BC4F8', '#6878DE'];
 
     const startNewRound = () => {
+        isRoundFailed.value = false;
+
+        // Переворачиваем все открытые ячейки
         clearOpenedCells().then(() => {
             console.log('поле очищено!');
-            gameStore.setContemplationState();
-            colorizeCells();
-
-            clearCorrectlyOpenedCells();
+            // Убираем цветные ячейки (пока стор в состоянии завершения и их не видно на поле)
             discolorCells();
+
+            gameStore.setRoundPreparingState();
+
+            // Очищаем массивы с ответами
+            clearCorrectlyOpenedCells();
             setActiveColor();
 
-            isRoundFailed.value = false;
+            // Заново раскрашиваем ячейки
+            colorizeCells().then(() => gameStore.setContemplationState());
         });
-    }
-
-    // const prepareRound = () => {
-    //     clearCorrectlyOpenedCells();
-    //     discolorCells();
-    //     setActiveColor();
-    //     gameStore.setContemplationState();
-    //
-    //     clearOpenedCells().then(() => {
-    //         console.log('поле очищено!');
-    //     });
-    //
-    //     colorizeCells();
-    // };
+    };
 
     /**
      * Случайным образом устанавливает цвета, которые будут фигурировать в текущем уровне
@@ -113,7 +106,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     /**
      * Последовательно удаляет номера открытых ячеек один за одним с небольшой задержкой
      */
-    const clearOpenedCells = async (): Promise<void> => {
+    const clearOpenedCells = (): Promise<void> => {
         return new Promise((resolve) => {
             const iterator = openedCells.value.values();
             const intervalId = setInterval(() => {
@@ -121,7 +114,6 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
                 if (result.done) {
                     clearInterval(intervalId);
                     resolve();
-                    // return;
                 }
                 openedCells.value.delete(result.value);
             }, 250);
@@ -162,36 +154,38 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         // Установка состояния...
     };
 
-    const colorizeCells = (): void => {
-        const cells = useRange(1, 9);
-        const shuffledArray = useShuffle(cells);
-        const colors = levelColors;
+    const colorizeCells = (): Promise<void> => {
+        return new Promise((resolve) => {
+            const cells = useRange(1, 9);
+            const shuffledArray = useShuffle(cells);
+            const colors = levelColors;
+            let i = 0;
 
-        let i = 0;
+            function addColors() {
+                if (i < level.colorsAmount) {
+                    let j = 0;
+                    const color = colors[i];
 
-        function addColors() {
-            if (i < level.colorsAmount) {
-                let j = 0;
-                const color = colors[i];
-
-                function addNumbers() {
-                    if (j < level.cellsAmountToReproduce) {
-                        const number = shuffledArray.pop();
-                        colorizeCell(number, color);
-
-                        j++;
-                        setTimeout(addNumbers, 100);
-                    } else {
-                        i++;
-                        setTimeout(addColors, 0);
+                    function addNumbers() {
+                        if (j < level.cellsAmountToReproduce) {
+                            const number = shuffledArray.pop();
+                            colorizeCell(number, color);
+                            j++;
+                            setTimeout(addNumbers, 100);
+                        } else {
+                            i++;
+                            setTimeout(addColors, 0);
+                        }
                     }
+
+                    addNumbers();
+                } else {
+                    resolve();
                 }
-
-                addNumbers();
             }
-        }
 
-        setTimeout(() => addColors(), 500);
+            setTimeout(() => addColors(), 500);
+        });
     };
 
     const colorizeCell = (cellNumber: number, color: string): void => {
@@ -206,9 +200,9 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         return colorizedCells.value.has(cellNumber);
     };
 
-    // Стоит ли показывать цвет ячейки: да, если игра в состоянии 'contemplation' и ячейка была раскрашена
+    // Стоит ли показывать цвет ячейки: да, если игра в состоянии 'contemplation' или 'roundPreparing' и ячейка была раскрашена
     const showColorizedCell = (cellNumber: number): boolean => {
-        return gameStore.isContemplationState() && isCellColorized(cellNumber);
+        return (gameStore.isContemplationState() || gameStore.isRoundPreparingState()) && isCellColorized(cellNumber);
     };
 
     const openCell = (cellNumber: number): void => {
@@ -231,7 +225,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         }
 
         handleIncorrectOpening(cellNumber);
-    }
+    };
 
     /**
      * Обрабатывает открытие правильной ячейки.
@@ -243,7 +237,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         if (isAllCorrectCellsAreOpened()) {
             handleRoundFinishing();
         }
-    }
+    };
 
     /**
      * Обрабатывает открытие неверной ячейки.
@@ -252,13 +246,15 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     const handleIncorrectOpening = (cellNumber: number): void => {
         markRoundAsFailed();
         setTimeout(() => closeCell(cellNumber), 1000);
-    }
+    };
 
     const markRoundAsFailed = (): void => {
         isRoundFailed.value = true;
-    }
+    };
 
     const handleRoundFinishing = () => {
+        gameStore.setRoundFinishingState();
+
         if (isRoundFailed.value) {
             handleUnsuccessfulRoundFinishing();
 
@@ -266,7 +262,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         }
 
         handleSuccessfulRoundFinishing();
-    }
+    };
 
     const handleSuccessfulRoundFinishing = () => {
         successfulRoundsStreak++;
@@ -279,41 +275,43 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         }
 
         promoteLevel();
-    }
-
+    };
 
     const handleUnsuccessfulRoundFinishing = () => {
         successfulRoundsStreak = 0;
         unsuccessfulRoundsStreak++;
 
-        if (successfulRoundsStreak < level.incorrectAnswersBeforeDemotion) {
+        if (unsuccessfulRoundsStreak < level.incorrectAnswersBeforeDemotion) {
             startNewRound();
 
             return;
         }
 
         demoteLevel();
-    }
-
+    };
 
     const promoteLevel = () => {
+        gameStore.setLevelFinishingState();
+
         console.log('Уровень успешно завершён!');
-    }
+
+        gameStore.setLevelPreparingState();
+    };
 
     const demoteLevel = () => {
+        gameStore.setLevelFinishingState();
+
         console.log('Уровень понижен до предыдущего');
-    }
+
+        gameStore.setLevelPreparingState();
+    };
 
     /**
      * Определяет все ли правильные ячейки открыты пользователем
      */
     const isAllCorrectCellsAreOpened = () => {
         return correctlyOpenedCells.size === level.cellsAmountToReproduce;
-    }
-
-    const isTimeToPromote = () => {
-
-    }
+    };
 
     const closeCell = (cellNumber: number): void => {
         openedCells.value.delete(cellNumber);
