@@ -3,7 +3,7 @@ export interface IGameLevel {
     correctAnswersBeforePromotion: number;
 
     // Количество неправильных ответов, после которого уровень будет понижен
-    wrongAnswersBeforeDemotion: number;
+    incorrectAnswersBeforeDemotion: number;
 
     // Количество очков за каждый правильный ответ
     pointsForAnswer: number;

@@ -5,9 +5,12 @@
         </div>
         <br>
         <div class="field__controls">
-            <UiButton @click="setMatrixStore">ready to remember</UiButton>
+            <UiButton @click="store.setMatrixStore">ready to remember</UiButton>
             <br>
             <UiButton @click="gameStore.setInteractiveState()">ready to play</UiButton>
+            <br>
+            <div :style="'width:100px;height:100px;background-color:' + store.activeRoundColor">
+            </div>
         </div>
     </div>
 </template>
@@ -41,7 +44,7 @@ const handleSelection = (cell: number) => {
 };
 
 
-const { setMatrixStore } = useMatrixStore();
+const store = useMatrixStore();
 // const { setMatrixStore } = useMatrixStore();
 //
 

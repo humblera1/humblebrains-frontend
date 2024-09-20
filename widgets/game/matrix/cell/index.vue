@@ -83,7 +83,7 @@ const iconClass = computed(() => {
     &__inner {
         width: 100%;
         height: 100%;
-        transition: transform 300ms;
+        transition: transform 200ms;
         transform-style: preserve-3d;
         position: relative;
     }
@@ -110,7 +110,7 @@ const iconClass = computed(() => {
 
     &__front {
         background-color: var(--matrix-cell);
-        transition: background-color 1000ms ease-in-out;
+        transition: background-color 100ms ease-in-out;
 
         //&_colorized {
         //    background-color: coral;

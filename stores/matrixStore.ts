@@ -17,6 +17,11 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     const correctlyOpenedCells: Set<number> = new Set();
 
     /**
+     * Сигнализирует о том, что в раунде была допущена ошибка при открытии ячеек
+     */
+    const isRoundFailed = ref<boolean>(false);
+
+    /**
      * Все окрашенные ячейки.
      * Ключами объекта выступают номера ячеек, а значениями соответствующий им цвет.
      */
@@ -25,12 +30,12 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     /**
      * Количество раундов, в которых был дан правильный ответ.
      */
-    const successfullRoundsStreak: number = 0;
+    let successfulRoundsStreak: number = 0;
 
     /**
      * Количество раундов, в которых был дан неправильный ответ.
      */
-    const failedRoundsStreak: number = 0;
+    let unsuccessfulRoundsStreak: number = 0;
 
     /**
      * Ограниченное количество возможных цветов на текущем уровне в зависимости от colorsAmount.
@@ -51,7 +56,8 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         cellsAmountToReproduce: 3,
         colorsAmount: 2,
         correctAnswersBeforePromotion: 5,
-        wrongAnswersBeforeDemotion: 2,
+        incorrectAnswersBeforeDemotion: 2,
+        pointsForAnswer: 20,
         hasDirection: false,
         hasRotation: false,
     };
@@ -61,18 +67,32 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      */
     const availableColors: string[] = ['#59AF8E', '#E9CA6D', '#EE8670', '#C38AC1', '#9BC4F8', '#6878DE'];
 
-    const prepareRound = () => {
-        clearCorrectlyOpenedCells();
-        discolorCells();
-        setActiveColor();
-        gameStore.setContemplationState();
-
+    const startNewRound = () => {
         clearOpenedCells().then(() => {
             console.log('поле очищено!');
-        });
+            gameStore.setContemplationState();
+            colorizeCells();
 
-        colorizeCells();
-    };
+            clearCorrectlyOpenedCells();
+            discolorCells();
+            setActiveColor();
+
+            isRoundFailed.value = false;
+        });
+    }
+
+    // const prepareRound = () => {
+    //     clearCorrectlyOpenedCells();
+    //     discolorCells();
+    //     setActiveColor();
+    //     gameStore.setContemplationState();
+    //
+    //     clearOpenedCells().then(() => {
+    //         console.log('поле очищено!');
+    //     });
+    //
+    //     colorizeCells();
+    // };
 
     /**
      * Случайным образом устанавливает цвета, которые будут фигурировать в текущем уровне
@@ -93,19 +113,19 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     /**
      * Последовательно удаляет номера открытых ячеек один за одним с небольшой задержкой
      */
-    const clearOpenedCells = async () => {
-        const iterator = openedCells.value.values();
-
-        const intervalId = setInterval(() => {
-            const result = iterator.next();
-            if (result.done) {
-                clearInterval(intervalId);
-
-                return;
-            }
-
-            openedCells.value.delete(result.value);
-        }, 1000);
+    const clearOpenedCells = async (): Promise<void> => {
+        return new Promise((resolve) => {
+            const iterator = openedCells.value.values();
+            const intervalId = setInterval(() => {
+                const result = iterator.next();
+                if (result.done) {
+                    clearInterval(intervalId);
+                    resolve();
+                    // return;
+                }
+                openedCells.value.delete(result.value);
+            }, 250);
+        });
     };
 
     /**
@@ -160,7 +180,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
                         colorizeCell(number, color);
 
                         j++;
-                        setTimeout(addNumbers, 250);
+                        setTimeout(addNumbers, 100);
                     } else {
                         i++;
                         setTimeout(addColors, 0);
@@ -171,7 +191,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
             }
         }
 
-        setTimeout(() => addColors(), 1000);
+        setTimeout(() => addColors(), 500);
     };
 
     const colorizeCell = (cellNumber: number, color: string): void => {
@@ -193,17 +213,107 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
 
     const openCell = (cellNumber: number): void => {
         if (gameStore.isInteractiveState()) {
-            openedCells.value.add(cellNumber);
-
-            if (isCellCorrect(cellNumber)) {
-                correctlyOpenedCells.add(cellNumber);
-
-                return;
-            }
-
-            setTimeout(() => closeCell(cellNumber), 1000);
+            handleCellOpening(cellNumber);
         }
     };
+
+    /**
+     * Обрабатывает открытие ячейки.
+     * @param cellNumber
+     */
+    const handleCellOpening = (cellNumber: number) => {
+        openedCells.value.add(cellNumber);
+
+        if (isCellCorrect(cellNumber)) {
+            handleCorrectOpening(cellNumber);
+
+            return;
+        }
+
+        handleIncorrectOpening(cellNumber);
+    }
+
+    /**
+     * Обрабатывает открытие правильной ячейки.
+     * @param cellNumber
+     */
+    const handleCorrectOpening = (cellNumber: number) => {
+        correctlyOpenedCells.add(cellNumber);
+
+        if (isAllCorrectCellsAreOpened()) {
+            handleRoundFinishing();
+        }
+    }
+
+    /**
+     * Обрабатывает открытие неверной ячейки.
+     * @param cellNumber
+     */
+    const handleIncorrectOpening = (cellNumber: number): void => {
+        markRoundAsFailed();
+        setTimeout(() => closeCell(cellNumber), 1000);
+    }
+
+    const markRoundAsFailed = (): void => {
+        isRoundFailed.value = true;
+    }
+
+    const handleRoundFinishing = () => {
+        if (isRoundFailed.value) {
+            handleUnsuccessfulRoundFinishing();
+
+            return;
+        }
+
+        handleSuccessfulRoundFinishing();
+    }
+
+    const handleSuccessfulRoundFinishing = () => {
+        successfulRoundsStreak++;
+        console.log('streak: ' + successfulRoundsStreak);
+
+        if (successfulRoundsStreak < level.correctAnswersBeforePromotion) {
+            startNewRound();
+
+            return;
+        }
+
+        promoteLevel();
+    }
+
+
+    const handleUnsuccessfulRoundFinishing = () => {
+        successfulRoundsStreak = 0;
+        unsuccessfulRoundsStreak++;
+
+        if (successfulRoundsStreak < level.incorrectAnswersBeforeDemotion) {
+            startNewRound();
+
+            return;
+        }
+
+        demoteLevel();
+    }
+
+
+    const promoteLevel = () => {
+        console.log('Уровень успешно завершён!');
+    }
+
+    const demoteLevel = () => {
+        console.log('Уровень понижен до предыдущего');
+    }
+
+    /**
+     * Определяет все ли правильные ячейки открыты пользователем
+     */
+    const isAllCorrectCellsAreOpened = () => {
+        return correctlyOpenedCells.size === level.cellsAmountToReproduce;
+    }
+
+    const isTimeToPromote = () => {
+
+    }
 
     const closeCell = (cellNumber: number): void => {
         openedCells.value.delete(cellNumber);
@@ -238,5 +348,6 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         showColorizedCell,
         getCellColor,
         colorizedCells,
+        activeRoundColor,
     };
 });
