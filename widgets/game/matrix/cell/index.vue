@@ -1,5 +1,5 @@
 <template>
-    <div :class="cellClasses" @click="store.openCell(number)">
+    <div :class="cellClasses" @click="store.handleCellOpening(number)">
         <div class="cell__inner">
             <div class="cell__front" :style="frontStyles" />
             <div :class="backClasses">

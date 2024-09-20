@@ -134,14 +134,6 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         colorizedCells.value.clear();
     };
 
-    /**
-     * Обновляет коллекцию закрашенных ячеек
-     */
-    const recolorCells = () => {
-        discolorCells();
-        colorizeCells();
-    };
-
     const setMatrixStore = () => {
         // prompt maybe
         gameStore.setContemplationState();
@@ -205,33 +197,39 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         return (gameStore.isContemplationState() || gameStore.isRoundPreparingState()) && isCellColorized(cellNumber);
     };
 
-    const openCell = (cellNumber: number): void => {
+    /** ************************************************************************************************************************** Ячейки */
+
+    /**
+     * Обрабатывает открытие ячейки, если игра находится в состоянии взаимодействия с пользователем.
+     * @param cellNumber
+     */
+    const handleCellOpening = (cellNumber: number): void => {
         if (gameStore.isInteractiveState()) {
-            handleCellOpening(cellNumber);
+            openCell(cellNumber);
         }
     };
 
     /**
-     * Обрабатывает открытие ячейки.
+     * Открывает ячейку.
      * @param cellNumber
      */
-    const handleCellOpening = (cellNumber: number) => {
+    const openCell = (cellNumber: number) => {
         openedCells.value.add(cellNumber);
 
         if (isCellCorrect(cellNumber)) {
-            handleCorrectOpening(cellNumber);
+            openCorrectCell(cellNumber);
 
             return;
         }
 
-        handleIncorrectOpening(cellNumber);
+        openIncorrectCell(cellNumber);
     };
 
     /**
      * Обрабатывает открытие правильной ячейки.
      * @param cellNumber
      */
-    const handleCorrectOpening = (cellNumber: number) => {
+    const openCorrectCell = (cellNumber: number) => {
         correctlyOpenedCells.add(cellNumber);
 
         if (isAllCorrectCellsAreOpened()) {
@@ -243,52 +241,67 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * Обрабатывает открытие неверной ячейки.
      * @param cellNumber
      */
-    const handleIncorrectOpening = (cellNumber: number): void => {
+    const openIncorrectCell = (cellNumber: number): void => {
         markRoundAsFailed();
         setTimeout(() => closeCell(cellNumber), 1000);
     };
 
-    const markRoundAsFailed = (): void => {
-        isRoundFailed.value = true;
-    };
+    /** ************************************************************************************************************************** Раунды */
 
+    /**
+     * Проверяет корректность ответов в текущем раунде и определяет алгоритм его завершения.
+     */
     const handleRoundFinishing = () => {
-        gameStore.setRoundFinishingState();
-
         if (isRoundFailed.value) {
-            handleUnsuccessfulRoundFinishing();
+            unsuccessfullyFinishRound();
 
             return;
         }
 
-        handleSuccessfulRoundFinishing();
+        successfullyFinishRound();
     };
 
-    const handleSuccessfulRoundFinishing = () => {
+    /**
+     * Завершает успешный раунд, увеличиваия серию успешных раундов.
+     */
+    const successfullyFinishRound = () => {
         successfulRoundsStreak++;
-        console.log('streak: ' + successfulRoundsStreak);
 
-        if (successfulRoundsStreak < level.correctAnswersBeforePromotion) {
-            startNewRound();
-
-            return;
-        }
-
-        promoteLevel();
+        finishRound();
     };
 
-    const handleUnsuccessfulRoundFinishing = () => {
+    /**
+     * Завершает неудачный раунд, увеличиваия серию раундов с ошибкой.
+     */
+    const unsuccessfullyFinishRound = () => {
         successfulRoundsStreak = 0;
         unsuccessfulRoundsStreak++;
 
-        if (unsuccessfulRoundsStreak < level.incorrectAnswersBeforeDemotion) {
-            startNewRound();
+        finishRound();
+    };
+
+    /**
+     * Завершает раунд: устанавливает состояние roundFinishing, проверяет необходимость изменения уровня, начинает новый раунд
+     */
+    const finishRound = () => {
+        gameStore.setRoundFinishingState();
+
+        if (successfulRoundsStreak >= level.correctAnswersBeforePromotion) {
+            promoteLevel();
 
             return;
         }
 
-        demoteLevel();
+        if (unsuccessfulRoundsStreak >= level.incorrectAnswersBeforeDemotion) {
+            demoteLevel();
+
+            return;
+        }
+
+        startNewRound();
     };
+
+    /** ************************************************************************************************************************** Уровни */
 
     const promoteLevel = () => {
         gameStore.setLevelFinishingState();
@@ -304,6 +317,10 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         console.log('Уровень понижен до предыдущего');
 
         gameStore.setLevelPreparingState();
+    };
+
+    const markRoundAsFailed = (): void => {
+        isRoundFailed.value = true;
     };
 
     /**
@@ -339,7 +356,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     return {
         setMatrixStore,
         isCellCorrect,
-        openCell,
+        handleCellOpening,
         closeCell,
         isCellOpened,
         isCellColorized,
