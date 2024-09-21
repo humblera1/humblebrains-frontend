@@ -1,11 +1,11 @@
 <template>
-    <div :class="cellClasses" @click="handleCellOpening(number)">
+    <div :class="cellClasses" @click="store.handleCellOpening(number)">
         <div class="cell__inner">
             <div class="cell__front" :style="frontStyles" />
             <div :class="backClasses">
-                <div :class="iconClasses">
-                    <IconGameSuccess v-show="showCorrectlyOpenedCell(number)" />
-                    <IconGameError v-show="showIncorrectlyOpenedCell(number)" />
+                <div :class="iconClasses" :style="iconStyles">
+                    <IconGameSuccess v-show="store.showCorrectlyOpenedCell(number)" />
+                    <IconGameError v-show="store.showIncorrectlyOpenedCell(number)" />
                 </div>
             </div>
         </div>
@@ -18,18 +18,17 @@ import type { MatrixCellProps } from '~/widgets/game/matrix/cell/matrix-cell.typ
 
 const { number } = defineProps<MatrixCellProps>();
 
-const { handleCellOpening, isCellOpened, showCorrectlyOpenedCell, showIncorrectlyOpenedCell, showColorizedCell, getCellColor } =
-    useMatrixStore();
+const store = useMatrixStore();
 
 const frontStyles = computed(() => {
-    return showColorizedCell(number) ? `background-color: ${getCellColor(number)}` : '';
+    return store.showColorizedCell(number) ? `background-color: ${store.getCellColor(number)}` : '';
 });
 
 const cellClasses = computed(() => {
     return [
         'cell',
         {
-            cell_opened: isCellOpened(number),
+            cell_opened: store.isCellOpened(number),
         },
     ];
 });
@@ -38,8 +37,8 @@ const backClasses = computed(() => {
     return [
         'cell__back',
         {
-            cell__back_success: showCorrectlyOpenedCell(number),
-            cell__back_error: showIncorrectlyOpenedCell(number),
+            cell__back_success: store.showCorrectlyOpenedCell(number),
+            cell__back_error: store.showIncorrectlyOpenedCell(number),
         },
     ];
 });
@@ -48,9 +47,13 @@ const iconClasses = computed(() => {
     return [
         'cell__icon',
         {
-            cell__icon_visible: isCellOpened(number),
+            cell__icon_visible: store.isCellOpened(number),
         },
     ];
+});
+
+const iconStyles = computed(() => {
+    return `transform: rotate(${0 - store.rotationDegree}deg)`;
 });
 </script>
 
