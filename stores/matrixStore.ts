@@ -18,6 +18,12 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     const correctlyOpenedCells: Set<number> = new Set();
 
     /**
+     * Массив ячеек, которым добавляется класс, плавно снижающий прозрачность.
+     * Используется при смене уровня, для анимации исчезновения поля перед перестроением.
+     */
+    const hiddenCells = ref<number[]>([]);
+
+    /**
      * Сигнализирует о том, что в раунде была допущена ошибка при открытии ячеек
      */
     const isRoundFailed = ref<boolean>(false);
@@ -80,12 +86,12 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     const levels: IGameLevels<IMatrixLevel> = {
         1: {
             squareSide: 3,
-            cellsAmountToReproduce: 3,
+            cellsAmountToReproduce: 1,
             colorsAmount: 2,
-            correctAnswersBeforePromotion: 2,
+            correctAnswersBeforePromotion: 5,
             incorrectAnswersBeforeDemotion: 2,
             pointsForAnswer: 10,
-            rotationIterations: 1,
+            rotationIterations: 3,
             hasDirection: false,
         },
         2: {
@@ -113,7 +119,8 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
             console.log('поле очищено!');
 
             // Возвращаем поле в исходное положение
-            rotationDegree.value = 0;
+            // todo: найти баг вот тут
+            // rotationDegree.value = 0;
 
             // Убираем цветные ячейки (пока стор в состоянии завершения и их не видно на поле)
             discolorCells();
@@ -255,7 +262,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * Возвращает массив всех допустимых номеров ячеек в порядке возрастания, основываясь на значении squareSide
      */
     const generateAvailableNumbers = (): number[] => {
-        return useRange(1, currentLevel.value.squareSide ** 2);
+        return useRange(1, currentLevel.value.squareSide ** 2 + 1);
     };
 
     const colorizeCell = (cellNumber: number, color: string): void => {
@@ -411,30 +418,75 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     /** ************************************************************************************************************************** Уровни */
 
     const promoteLevel = () => {
-        gameStore.setLevelPreparingState();
-
         currentLevelNumber.value++;
-        currentLevel.value = levels[currentLevelNumber.value];
 
-        // todo: reactivity!!!
-        setLevelColors();
-
-        console.log('Уровень успешно повышен!');
-
-        startNewRound();
+        changeLevel();
     };
 
     const demoteLevel = () => {
-        gameStore.setLevelPreparingState();
-
         currentLevelNumber.value--;
-        currentLevel.value = levels[currentLevelNumber.value];
 
-        setLevelColors();
+        changeLevel();
+    };
 
-        console.log('Уровень понижен до предыдущего');
+    const changeLevel = () => {
+        console.log('Смена уровня!!!');
+        rebuildField().then(() => {
+            setTimeout(startNewRound, 1000);
+        });
+    };
 
-        startNewRound();
+    /**
+     * Занимается перетсроением поля при смене уровня: сначала в массив fadingCells поочередно добавляются номера ячеек,
+     * которые исчезают с поля.
+     */
+    const rebuildField = (): Promise<void> => {
+        return new Promise((resolve) => {
+            // Устанавливаем состояние
+            gameStore.setLevelFinishingState();
+
+            // Скрываем ячейки, после чего меняем уровень и делаем ячейки видимыми
+            hideCells().then(() => {
+                console.log('промис завершен');
+                gameStore.setLevelPreparingState();
+                currentLevel.value = levels[currentLevelNumber.value];
+                hiddenCells.value = useShuffle(generateAvailableNumbers());
+
+                setLevelColors();
+
+                showCells().then(() => resolve());
+            });
+        });
+    };
+
+    const hideCells = (): Promise<void> => {
+        const cellNumbers = useShuffle(generateAvailableNumbers());
+        openedCells.value.clear();
+
+        return new Promise((resolve) => {
+            setTimeout(function hide() {
+                if (cellNumbers.length !== 0) {
+                    hiddenCells.value.push(cellNumbers.pop());
+                    setTimeout(hide, 150);
+                } else {
+                    resolve();
+                }
+            }, 500);
+        });
+    };
+
+    const showCells = (): Promise<void> => {
+        return new Promise((resolve) => {
+            setTimeout(function show() {
+                if (hiddenCells.value.length !== 0) {
+                    hiddenCells.value.pop();
+                    hiddenCells.value.pop();
+                    setTimeout(show, 150);
+                } else {
+                    resolve();
+                }
+            }, 500);
+        });
     };
 
     const markRoundAsFailed = (): void => {
@@ -499,18 +551,30 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         return true;
     };
 
+    /**
+     * Механизм сокрытия ячеек: скрываем в состояниях смены уровня при наличии номера в массиве hidd
+     * @param cellNumber
+     */
+    const isCellHidden = (cellNumber: number): boolean => {
+        return (gameStore.isLevelFinishingState() || gameStore.isLevelPreparingState()) && hiddenCells.value.includes(cellNumber);
+    };
+
     const rotateField = (): Promise<void> => {
         isRotating.value = true;
-        const degreeVariants = [90, -90];
         let iterations = 0;
 
         return new Promise((resolve) => {
             setTimeout(function rotate() {
                 if (iterations < currentLevel.value.rotationIterations) {
-                    rotationDegree.value += degreeVariants[Math.floor(Math.random() * degreeVariants.length)];
+                    if (Math.random() < 0.5) {
+                        rotationDegree.value += 90;
+                    } else {
+                        rotationDegree.value -= 90;
+                    }
+
                     iterations++;
 
-                    setTimeout(rotate, 600);
+                    setTimeout(rotate, 500);
                 }
 
                 resolve();
@@ -535,6 +599,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         handleCellOpening,
         isCellOpened,
         isCellColorized,
+        isCellHidden,
         showColorizedCell,
         getCellColor,
 
@@ -545,6 +610,8 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         currentLevelNumber,
         currentLevel,
         rotationDegree,
+
+        hiddenCells,
 
         showCorrectlyOpenedCell,
         showIncorrectlyOpenedCell,

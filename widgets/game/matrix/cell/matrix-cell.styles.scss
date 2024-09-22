@@ -1,7 +1,8 @@
 .cell {
     aspect-ratio: 1/ 1;
     perspective: 1000px;
-    transition: color 1000ms linear;
+    opacity: 1;
+    transition: color 1000ms linear, opacity 250ms ease-in-out;
 
     &__inner {
         width: 100%;
@@ -58,6 +59,10 @@
         .cell__inner {
             transform: rotateY(180deg);
         }
+    }
+
+    &_hidden {
+        opacity: 0;
     }
 
     &__icon {

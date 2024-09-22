@@ -29,6 +29,7 @@ const cellClasses = computed(() => {
         'cell',
         {
             cell_opened: store.isCellOpened(number),
+            cell_hidden: store.isCellHidden(number),
         },
     ];
 });
