@@ -1,0 +1,36 @@
+.game-score {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 130px;
+    aspect-ratio: 1;
+    //background-color: var(--primary-bg);
+    background-color: var(--secondary-bg);
+    border-radius: 50%;
+
+    @include mainShadow();
+
+    @include mobile {
+        max-width: 75px;
+    }
+
+    &__chart {
+        width: 75%;
+        aspect-ratio: 1;
+
+        @include mobile {
+            width: 90%;
+        }
+    }
+
+    &__title {
+        position: absolute;
+        @include mainFont(500, 24, var(--purple));
+
+        @include mobile {
+            @include mainFont(500, 14, var(--purple));
+        }
+    }
+}
