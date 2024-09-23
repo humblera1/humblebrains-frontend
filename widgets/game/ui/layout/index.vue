@@ -8,6 +8,7 @@
                     <WidgetGameUiTime />
                 </div>
                 <div class="game-layout__timeline">
+                    <WidgetGameUiTimeline />
                 </div>
             </section>
             <section class="game-layout__field">
