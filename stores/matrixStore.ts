@@ -9,13 +9,18 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * Все открытые пользователем ячейки, включая неправильные, которые удаляются из массива спустя определённое время.
      * Нужен для анимации игрового поля (открывать/закрывать ячейки).
      */
-    const openedCells = ref<Set<number>>(new Set());
+    // const openedCells = ref<Set<number>>(new Set());
 
     /**
      * Все правильно открытые ячейки.
      * Нужен исключительно для внутренней проверки (correctAnswersBeforePromotion === correctlyOpenedCells.size).
      */
-    const correctlyOpenedCells: Set<number> = new Set();
+    const correctlyOpenedCells = ref<Set<number>>(new Set());
+
+    /**
+     * todo: experimental
+     */
+    const incorrectlyOpenedCells = ref<Set<number>>(new Set());
 
     /**
      * Массив ячеек, которым добавляется класс, плавно снижающий прозрачность.
@@ -55,7 +60,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     const orderedNumbers = ref<number[]>([]);
 
     /**
-     * Ячейки данного цвета пользователю необходимо запоминанть в текущем раунде.
+     * Ячейки данного цвета пользователю необходимо запоминать в текущем раунде.
      */
     const activeRoundColor = ref<string>('');
 
@@ -71,28 +76,37 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     const isRotating = ref<boolean>(false);
 
     /**
-     * Номер текущего уровеня пользователя
+     * Номер текущего уровня пользователя
      */
     const currentLevelNumber = ref<number>(0);
 
     /**
      * Текущий уровень пользователя
      */
-    const currentLevel = ref<IMatrixLevel>();
+    const currentLevel = ref<IMatrixLevel>({
+        squareSide: 0,
+        cellsAmountToReproduce: 0,
+        colorsAmount: 0,
+        correctAnswersBeforePromotion: 0,
+        incorrectAnswersBeforeDemotion: 0,
+        pointsForAnswer: 0,
+        rotationIterations: 0,
+        hasDirection: false,
+    });
 
     /**
      * Набор уровней приходит с бэка, текущий выбирается на основании уровня игрока.
      */
     const levels: IGameLevels<IMatrixLevel> = {
         1: {
-            squareSide: 3,
-            cellsAmountToReproduce: 3,
+            squareSide: 4,
+            cellsAmountToReproduce: 2,
             colorsAmount: 2,
             correctAnswersBeforePromotion: 20,
             incorrectAnswersBeforeDemotion: 2,
             pointsForAnswer: 10,
-            rotationIterations: 3,
-            hasDirection: false,
+            rotationIterations: 0,
+            hasDirection: true,
         },
         2: {
             squareSide: 4,
@@ -166,14 +180,14 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      */
     const clearOpenedCells = (): Promise<void> => {
         return new Promise((resolve) => {
-            const iterator = openedCells.value.values();
+            const iterator = correctlyOpenedCells.value.values();
             const intervalId = setInterval(() => {
                 const result = iterator.next();
                 if (result.done) {
                     clearInterval(intervalId);
                     resolve();
                 }
-                openedCells.value.delete(result.value);
+                correctlyOpenedCells.value.delete(result.value);
             }, 250);
         });
     };
@@ -182,7 +196,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      *
      */
     const clearCorrectlyOpenedCells = () => {
-        correctlyOpenedCells.clear();
+        correctlyOpenedCells.value.clear();
     };
 
     /**
@@ -246,7 +260,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
 
                     colorizeCell(number, color);
 
-                    setTimeout(() => addNumbers(color, numbersIndex, resolveAddColors), 100);
+                    setTimeout(() => addNumbers(color, numbersIndex, resolveAddColors), 200);
                 } else {
                     resolveAddColors();
                 }
@@ -319,7 +333,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * @param cellNumber
      */
     const openCell = (cellNumber: number) => {
-        openedCells.value.add(cellNumber);
+        // openedCells.value.add(cellNumber);
 
         if (isCellCorrect(cellNumber)) {
             openCorrectCell(cellNumber);
@@ -335,7 +349,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * @param cellNumber
      */
     const openCorrectCell = (cellNumber: number) => {
-        correctlyOpenedCells.add(cellNumber);
+        correctlyOpenedCells.value.add(cellNumber);
 
         if (isAllCorrectCellsAreOpened()) {
             handleRoundFinishing();
@@ -347,8 +361,10 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * @param cellNumber
      */
     const openIncorrectCell = (cellNumber: number): void => {
+        incorrectlyOpenedCells.value.add(cellNumber);
+
         markRoundAsFailed();
-        setTimeout(() => closeCell(cellNumber), 1000);
+        setTimeout(() => incorrectlyOpenedCells.value.delete(cellNumber), 1000);
     };
 
     /** ************************************************************************************************************************** Раунды */
@@ -444,7 +460,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         return new Promise((resolve) => {
             setTimeout(() => {
                 // Переворачиваем ячейки
-                openedCells.value.clear();
+                correctlyOpenedCells.value.clear();
 
                 // Устанавливаем состояние
                 gameStore.setLevelFinishingState();
@@ -513,20 +529,24 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * Определяет все ли правильные ячейки открыты пользователем
      */
     const isAllCorrectCellsAreOpened = () => {
-        return correctlyOpenedCells.size === currentLevel.value.cellsAmountToReproduce;
+        return correctlyOpenedCells.value.size === currentLevel.value.cellsAmountToReproduce;
     };
 
-    const closeCell = (cellNumber: number): void => {
-        openedCells.value.delete(cellNumber);
-    };
+    // const closeCell = (cellNumber: number): void => {
+    //     openedCells.value.delete(cellNumber);
+    // };
 
     const isCellOpened = (cellNumber: number): boolean => {
-        return openedCells.value.has(cellNumber);
+        return correctlyOpenedCells.value.has(cellNumber) || incorrectlyOpenedCells.value.has(cellNumber);
     };
 
     const isCellCorrect = (cellNumber: number): boolean => {
-        if (correctlyOpenedCells.has(cellNumber)) {
+        if (correctlyOpenedCells.value.has(cellNumber)) {
             return true;
+        }
+
+        if (incorrectlyOpenedCells.value.has(cellNumber)) {
+            return false;
         }
 
         return isCellColorized(cellNumber) && isCellColorCorrect(cellNumber) && isCellOrderCorrect(cellNumber);
@@ -544,8 +564,10 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * Сравнивает номер ячейки с номером, расположенным в массиве упорядоченных номеров под соответствующим индексом
      */
     const isCellOrderCorrect = (cellNumber: number): boolean => {
+        console.log(correctlyOpenedCells);
         if (currentLevel.value.hasDirection) {
-            const cellOrder = openedCells.value.size - 1;
+            const cellOrder = correctlyOpenedCells.value.size;
+            // console.log(correctlyOpenedCells.size)
 
             return orderedNumbers.value[cellOrder] === cellNumber;
         }
@@ -613,7 +635,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         colorizedCells,
         orderedNumbers,
         activeRoundColor,
-        openedCells,
+        // openedCells,
         currentLevelNumber,
         currentLevel,
         rotationDegree,
