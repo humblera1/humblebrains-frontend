@@ -31,7 +31,7 @@ const getBarClass = (barIndex: number) => {
 };
 
 const barsStyle = computed(() => {
-    return `width: ${(100 / correctAnswersBeforePromotion.value) * successfulRoundsStreak.value}%`;
+    return `width: ${(successfulRoundsStreak.value / correctAnswersBeforePromotion.value) * 100}%`;
 });
 
 const isProgressBarSeparated = computed((): boolean => {
