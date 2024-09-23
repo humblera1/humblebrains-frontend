@@ -62,7 +62,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     /**
      * Угол поворота игрового поля в градусах. При его изменении игровое поле совершает поворот на указанное количество градусов.
      */
-    const rotationDegree = ref<number>(0);
+    const rotationDegree = ref<number>(180);
 
     /**
      * Сигнализирует о том, что поле находится в состоянии вращения.
@@ -86,9 +86,9 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     const levels: IGameLevels<IMatrixLevel> = {
         1: {
             squareSide: 3,
-            cellsAmountToReproduce: 1,
+            cellsAmountToReproduce: 3,
             colorsAmount: 2,
-            correctAnswersBeforePromotion: 5,
+            correctAnswersBeforePromotion: 20,
             incorrectAnswersBeforeDemotion: 2,
             pointsForAnswer: 10,
             rotationIterations: 3,
@@ -116,8 +116,6 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
 
         // Переворачиваем все открытые ячейки
         clearOpenedCells().then(() => {
-            console.log('поле очищено!');
-
             // Возвращаем поле в исходное положение
             // todo: найти баг вот тут
             // rotationDegree.value = 0;
@@ -432,6 +430,8 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     const changeLevel = () => {
         console.log('Смена уровня!!!');
         rebuildField().then(() => {
+            successfulRoundsStreak = 0;
+            unsuccessfulRoundsStreak = 0;
             setTimeout(startNewRound, 1000);
         });
     };
@@ -442,26 +442,29 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      */
     const rebuildField = (): Promise<void> => {
         return new Promise((resolve) => {
-            // Устанавливаем состояние
-            gameStore.setLevelFinishingState();
+            setTimeout(() => {
+                // Переворачиваем ячейки
+                openedCells.value.clear();
 
-            // Скрываем ячейки, после чего меняем уровень и делаем ячейки видимыми
-            hideCells().then(() => {
-                console.log('промис завершен');
-                gameStore.setLevelPreparingState();
-                currentLevel.value = levels[currentLevelNumber.value];
-                hiddenCells.value = useShuffle(generateAvailableNumbers());
+                // Устанавливаем состояние
+                gameStore.setLevelFinishingState();
 
-                setLevelColors();
+                // Скрываем ячейки, после чего меняем уровень и делаем ячейки видимыми
+                hideCells().then(() => {
+                    gameStore.setLevelPreparingState();
+                    currentLevel.value = levels[currentLevelNumber.value];
+                    hiddenCells.value = useShuffle(generateAvailableNumbers());
 
-                showCells().then(() => resolve());
-            });
+                    setLevelColors();
+
+                    showCells().then(() => resolve());
+                });
+            }, 500)
         });
     };
 
     const hideCells = (): Promise<void> => {
         const cellNumbers = useShuffle(generateAvailableNumbers());
-        openedCells.value.clear();
 
         return new Promise((resolve) => {
             setTimeout(function hide() {
@@ -479,8 +482,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         return new Promise((resolve) => {
             setTimeout(function show() {
                 if (hiddenCells.value.length !== 0) {
-                    hiddenCells.value.pop();
-                    hiddenCells.value.pop();
+                    hiddenCells.value.splice(0, 2);
                     setTimeout(show, 150);
                 } else {
                     resolve();
@@ -563,14 +565,19 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         isRotating.value = true;
         let iterations = 0;
 
+        console.log('----------------------------------------');
         return new Promise((resolve) => {
             setTimeout(function rotate() {
                 if (iterations < currentLevel.value.rotationIterations) {
                     if (Math.random() < 0.5) {
                         rotationDegree.value += 90;
+                        console.log('+90');
                     } else {
                         rotationDegree.value -= 90;
+                        console.log('-90');
                     }
+
+                    console.log(rotationDegree.value);
 
                     iterations++;
 
