@@ -1,5 +1,7 @@
 <template>
-    users
+    <NuxtLayout>
+        profile
+    </NuxtLayout>
 </template>
 
 <script setup lang="ts">

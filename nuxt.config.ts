@@ -2,13 +2,14 @@ export default defineNuxtConfig({
     compatibilityDate: '2024-04-03',
     devtools: { enabled: true },
     modules: [
-        'nuxt-humble-modal',
         '@nuxt/eslint',
         '@nuxtjs/google-fonts',
         '@nuxtjs/color-mode',
         '@nuxt/image',
         '@nuxtjs/i18n',
         '@pinia/nuxt',
+        'nuxt-humble-modal',
+        'nuxt-lodash',
     ],
     components: [
         { path: '~/shared/ui', prefix: 'Ui', extensions: ['.vue'] },

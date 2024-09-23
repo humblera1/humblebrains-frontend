@@ -14,24 +14,30 @@ import type { SidebarItem } from '~/widgets/sidebar/item/sidebar-item.types';
 import House from '~/shared/icons/sidebar/house.vue';
 import User from '~/shared/icons/sidebar/user.vue';
 import Gear from '~/shared/icons/sidebar/gear.vue';
+import Puzzle from '~/shared/icons/sidebar/puzzle.vue';
 
 const items: SidebarItem[] = [
     {
         icon: House,
         to: '/',
-        title: 'Home',
+        title: 'home',
     },
     {
         icon: User,
-        to: '/users',
-        title: 'Profile',
+        to: '/profile',
+        title: 'profile',
+    },
+    {
+        icon: Puzzle,
+        to: '/games',
+        title: 'games',
     },
 ];
 
 const lastItem: SidebarItem = {
     icon: Gear,
     to: '/settings',
-    title: 'Settings',
+    title: 'settings',
 };
 </script>
 

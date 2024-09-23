@@ -23,7 +23,7 @@
     }
 
     svg {
-        color: var(--white-to-black);
+        color: var(--text-accent-white);
     }
 
     &__circle {
@@ -35,17 +35,17 @@
         width: 40px;
         height: 40px;
         border-radius: 100%;
-        background-color: var(--blue-secondary);
-        transition: transform 0.3s ease-in-out;
+        background-color: var(--color-mode-item-bg);
+        transition: transform 0.3s ease-in-out, background-color 0.25s ease;
     }
 
     &__label {
         position: absolute;
         z-index: 1;
         right: 21px;
-        transition: transform 0.15s ease-in-out;
+        transition: transform 0.15s ease-in-out, color 0.25s ease;
 
-        @include mainFont(400, 14, var(--text-secondary-graylight));
+        @include mainFont(400, 14, var(--primary-subtitle));
     }
 
     &_visible,
@@ -60,5 +60,15 @@
 
     &_hidden {
         opacity: 0;
+    }
+
+    &:hover {
+        .color-mode__label {
+            color: var(--primary-subtitle-hovered);
+        }
+
+        .color-mode__circle {
+            background-color: var(--color-mode-item-bg-hovered);
+        }
     }
 }
