@@ -9,8 +9,7 @@
     max-width: 215px;
     border-radius: 24px;
     padding: 32px;
-    //background-color: var(--primary-bg);
-    background-color: var(--secondary-bg);
+    background-color: var(--badge-bg);
     @include mainShadow();
 
     @include mobile {

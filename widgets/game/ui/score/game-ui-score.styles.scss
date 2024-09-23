@@ -6,8 +6,7 @@
     width: 100%;
     max-width: 130px;
     aspect-ratio: 1;
-    //background-color: var(--primary-bg);
-    background-color: var(--secondary-bg);
+    background-color: var(--badge-bg);
     border-radius: 50%;
 
     @include mainShadow();
