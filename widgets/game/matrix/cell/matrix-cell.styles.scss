@@ -66,12 +66,20 @@
     }
 
     &__icon {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        object-fit: contain;
         visibility: hidden;
         opacity: 0;
 
         &_visible {
             visibility: visible;
             opacity: 1;
+        }
+
+        svg {
+            width: 30%;
         }
     }
 }
