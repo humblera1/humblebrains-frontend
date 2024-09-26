@@ -5,15 +5,9 @@
         </div>
         <br />
         <div class="field__controls">
-            <UiButton @click="store.setMatrixStore">ready to remember</UiButton>
-            <br />
             <UiButton @click="store.setInteractiveState()">ready to play</UiButton>
             <br />
-            <div :style="'width:100px;height:100px;background-color:' + store.activeRoundColor" />
-            <br />
-            {{ gameStore.gameState }}
-            <br />
-            {{ store.openedCells }}
+            <div v-show="gameStore.isInteractiveState()" :style="'width:100px;height:100px;background-color:' + store.activeRoundColor" />
         </div>
     </div>
 </template>

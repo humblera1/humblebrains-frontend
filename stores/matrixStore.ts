@@ -1,9 +1,12 @@
 import { defineStore } from 'pinia';
 import type { IMatrixLevel } from '~/entities/interfaces/games/matrix/IMatrixLevel';
 import type { IGameLevels } from '~/entities/interfaces/games/IGameLevels';
+import { useGameService } from '~/composables/useGameService';
+import { GameEnum } from '~/entities/enums/GameEnum';
 
 export const useMatrixStore = defineStore('matrixStorage', () => {
     const gameStore = useGameStore();
+    const { getLevels } = useGameService();
 
     /**
      * Все открытые пользователем ячейки, включая неправильные, которые удаляются из массива спустя определённое время.
@@ -97,28 +100,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     /**
      * Набор уровней приходит с бэка, текущий выбирается на основании уровня игрока.
      */
-    const levels: IGameLevels<IMatrixLevel> = {
-        1: {
-            squareSide: 4,
-            cellsAmountToReproduce: 2,
-            colorsAmount: 2,
-            correctAnswersBeforePromotion: 20,
-            incorrectAnswersBeforeDemotion: 2,
-            pointsForAnswer: 10,
-            rotationIterations: 0,
-            hasDirection: true,
-        },
-        2: {
-            squareSide: 4,
-            cellsAmountToReproduce: 3,
-            colorsAmount: 3,
-            correctAnswersBeforePromotion: 5,
-            incorrectAnswersBeforeDemotion: 2,
-            pointsForAnswer: 20,
-            rotationIterations: 3,
-            hasDirection: false,
-        },
-    };
+    let levels: IGameLevels<IMatrixLevel> = {};
 
     /**
      * Справочные константы, которые придут с бэка вместе с набором уровней.
@@ -152,10 +134,19 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     };
 
     /**
-     * todo:
+     * todo: уровень будем брать из стора user
      */
-    const setLevel = () => {
-        currentLevelNumber.value = 1;
+    const setCurrentLevel = () => {
+        setLevel(1);
+    };
+
+    /**
+     * Устанавливает текущий уровень
+     * todo: метод можно экспортировать, чтобы переиспользовать в конструкторе режима обучения
+     * @param levelNumber
+     */
+    const setLevel = (levelNumber: number) => {
+        currentLevelNumber.value = levelNumber;
         currentLevel.value = levels[currentLevelNumber.value];
     };
 
@@ -206,19 +197,28 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         colorizedCells.value.clear();
     };
 
-    const setMatrixStore = () => {
-        // level maybe
-        gameStore.setRoundPreparingState();
+    const setStore = () => {
+        gameStore.setLevelPreparingState();
 
-        setLevel();
-        setLevelColors();
-        setActiveColor();
+        // Делаем запрос на уровни
+        setLevels().then(() => {
+            setCurrentLevel();
+            setLevelColors();
+            setActiveColor();
 
-        colorizeCells().then(() => {
-            gameStore.setContemplationState();
+            gameStore.setRoundPreparingState();
+
+            colorizeCells().then(() => {
+                gameStore.setContemplationState();
+            });
         });
+    };
 
-        // Установка состояния...
+    /**
+     * Получает набор уровней с бэка и устанавливает значение переменной стора levels
+     */
+    const setLevels = async (): Promise<void> => {
+        levels = (await getLevels(GameEnum.matrix)) as IGameLevels<IMatrixLevel>;
     };
 
     /**
@@ -408,7 +408,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     const finishRound = () => {
         gameStore.setRoundFinishingState();
 
-        console.log('streak: ' + successfulRoundsStreak);
+        // console.log('streak: ' + successfulRoundsStreak);
 
         if (successfulRoundsStreak >= currentLevel.value.correctAnswersBeforePromotion) {
             if (!isFinalLevel()) {
@@ -475,7 +475,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
 
                     showCells().then(() => resolve());
                 });
-            }, 500)
+            }, 500);
         });
     };
 
@@ -564,7 +564,6 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * Сравнивает номер ячейки с номером, расположенным в массиве упорядоченных номеров под соответствующим индексом
      */
     const isCellOrderCorrect = (cellNumber: number): boolean => {
-        console.log(correctlyOpenedCells);
         if (currentLevel.value.hasDirection) {
             const cellOrder = correctlyOpenedCells.value.size;
             // console.log(correctlyOpenedCells.size)
@@ -623,7 +622,9 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     };
 
     return {
-        setMatrixStore,
+        // Вызываем в компоненте для подготовки стора к игре
+        setStore,
+
         isCellCorrect,
         handleCellOpening,
         isCellOpened,
@@ -642,8 +643,11 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
 
         hiddenCells,
 
+        levels,
+
         showCorrectlyOpenedCell,
         showIncorrectlyOpenedCell,
         setInteractiveState,
+        setLevels,
     };
 });
