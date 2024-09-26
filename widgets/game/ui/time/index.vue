@@ -11,72 +11,42 @@
 </template>
 
 <script setup lang="ts">
-const time = ref<number>(90000);
-const timeLeft = ref<number>(90000);
-
-const timeToAnswer = ref<number>(20000);
-const timeLeftToAnswer = ref<number>(20000);
-
-const isInteractiveState = ref<boolean>(false);
-
-const showTimeline = computed((): boolean => {
-    return true;
-});
+const gameStore = useGameStore();
 
 const containerClass = computed(() => {
-    return showTimeline.value ? '' : 'game-time__container_hidden';
+    return gameStore.showRoundTimeLine ? '' : 'game-time__container_hidden';
 });
 
 const formattedTime = computed((): string => {
-    const totalSeconds = Math.floor(timeLeft.value / 1000);
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
+    const minutes = Math.floor(gameStore.totalTime / 60);
+    const seconds = gameStore.totalTime % 60;
 
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 });
 
 const lineClass = computed((): string => {
-    if (timeLeftToAnswer.value < timeToAnswer.value / 3) {
+    if (gameStore.roundTime < gameStore.totalRoundTime / 3) {
         return 'game-time__line_red';
     }
 
-    if (timeLeftToAnswer.value < (timeToAnswer.value * 2) / 3) {
+    if (gameStore.roundTime < (gameStore.totalRoundTime * 2) / 3) {
         return 'game-time__line_yellow';
     }
 
     return 'game-time__line_green';
 });
 
-const lineStyle = computed(() => {
-    return [`transition: background-color 500ms linear, width ${timeToAnswer.value}ms linear`, isInteractiveState.value ? 'width:0' : ''];
-});
+const lineStyle = computed((): string => {
+    // Используем разную скорость анимации в зависимости от того, идёт увеличение или уменьшение таймера
+    const transitionDuration = gameStore.roundTime < gameStore.totalRoundTime ? 1000 : 100;
 
-onMounted(() => {
-    let timerId = setTimeout(function decreaseTime() {
-        if (timeLeft.value <= 0) {
-            clearTimeout(timerId);
+    // рассчитываем ширину полоски таймера
+    const percentWidth = gameStore.totalRoundTime !== 0 ? (gameStore.roundTime / gameStore.totalRoundTime) * 100 : 100;
 
-            return;
-        }
+    const transition = `transition: background-color 500ms linear, width ${transitionDuration}ms linear`;
+    const width = `width: ${percentWidth}%`;
 
-        timeLeft.value -= 1000;
-        timerId = setTimeout(decreaseTime, 1000);
-    }, 1000);
-
-    setTimeout(() => {
-        isInteractiveState.value = true;
-    }, 1000);
-
-    let roundTimerId = setTimeout(function decreaseRoundTime() {
-        if (timeLeftToAnswer.value <= 0) {
-            clearTimeout(roundTimerId);
-
-            return;
-        }
-
-        timeLeftToAnswer.value -= 1000;
-        roundTimerId = setTimeout(decreaseRoundTime, 1000);
-    }, 1000);
+    return transition + ';' + width;
 });
 </script>
 

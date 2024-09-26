@@ -74,17 +74,16 @@
             height: 4px;
         }
 
-        // todo: цвета
         &_green {
-            background-color: lightgreen;
+            background-color: var(--game-timeline);
         }
 
         &_yellow {
-            background-color: goldenrod;
+            background-color: var(--game-timeline-warning);
         }
 
         &_red {
-            background-color: lightcoral;
+            background-color: var(--game-timeline-error);
         }
     }
 }
