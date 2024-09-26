@@ -7,6 +7,10 @@
     background-color: var(--game-field-bg);
     padding: 48px 36px;
 
+    @include mobile {
+        padding: 24px 12px;
+    }
+
     &__inner {
         width: 100%;
         max-width: 610px;
