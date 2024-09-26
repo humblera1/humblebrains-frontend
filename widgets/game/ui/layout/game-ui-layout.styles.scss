@@ -29,6 +29,11 @@
         gap: 20px;
     }
 
+    &__timeline {
+        display: flex;
+        justify-content: center;
+    }
+
     &__field {
         display: flex;
         justify-content: center;
