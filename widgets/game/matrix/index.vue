@@ -3,9 +3,9 @@
 </template>
 
 <script setup lang="ts">
-const { setStore } = useMatrixStore();
+const { setupStore } = useMatrixStore();
 
-onMounted(() => setStore());
+onMounted(() => setupStore());
 </script>
 
 <style scoped lang="scss"></style>

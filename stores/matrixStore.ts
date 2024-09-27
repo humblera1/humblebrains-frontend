@@ -1,40 +1,89 @@
 import { defineStore } from 'pinia';
+import { MatrixStateEnum } from '~/entities/enums/games/matrix/MatrixStateEnum';
 import type { IMatrixLevel } from '~/entities/interfaces/games/matrix/IMatrixLevel';
 import type { IGameLevels } from '~/entities/interfaces/games/IGameLevels';
-import { useGameService } from '~/composables/useGameService';
-import { GameEnum } from '~/entities/enums/GameEnum';
+import { GameEnum } from '~/entities/enums/games/GameEnum';
 
 export const useMatrixStore = defineStore('matrixStorage', () => {
-    const gameStore = useGameStore();
-    const { getLevels } = useGameService();
+    /**
+     * Константа определяет время, после которого неправильно открытая ячейка вновь будет закрыта.
+     */
+    const TIME_TO_CLOSE_INCORRECT_CELL: number = 1000;
 
     /**
-     * Все открытые пользователем ячейки, включая неправильные, которые удаляются из массива спустя определённое время.
-     * Нужен для анимации игрового поля (открывать/закрывать ячейки).
+     * Константа определяет время, за которое ячейка удаляется с поля после завершения уровня.
      */
-    // const openedCells = ref<Set<number>>(new Set());
+    const TIME_TO_DESTROY_CELL: number = 150;
+
+    /**
+     * Константа определяет время, за которое ячейка появляется на поле после завершения уровня.
+     */
+    const TIME_TO_BUILD_CELL: number = 150;
+
+    /**
+     * Время между поворотами поля.
+     */
+    const ROTATION_ITERATION_TIME: number = 500;
+
+    /**
+     * Время между появлениями ячеек на поле.
+     */
+    const TIME_TO_COLORIZE_CELL = 250;
+
+    /**
+     * Базовый стор, работает с логикой, общей для всех игр
+     */
+    const game = useGameStore();
+
+    /**
+     * Базовый сервис, реализует операции, используемые всеми играми
+     */
+    const service = useGameService();
+
+    /**
+     * Состояние текущего стора.
+     */
+    const state = ref<MatrixStateEnum>(MatrixStateEnum.default);
+
+    /**
+     * Сигнализирует о том, что в текущем раунде была допущена ошибка при открытии ячеек.
+     */
+    const isRoundFailed = ref<boolean>(false);
+
+    /**
+     * Количество раундов, в которых был дан правильный ответ, идущих подряд.
+     */
+    let successfulRoundsStreak: number = 0;
+
+    /**
+     * Количество раундов, в которых был дан неправильный ответ, идущих подряд.
+     */
+    let unsuccessfulRoundsStreak: number = 0;
+
+    /**
+     * Активный цвет раунда: ячейки данного цвета пользователю необходимо запоминать в текущем раунде.
+     */
+    const activeRoundColor = ref<string>('');
+
+    /**
+     * Угол поворота игрового поля в градусах. При его изменении игровое поле совершает поворот на указанное количество градусов.
+     */
+    const rotationDegree = ref<number>(0);
+
+    /**
+     * Ограниченное количество возможных цветов на текущем уровне в зависимости от colorsAmount.
+     */
+    let availableLevelColors: string[] = [];
 
     /**
      * Все правильно открытые ячейки.
-     * Нужен исключительно для внутренней проверки (correctAnswersBeforePromotion === correctlyOpenedCells.size).
      */
     const correctlyOpenedCells = ref<Set<number>>(new Set());
 
     /**
-     * todo: experimental
+     * Неправильно открытые ячейки. Ячейки удаляются из массива спустя TIME_TO_CLOSE_INCORRECT_CELL, чтобы показать анимацию закрытия на поле.
      */
     const incorrectlyOpenedCells = ref<Set<number>>(new Set());
-
-    /**
-     * Массив ячеек, которым добавляется класс, плавно снижающий прозрачность.
-     * Используется при смене уровня, для анимации исчезновения поля перед перестроением.
-     */
-    const hiddenCells = ref<number[]>([]);
-
-    /**
-     * Сигнализирует о том, что в раунде была допущена ошибка при открытии ячеек
-     */
-    const isRoundFailed = ref<boolean>(false);
 
     /**
      * Все окрашенные ячейки.
@@ -43,48 +92,30 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     const colorizedCells = ref<Map<number, string>>(new Map());
 
     /**
-     * Количество раундов, в которых был дан правильный ответ.
+     * Массив номеров ячеек, расположенных в порядке их показа пользователю.
+     * Устанавливается в методе colorizeCells, который ответственен за показ ячеек.
      */
-    let successfulRoundsStreak: number = 0;
+    const orderedCells = ref<number[]>([]);
 
     /**
-     * Количество раундов, в которых был дан неправильный ответ.
+     * Массив ячеек, которым добавляется класс, плавно снижающий прозрачность.
+     * Используется при смене уровня, для анимации исчезновения поля перед перестроением.
      */
-    let unsuccessfulRoundsStreak: number = 0;
+    const destroyedCells = ref<number[]>([]);
 
     /**
-     * Ограниченное количество возможных цветов на текущем уровне в зависимости от colorsAmount.
+     * Справочные константы, которые будут приходить с бэка вместе с набором уровней.
+     * todo:
      */
-    let levelColors: string[] = [];
-
-    /**
-     * Массив номеров ячеек, расположенных в порядке их показа пользователю. Устанавливается в методе colorizeCells.
-     */
-    const orderedNumbers = ref<number[]>([]);
-
-    /**
-     * Ячейки данного цвета пользователю необходимо запоминать в текущем раунде.
-     */
-    const activeRoundColor = ref<string>('');
-
-    /**
-     * Угол поворота игрового поля в градусах. При его изменении игровое поле совершает поворот на указанное количество градусов.
-     */
-    const rotationDegree = ref<number>(180);
-
-    /**
-     * Сигнализирует о том, что поле находится в состоянии вращения.
-     * Добавлено для того, чтобы отключить интерактив на момент поворота поля.
-     */
-    const isRotating = ref<boolean>(false);
+    const availableColors: string[] = ['#59AF8E', '#E9CA6D', '#EE8670', '#C38AC1', '#9BC4F8', '#6878DE'];
 
     /**
      * Номер текущего уровня пользователя
      */
-    const currentLevelNumber = ref<number>(0);
+    const currentLevelNumber = ref<number>(1);
 
     /**
-     * Текущий уровень пользователя
+     * Текущий уровень игры.
      */
     const currentLevel = ref<IMatrixLevel>({
         squareSide: 0,
@@ -98,53 +129,212 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     });
 
     /**
-     * Набор уровней приходит с бэка, текущий выбирается на основании уровня игрока.
+     * Набор всех возможных уровней в игре.
      */
     let levels: IGameLevels<IMatrixLevel> = {};
 
-    /**
-     * Справочные константы, которые придут с бэка вместе с набором уровней.
-     */
-    const availableColors: string[] = ['#59AF8E', '#E9CA6D', '#EE8670', '#C38AC1', '#9BC4F8', '#6878DE'];
+    /** ************************************************************************************************************************ Проверки */
 
     /**
-     * todo: уровень будем брать из стора user
+     * Проверяет возможность открытия ячейки: игра находится в состоянии взаимодействия с пользователем,
+     * при этом, в данный момент не происходит поворота игрового поля.
      */
-    const setCurrentLevel = () => {
-        setLevel(1);
+    const canTheCellBeOpened = (): boolean => {
+        return game.isInInteractiveState() && !isInRotatingState();
     };
 
     /**
-     * Устанавливает текущий уровень
-     * todo: метод можно экспортировать, чтобы переиспользовать в конструкторе режима обучения
-     * @param levelNumber
+     * Проверяет, окрашена ли ячейка в какой-либо цвет.
+     * @param cellNumber
      */
-    const setLevel = (levelNumber: number) => {
-        currentLevelNumber.value = levelNumber;
-        currentLevel.value = levels[currentLevelNumber.value];
+    const isCellColorized = (cellNumber: number): boolean => {
+        return colorizedCells.value.has(cellNumber);
+    };
+
+    /**
+     * Проверяет, что цвет ячейки соответствует цвету, который выбран в текущем раунде активным.
+     * @param cellNumber
+     */
+    const isCellColorCorrect = (cellNumber: number): boolean => {
+        return activeRoundColor.value === colorizedCells.value.get(cellNumber);
+    };
+
+    /**
+     * Проверяет, какая по счёту ячейка была открыта.
+     * Затем сравнивает номер ячейки с номером, расположенным в массиве упорядоченных номеров под соответствующим индексом.
+     * @param cellNumber
+     */
+    const isCellOrderCorrect = (cellNumber: number): boolean => {
+        if (currentLevel.value.hasDirection) {
+            const cellOrder = correctlyOpenedCells.value.size;
+
+            return orderedCells.value[cellOrder] === cellNumber;
+        }
+
+        return true;
+    };
+
+    /**
+     * Проверяет, корректно ли будет открыта ячейка.
+     * @param cellNumber
+     */
+    const isCellCorrect = (cellNumber: number): boolean => {
+        if (correctlyOpenedCells.value.has(cellNumber)) {
+            return true;
+        }
+
+        if (incorrectlyOpenedCells.value.has(cellNumber)) {
+            return false;
+        }
+
+        return isCellColorized(cellNumber) && isCellColorCorrect(cellNumber) && isCellOrderCorrect(cellNumber);
+    };
+
+    /**
+     * Проверяет, открыта ли ячейка под переданным номером.
+     * @param cellNumber
+     */
+    const isCellOpened = (cellNumber: number): boolean => {
+        return correctlyOpenedCells.value.has(cellNumber) || incorrectlyOpenedCells.value.has(cellNumber);
+    };
+
+    /**
+     * Механизм сокрытия ячеек: скрываем в состояниях смены уровня при наличии номера в массиве destroyedCells.
+     * @param cellNumber
+     */
+    const isCellHidden = (cellNumber: number): boolean => {
+        return (game.isInLevelFinishingState() || game.isInLevelPreparingState()) && destroyedCells.value.includes(cellNumber);
+    };
+
+    /**
+     * Стоит ли показывать цвет ячейки: да, если игра в состоянии 'contemplation' или 'roundPreparing' и ячейка была раскрашена.
+     */
+    const showColorizedCell = (cellNumber: number): boolean => {
+        return (game.isInContemplationState() || game.isInRoundPreparingState()) && isCellColorized(cellNumber);
+    };
+
+    /**
+     * Будет ли отображена ячейка с корректным ответом: да, если она является правильной ячейкой и уже была открыта пользователем.
+     * @param cellNumber
+     */
+    const showCorrectlyOpenedCell = (cellNumber: number): boolean => {
+        return (game.isInInteractiveState() || game.isInRoundFinishingState()) && isCellOpened(cellNumber) && isCellCorrect(cellNumber);
+    };
+
+    /**
+     * Будет ли отображена ячейка с некорректным ответом: да, если она не является правильной ячейкой и уже была открыта пользователем.
+     * @param cellNumber
+     */
+    const showIncorrectlyOpenedCell = (cellNumber: number): boolean => {
+        return (game.isInInteractiveState() || game.isInRoundFinishingState()) && isCellOpened(cellNumber) && !isCellCorrect(cellNumber);
+    };
+
+    /**
+     * Проверяет, находится ли игра в состоянии поворота игрового поля
+     */
+    const isInRotatingState = (): boolean => {
+        return state.value === MatrixStateEnum.rotating;
+    };
+
+    /**
+     * Определяет все ли правильные ячейки были открыты пользователем.
+     */
+    const isTimeToFinishRound = (): boolean => {
+        return correctlyOpenedCells.value.size === currentLevel.value.cellsAmountToReproduce;
+    };
+
+    /**
+     * Определяет, является ли текущий уровень максимальным уровнем в игре.
+     */
+    const isFinalLevel = (): boolean => {
+        return currentLevelNumber.value === Number(Object.keys(levels).at(-1));
+    };
+
+    /**
+     * Определяет, является ли текущий уровень минимальным уровнем в игре.
+     */
+    const isFirstLevel = (): boolean => {
+        return currentLevelNumber.value === Number(Object.keys(levels).at(0));
+    };
+
+    /**
+     * Определяет, следует ли повышать уровень игры.
+     */
+    const isTimeToPromoteLevel = (): boolean => {
+        return !isFinalLevel() && successfulRoundsStreak >= currentLevel.value.correctAnswersBeforePromotion;
+    };
+
+    /**
+     * Определяет, следует ли понижать уровень игры.
+     */
+    const isTimeToDemoteLevel = (): boolean => {
+        return !isFirstLevel() && unsuccessfulRoundsStreak >= currentLevel.value.incorrectAnswersBeforeDemotion;
+    };
+
+    /** ********************************************************************************************************** Вспомогательные методы */
+
+    /**
+     * Устанавливает переданное состояние
+     * @param stateToSet
+     */
+    const setState = (stateToSet: MatrixStateEnum): void => {
+        state.value = stateToSet;
+    };
+
+    /**
+     * Устанавливает состояние, сигнализирующее о том, что в данный момент осуществляется поворот игрового поля
+     */
+    const setRotatingState = (): void => {
+        setState(MatrixStateEnum.rotating);
+    };
+
+    /**
+     * Устанавливает состояние по умолчанию
+     */
+    const setDefaultState = (): void => {
+        setState(MatrixStateEnum.default);
     };
 
     /**
      * Случайным образом устанавливает цвета, которые будут фигурировать в текущем уровне
      */
-    const setLevelColors = (): void => {
+    const setupLevelColors = (): void => {
         const colors = useShuffle(availableColors);
-        levelColors = colors.splice(1, currentLevel.value.colorsAmount);
+        availableLevelColors = colors.splice(1, currentLevel.value.colorsAmount);
     };
 
     /**
      * Устанавливает цвет, ячейки которого необходимо запоминать пользователю в данном раунде
      * Значение выбирается случайным образом из массива доступных цветов levelColors
      */
-    const setActiveColor = (): void => {
-        activeRoundColor.value = levelColors[Math.floor(Math.random() * levelColors.length)];
+    const setupRoundColor = (): void => {
+        activeRoundColor.value = availableLevelColors[Math.floor(Math.random() * availableLevelColors.length)];
     };
 
     /**
-     * Последовательно удаляет номера открытых ячеек один за другим с небольшой задержкой
-     * todo: поменять анимацию
+     * Возвращает массив всех допустимых номеров ячеек в порядке возрастания, основываясь на значении squareSide.
      */
-    const clearOpenedCells = (): Promise<void> => {
+    const generateAvailableNumbers = (): number[] => {
+        return useRange(1, currentLevel.value.squareSide ** 2 + 1);
+    };
+
+    /**
+     * Помечает раунд как проигранный.
+     */
+    const markRoundAsFailed = (): void => {
+        isRoundFailed.value = true;
+    };
+
+    /**
+     * Отвечает за закрытие всех правильно открытых ячеек на игровом поле.
+     */
+    const clearCorrectlyOpenedCells = (): Promise<void> => {
+        // todo: думаем над анимацией закрытия ячеек после завершения раунда
+        // correctlyOpenedCells.value.clear();
+        // return new Promise((resolve) => {
+        //     resolve();
+        // });
+
         return new Promise((resolve) => {
             const iterator = correctlyOpenedCells.value.values();
             const intervalId = setInterval(() => {
@@ -159,296 +349,72 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     };
 
     /**
-     *
+     * Очищает массив, хранящий номера ячеек, которые были окрашены в текущем раунде.
      */
-    const clearCorrectlyOpenedCells = () => {
-        correctlyOpenedCells.value.clear();
-    };
-
-    /**
-     * Очищает коллекцию закрашенных ячеек
-     */
-    const discolorCells = () => {
+    const clearColorizedCells = (): void => {
         colorizedCells.value.clear();
     };
 
-    const setStore = () => {
-        gameStore.setLevelPreparingState();
-
-        // Делаем запрос на уровни
-        setLevels().then(() => {
-            setCurrentLevel();
-            setLevelColors();
-            setActiveColor();
-
-            gameStore.setRoundPreparingState();
-
-            colorizeCells().then(() => {
-                gameStore.setContemplationState();
-            });
-        });
+    /**
+     * Очищает массив, хранящий порядок показа ячеек в текущем раунде.
+     */
+    const clearOrderedCells = (): void => {
+        orderedCells.value = [];
     };
 
     /**
-     * Получает набор уровней с бэка и устанавливает значение переменной стора levels
+     * Устанавливает определённый уровень игры.
      */
-    const setLevels = async (): Promise<void> => {
-        levels = (await getLevels(GameEnum.matrix)) as IGameLevels<IMatrixLevel>;
+    const setupLevel = (): void => {
+        currentLevel.value = levels[currentLevelNumber.value];
     };
 
     /**
-     * Раскрашиваем ячейки: с определнным интервалом добавляем в colorizedCells номер ячейки в качестве ключа
-     * и цвет ячейки под этим номером в виде значения.
+     * Получает набор уровней с сервера и устанавливает значение переменной levels.
      */
-    const colorizeCells = (): Promise<void> => {
-        const availableNumbers = generateAvailableNumbers();
+    const setupLevels = async (): Promise<void> => {
+        levels = (await service.getLevels(GameEnum.matrix)) as IGameLevels<IMatrixLevel>;
+    };
 
-        // Получаем массивы допустимых цветов и номеров, которые мы можем использовать для раскрашивания
-        const shuffledNumbers = useShuffle(availableNumbers);
-        const shuffledColors = useShuffle(levelColors);
+    /**
+     * Добавляет номера ячеек в массив destroyedCells с интервалом TIME_TO_DESTROY_CELL.
+     * Ячейкам, находящимся в данном массиве, присваивается особый класс, отвечающий за их сокрытие на поле.
+     */
+    const destroyField = (): Promise<void> => {
+        const cellNumbers = useShuffle(generateAvailableNumbers());
 
         return new Promise((resolve) => {
-            let colorsIndex = 0;
+            const destroy = () => {
+                if (cellNumbers.length !== 0) {
+                    const cellToDestroy = cellNumbers.pop() as number;
+                    destroyedCells.value.push(cellToDestroy);
 
-            // Итерируем по массиву цветов, пока не упремся в colorsAmount
-            // Пока не кончатся цвета, мы итерируем по допустимым номерам, составляя комбинации на основании cellsAmountToReproduce
-            // Если цвета закончились, возвращаем успешно завершённый промис
-            const addColors = () => {
-                if (colorsIndex < currentLevel.value.colorsAmount) {
-                    const color = shuffledColors.pop() as string;
-
-                    addNumbers(color, 0, () => {
-                        colorsIndex++;
-                        setTimeout(addColors, 0);
-                    });
+                    setTimeout(destroy, TIME_TO_DESTROY_CELL);
                 } else {
                     resolve();
                 }
             };
 
-            // Получаем цвет из внешнего цикла и функцию, в которую мы вернемся по окончании итерации
-            // Пока не наберётся нужно количество номеров (cellsAmountToReproduce), продолжаем добавлять номера переданнымому цвету
-            const addNumbers = (color: string, numbersIndex: number, resolveAddColors: () => void) => {
-                if (numbersIndex < currentLevel.value.cellsAmountToReproduce) {
-                    const number = shuffledNumbers.pop() as number;
-                    numbersIndex++;
+            setTimeout(destroy, TIME_TO_DESTROY_CELL);
+        });
+    };
 
-                    colorizeCell(number, color);
+    /**
+     * Удаляет номера ячеек из массива destroyedCells с интервалом TIME_TO_BUILD_CELL.
+     */
+    const buildField = (): Promise<void> => {
+        return new Promise((resolve) => {
+            const build = () => {
+                if (destroyedCells.value.length !== 0) {
+                    destroyedCells.value.splice(0, 2);
 
-                    setTimeout(() => addNumbers(color, numbersIndex, resolveAddColors), 200);
+                    setTimeout(build, TIME_TO_BUILD_CELL);
                 } else {
-                    resolveAddColors();
+                    resolve();
                 }
             };
 
-            setTimeout(() => addColors(), 500);
-        });
-    };
-
-    /**
-     * Возвращает массив всех допустимых номеров ячеек в порядке возрастания, основываясь на значении squareSide
-     */
-    const generateAvailableNumbers = (): number[] => {
-        return useRange(1, currentLevel.value.squareSide ** 2 + 1);
-    };
-
-    const colorizeCell = (cellNumber: number, color: string): void => {
-        if (color === activeRoundColor.value) {
-            orderedNumbers.value.push(cellNumber);
-        }
-
-        colorizedCells.value.set(cellNumber, color);
-    };
-
-    const getCellColor = (cellNumber: number): string => {
-        return colorizedCells.value.get(cellNumber);
-    };
-
-    /**
-     * Стоит ли показывать цвет ячейки: да, если игра в состоянии 'contemplation' или 'roundPreparing' и ячейка была раскрашена
-     */
-    const showColorizedCell = (cellNumber: number): boolean => {
-        return (gameStore.isContemplationState() || gameStore.isRoundPreparingState()) && isCellColorized(cellNumber);
-    };
-
-    /**
-     * Будет ли отображена ячейка с корректным ответом: да, если она является правильной ячейкой и уже была открыта пользователем.
-     * @param cellNumber
-     */
-    const showCorrectlyOpenedCell = (cellNumber: number): boolean => {
-        return (
-            (gameStore.isInteractiveState() || gameStore.isRoundFinishingState()) && isCellOpened(cellNumber) && isCellCorrect(cellNumber)
-        );
-    };
-
-    /**
-     * Будет ли отображена ячейка с некорректным ответом: да, если она не является правильной ячейкой и уже была открыта пользователем.
-     * @param cellNumber
-     */
-    const showIncorrectlyOpenedCell = (cellNumber: number): boolean => {
-        return (
-            (gameStore.isInteractiveState() || gameStore.isRoundFinishingState()) && isCellOpened(cellNumber) && !isCellCorrect(cellNumber)
-        );
-    };
-
-    /** ************************************************************************************************************************** Ячейки */
-
-    /**
-     * Обрабатывает открытие ячейки, если игра находится в состоянии взаимодействия с пользователем.
-     * @param cellNumber
-     */
-    const handleCellOpening = (cellNumber: number): void => {
-        if (gameStore.isInteractiveState() && !isRotating.value) {
-            openCell(cellNumber);
-        }
-    };
-
-    /**
-     * Открывает ячейку.
-     * @param cellNumber
-     */
-    const openCell = (cellNumber: number) => {
-        // openedCells.value.add(cellNumber);
-
-        if (isCellCorrect(cellNumber)) {
-            openCorrectCell(cellNumber);
-
-            return;
-        }
-
-        openIncorrectCell(cellNumber);
-    };
-
-    /**
-     * Обрабатывает открытие правильной ячейки.
-     * @param cellNumber
-     */
-    const openCorrectCell = (cellNumber: number) => {
-        correctlyOpenedCells.value.add(cellNumber);
-
-        if (isAllCorrectCellsAreOpened()) {
-            handleRoundFinishing();
-        }
-    };
-
-    /**
-     * Обрабатывает открытие неверной ячейки.
-     * @param cellNumber
-     */
-    const openIncorrectCell = (cellNumber: number): void => {
-        incorrectlyOpenedCells.value.add(cellNumber);
-
-        markRoundAsFailed();
-        setTimeout(() => incorrectlyOpenedCells.value.delete(cellNumber), 1000);
-    };
-
-    /** ************************************************************************************************************************** Раунды */
-
-    /**
-     * Проверяет корректность ответов в текущем раунде и определяет алгоритм его завершения.
-     */
-    const handleRoundFinishing = () => {
-        if (isRoundFailed.value) {
-            unsuccessfullyFinishRound();
-
-            return;
-        }
-
-        successfullyFinishRound();
-    };
-
-    /**
-     * Завершает успешный раунд, увеличиваия серию успешных раундов.
-     */
-    const successfullyFinishRound = () => {
-        unsuccessfulRoundsStreak = 0;
-        successfulRoundsStreak++;
-
-        finishRound();
-    };
-
-    /**
-     * Завершает неудачный раунд, увеличиваия серию раундов с ошибкой.
-     */
-    const unsuccessfullyFinishRound = () => {
-        successfulRoundsStreak = 0;
-        unsuccessfulRoundsStreak++;
-
-        finishRound();
-    };
-
-    /**
-     * Завершает раунд: устанавливает состояние roundFinishing, проверяет необходимость изменения уровня, начинает новый раунд
-     */
-    const finishRound = () => {
-        gameStore.setRoundFinishingState();
-
-        // Переворачиваем все открытые ячейки
-        clearOpenedCells().then(() => {
-            discolorCells();
-
-            // Очищаем массивы с ответами
-            clearCorrectlyOpenedCells();
-
-            orderedNumbers.value = [];
-
-            if (successfulRoundsStreak >= currentLevel.value.correctAnswersBeforePromotion) {
-                if (!isFinalLevel()) {
-                    promoteLevel();
-
-                    return;
-                }
-            }
-
-            if (unsuccessfulRoundsStreak >= currentLevel.value.incorrectAnswersBeforeDemotion) {
-                if (!isFirstLevel()) {
-                    demoteLevel();
-
-                    return;
-                }
-            }
-
-            startNewRound();
-        });
-    };
-
-    const startNewRound = () => {
-        isRoundFailed.value = false;
-        gameStore.setRoundPreparingState();
-
-        setActiveColor();
-
-        // Заново раскрашиваем ячейки
-        colorizeCells().then(() => {
-            gameStore.setContemplationState();
-        });
-    };
-
-    /** ************************************************************************************************************************** Уровни */
-
-    /**
-     *
-     */
-    const promoteLevel = () => {
-        currentLevelNumber.value++;
-
-        changeLevel();
-    };
-
-    const demoteLevel = () => {
-        currentLevelNumber.value--;
-
-        changeLevel();
-    };
-
-    const changeLevel = () => {
-        console.log('Смена уровня!!!');
-        rebuildField().then(() => {
-            // todo: логика показа обратного отсчета
-            successfulRoundsStreak = 0;
-            unsuccessfulRoundsStreak = 0;
-
-            gameStore.startCountdown().then(() => startNewRound());
+            setTimeout(build, TIME_TO_BUILD_CELL);
         });
     };
 
@@ -458,194 +424,320 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      */
     const rebuildField = (): Promise<void> => {
         return new Promise((resolve) => {
-            // Переворачиваем ячейки
-            correctlyOpenedCells.value.clear();
+            destroyField().then(() => {
+                destroyedCells.value = useShuffle(generateAvailableNumbers());
 
-            // Устанавливаем состояние
-            gameStore.setLevelFinishingState();
-
-            // Скрываем ячейки, после чего меняем уровень и делаем ячейки видимыми
-            hideCells().then(() => {
-                gameStore.setLevelPreparingState();
-                currentLevel.value = levels[currentLevelNumber.value];
-                hiddenCells.value = useShuffle(generateAvailableNumbers());
-
-                setLevelColors();
-
-                showCells().then(() => resolve());
+                buildField().then(() => resolve());
             });
         });
     };
 
-    const hideCells = (): Promise<void> => {
-        const cellNumbers = useShuffle(generateAvailableNumbers());
-
-        return new Promise((resolve) => {
-            setTimeout(function hide() {
-                if (cellNumbers.length !== 0) {
-                    hiddenCells.value.push(cellNumbers.pop());
-                    setTimeout(hide, 150);
-                } else {
-                    resolve();
-                }
-            }, 500);
-        });
-    };
-
-    const showCells = (): Promise<void> => {
-        return new Promise((resolve) => {
-            setTimeout(function show() {
-                if (hiddenCells.value.length !== 0) {
-                    hiddenCells.value.splice(0, 2);
-                    setTimeout(show, 150);
-                } else {
-                    resolve();
-                }
-            }, 500);
-        });
-    };
-
-    const markRoundAsFailed = (): void => {
-        isRoundFailed.value = true;
-    };
-
     /**
-     *
+     * Осуществляет поворот игрового поля.
      */
-    const isFinalLevel = (): boolean => {
-        return currentLevelNumber.value === Number(Object.keys(levels).at(-1));
-    };
-
-    /**
-     *
-     */
-    const isFirstLevel = (): boolean => {
-        return currentLevelNumber.value === Number(Object.keys(levels).at(0));
-    };
-
-    /**
-     * Определяет все ли правильные ячейки открыты пользователем
-     */
-    const isAllCorrectCellsAreOpened = () => {
-        return correctlyOpenedCells.value.size === currentLevel.value.cellsAmountToReproduce;
-    };
-
-    // const closeCell = (cellNumber: number): void => {
-    //     openedCells.value.delete(cellNumber);
-    // };
-
-    const isCellOpened = (cellNumber: number): boolean => {
-        return correctlyOpenedCells.value.has(cellNumber) || incorrectlyOpenedCells.value.has(cellNumber);
-    };
-
-    const isCellCorrect = (cellNumber: number): boolean => {
-        if (correctlyOpenedCells.value.has(cellNumber)) {
-            return true;
-        }
-
-        if (incorrectlyOpenedCells.value.has(cellNumber)) {
-            return false;
-        }
-
-        return isCellColorized(cellNumber) && isCellColorCorrect(cellNumber) && isCellOrderCorrect(cellNumber);
-    };
-
-    const isCellColorized = (cellNumber: number): boolean => {
-        return colorizedCells.value.has(cellNumber);
-    };
-
-    const isCellColorCorrect = (cellNumber: number): boolean => {
-        return activeRoundColor.value === colorizedCells.value.get(cellNumber);
-    };
-
-    /**
-     * Сравнивает номер ячейки с номером, расположенным в массиве упорядоченных номеров под соответствующим индексом
-     */
-    const isCellOrderCorrect = (cellNumber: number): boolean => {
-        if (currentLevel.value.hasDirection) {
-            const cellOrder = correctlyOpenedCells.value.size;
-            // console.log(correctlyOpenedCells.size)
-
-            return orderedNumbers.value[cellOrder] === cellNumber;
-        }
-
-        return true;
-    };
-
-    /**
-     * Механизм сокрытия ячеек: скрываем в состояниях смены уровня при наличии номера в массиве hidd
-     * @param cellNumber
-     */
-    const isCellHidden = (cellNumber: number): boolean => {
-        return (gameStore.isLevelFinishingState() || gameStore.isLevelPreparingState()) && hiddenCells.value.includes(cellNumber);
-    };
-
     const rotateField = (): Promise<void> => {
-        isRotating.value = true;
-        let iterations = 0;
+        return new Promise((resolve, reject) => {
+            if (isInRotatingState()) {
+                return reject(new Error('The field is already in the rotating state'));
+            }
 
-        console.log('----------------------------------------');
-        return new Promise((resolve) => {
-            setTimeout(function rotate() {
+            setRotatingState();
+
+            let iterations = 0;
+            const rotate = () => {
                 if (iterations < currentLevel.value.rotationIterations) {
                     if (Math.random() < 0.5) {
                         rotationDegree.value += 90;
-                        console.log('+90');
                     } else {
                         rotationDegree.value -= 90;
-                        console.log('-90');
                     }
-
-                    console.log(rotationDegree.value);
 
                     iterations++;
 
-                    setTimeout(rotate, 500);
+                    setTimeout(rotate, ROTATION_ITERATION_TIME);
+                } else {
+                    resolve();
                 }
+            };
 
-                resolve();
-            }, 600);
+            setTimeout(rotate, ROTATION_ITERATION_TIME);
         });
     };
 
     /**
-     * Вызывается по готовности пользователя открывать ячейки
+     * Возвращает цвет конкретной ячейки.
+     * @param cellNumber
      */
-    const setInteractiveState = () => {
-        if (currentLevel.value.rotationIterations !== 0) {
-            rotateField().then(() => (isRotating.value = false));
-        }
-
-        gameStore.setInteractiveState();
+    const getCellColor = (cellNumber: number): string => {
+        // @ts-ignore
+        return colorizedCells.value.has(cellNumber) ? colorizedCells.value.get(cellNumber) : '';
     };
 
-    return {
-        // Вызываем в компоненте для подготовки стора к игре
-        setStore,
+    /**
+     *
+     * @param cellNumber
+     * @param color
+     */
+    const colorizeCell = (color: string, cellNumber: number): void => {
+        if (color === activeRoundColor.value) {
+            orderedCells.value.push(cellNumber);
+        }
 
-        isCellCorrect,
-        handleCellOpening,
+        colorizedCells.value.set(cellNumber, color);
+    };
+
+    /**
+     * todo:
+     * Раскрашиваем ячейки: с интервалом TIME_TO_COLORIZE_CELL добавляем в colorizedCells номер ячейки в качестве ключа
+     * и цвет ячейки под этим номером в виде значения.
+     */
+    const colorizeCells = (): Promise<void> => {
+        return new Promise((resolve) => {
+            const availableNumbers = generateAvailableNumbers();
+
+            // Получаем массивы допустимых цветов и номеров, которые мы можем использовать для раскрашивания
+            const shuffledNumbers = useShuffle(availableNumbers);
+            const shuffledColors = useShuffle(availableLevelColors);
+
+            const colorsAndNumbers: [string, number][] = [];
+
+            for (const color of shuffledColors) {
+                let numberIterations = 0;
+                for (const number of shuffledNumbers) {
+                    if (numberIterations >= currentLevel.value.cellsAmountToReproduce) {
+                        shuffledNumbers.slice(0, numberIterations);
+                        continue;
+                    }
+
+                    colorsAndNumbers.push([color, number]);
+
+                    numberIterations++;
+                }
+            }
+
+            const addNumber = () => {
+                if (colorsAndNumbers.length !== 0) {
+                    const elem = colorsAndNumbers.pop() as [string, number];
+                    colorizeCell(elem[0], elem[1]);
+
+                    setTimeout(addNumber, TIME_TO_COLORIZE_CELL);
+                } else {
+                    resolve();
+                }
+            };
+
+            setTimeout(addNumber, TIME_TO_COLORIZE_CELL);
+        });
+    };
+
+    /**
+     * Вызывается по готовности пользователя воспроизвести показанные ячейки.
+     */
+    const ready = () => {
+        if (currentLevel.value.rotationIterations !== 0) {
+            rotateField().then(() => setDefaultState());
+        }
+
+        game.setInteractiveState();
+    };
+
+    /**
+     * Первоначальная установка стора.
+     */
+    const setupStore = () => {
+        game.setGamePreparingState();
+
+        setupLevels().then(() => {
+            setupLevel();
+            setupLevelColors();
+            setupRoundColor();
+
+            game.setLevelPreparingState();
+
+            game.startCountdown().then(() => startNewRound());
+        });
+    };
+
+    /** ******************************************************************************************************** Обработка открытия ячеек */
+
+    /**
+     * Инициирует открытие ячейки, если это возможно
+     * @param cellNumber
+     */
+    const handleCellOpening = (cellNumber: number): void => {
+        if (canTheCellBeOpened()) {
+            if (isCellCorrect(cellNumber)) {
+                handleCorrectCellOpening(cellNumber);
+            } else {
+                handleIncorrectCellOpening(cellNumber);
+            }
+        }
+    };
+
+    /**
+     * Обрабатывает открытие правильной ячейки.
+     * @param cellNumber
+     */
+    const handleCorrectCellOpening = (cellNumber: number): void => {
+        correctlyOpenedCells.value.add(cellNumber);
+
+        if (isTimeToFinishRound()) {
+            handleRoundFinishing();
+        }
+    };
+
+    /**
+     * Обрабатывает открытие неверной ячейки.
+     * @param cellNumber
+     */
+    const handleIncorrectCellOpening = (cellNumber: number): void => {
+        incorrectlyOpenedCells.value.add(cellNumber);
+
+        markRoundAsFailed();
+        setTimeout(() => incorrectlyOpenedCells.value.delete(cellNumber), TIME_TO_CLOSE_INCORRECT_CELL);
+    };
+
+    /** ****************************************************************************************************** Обработка изменений раунда */
+
+    /**
+     * Проверяет корректность ответов в текущем раунде и определяет алгоритм его завершения.
+     */
+    const handleRoundFinishing = () => {
+        if (isRoundFailed.value) {
+            finishRoundWithFailure();
+        } else {
+            finishRoundWithSuccess();
+        }
+    };
+
+    /**
+     * Завершает раунд, увеличивая серию проигранных раундов.
+     */
+    const finishRoundWithFailure = () => {
+        successfulRoundsStreak = 0;
+        unsuccessfulRoundsStreak++;
+
+        finishRound();
+    };
+
+    /**
+     * Завершает раунд, увеличивая серию успешных раундов.
+     */
+    const finishRoundWithSuccess = () => {
+        unsuccessfulRoundsStreak = 0;
+        successfulRoundsStreak++;
+
+        finishRound();
+    };
+
+    /**
+     * Завершает раунд: устанавливает состояние roundFinishing, проверяет необходимость изменения уровня, начинает новый раунд.
+     */
+    const finishRound = () => {
+        game.setRoundFinishingState();
+
+        clearCorrectlyOpenedCells().then(() => {
+            clearColorizedCells();
+            clearOrderedCells();
+
+            if (isTimeToPromoteLevel()) {
+                promoteLevel();
+
+                return;
+            }
+
+            if (isTimeToDemoteLevel()) {
+                demoteLevel();
+
+                return;
+            }
+
+            startNewRound();
+        });
+    };
+
+    /**
+     * Начинает новый раунд игры.
+     */
+    const startNewRound = () => {
+        game.setRoundPreparingState();
+
+        isRoundFailed.value = false;
+
+        setupRoundColor();
+
+        colorizeCells().then(() => {
+            game.setContemplationState();
+        });
+    };
+
+    /** ****************************************************************************************************** Обработка изменений уровня */
+
+    /**
+     * Повышает уровень игры.
+     */
+    const promoteLevel = (): void => {
+        currentLevelNumber.value++;
+
+        changeLevel();
+    };
+
+    /**
+     * Понижает уровень игры.
+     */
+    const demoteLevel = () => {
+        currentLevelNumber.value--;
+
+        changeLevel();
+    };
+
+    /**
+     * Изменяет уровень игры: отвечает за установку нового уровня, установку цветов,
+     * а также за анимации перестроения поля и обратного отсчёта.
+     */
+    const changeLevel = () => {
+        game.setLevelFinishingState();
+
+        setupLevel();
+        setupLevelColors();
+
+        rebuildField().then(() => {
+            game.setLevelPreparingState();
+
+            successfulRoundsStreak = 0;
+            unsuccessfulRoundsStreak = 0;
+
+            game.startCountdown().then(() => startNewRound());
+        });
+    };
+
+    // computed
+
+    /**
+     * Количество ячеек на игровом поле.
+     */
+    const cellsAmount = computed((): number => {
+        return currentLevel.value.squareSide ** 2;
+    });
+
+    const squareSide = computed((): number => {
+        return currentLevel.value.squareSide;
+    });
+
+    return {
         isCellOpened,
-        isCellColorized,
         isCellHidden,
         showColorizedCell,
-        getCellColor,
-
-        colorizedCells,
-        orderedNumbers,
-        activeRoundColor,
-        // openedCells,
-        currentLevelNumber,
-        currentLevel,
-        rotationDegree,
-
-        hiddenCells,
-
-        levels,
-
         showCorrectlyOpenedCell,
         showIncorrectlyOpenedCell,
-        setInteractiveState,
-        setLevels,
+
+        handleCellOpening,
+        getCellColor,
+        setupStore,
+        ready,
+
+        rotationDegree,
+        cellsAmount,
+        squareSide,
     };
 });

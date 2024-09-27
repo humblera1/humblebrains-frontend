@@ -8,7 +8,7 @@
 const gameStore = useGameStore();
 
 const isCountdownVisible = computed(() => {
-    return gameStore.isCountdownState();
+    return gameStore.isInLevelPreparingState();
 });
 
 const countdownClasses = computed(() => {

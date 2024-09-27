@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { GameStateEnum } from '~/entities/enums/GameStateEnum';
+import { GameStateEnum } from '~/entities/enums/games/GameStateEnum';
 
 // Базовый стор, отвечающий за действия, характерные всем играм
 export const useGameStore = defineStore('gameStorage', () => {
@@ -164,20 +164,16 @@ export const useGameStore = defineStore('gameStorage', () => {
 
             setTimeout(() => {
                 // todo: restarting behavior
-                countdown.value = COUNTDOWN_INITIAL_VALUE;
-                setCountdownState();
                 const tick = () => {
                     if (countdown.value <= 1) {
                         // @ts-ignore
                         clearTimeout(countdownTimerId);
                         countdownTimerId = null;
 
-                        // countdown.value = COUNTDOWN_INITIAL_VALUE;
-
-                        console.log('Обратный отсчёт завершен');
-
                         setLevelFinishingState();
                         resolve(); // Resolve the promise when countdown finishes
+
+                        countdown.value = COUNTDOWN_INITIAL_VALUE;
                         return;
                     }
 
@@ -218,8 +214,8 @@ export const useGameStore = defineStore('gameStorage', () => {
         setState(GameStateEnum.levelPreparing);
     };
 
-    const setCountdownState = (): void => {
-        setState(GameStateEnum.countdown);
+    const setGamePreparingState = (): void => {
+        setState(GameStateEnum.gamePreparing);
     };
 
     const setRoundPreparingState = (): void => {
@@ -248,41 +244,41 @@ export const useGameStore = defineStore('gameStorage', () => {
 
     /** Проверки */
 
-    const isLevelPreparingState = (): boolean => {
+    const isInLevelPreparingState = (): boolean => {
         return isState(GameStateEnum.levelPreparing);
     };
 
-    const isCountdownState = (): boolean => {
-        return isState(GameStateEnum.countdown);
+    const isInGamePreparingState = (): boolean => {
+        return isState(GameStateEnum.gamePreparing);
     };
 
-    const isRoundPreparingState = (): boolean => {
+    const isInRoundPreparingState = (): boolean => {
         return isState(GameStateEnum.roundPreparing);
     };
 
-    const isContemplationState = (): boolean => {
+    const isInContemplationState = (): boolean => {
         return isState(GameStateEnum.contemplation);
     };
 
-    const isInteractiveState = (): boolean => {
+    const isInInteractiveState = (): boolean => {
         return isState(GameStateEnum.interactive);
     };
 
-    const isRoundFinishingState = (): boolean => {
+    const isInRoundFinishingState = (): boolean => {
         return isState(GameStateEnum.roundFinishing);
     };
 
-    const isLevelFinishingState = (): boolean => {
+    const isInLevelFinishingState = (): boolean => {
         return isState(GameStateEnum.levelFinishing);
     };
 
-    const isPromptState = (): boolean => {
+    const isInPromptState = (): boolean => {
         return isState(GameStateEnum.prompt);
     };
 
     return {
         setLevelPreparingState,
-        setCountdownState,
+        setGamePreparingState,
         setRoundPreparingState,
         setContemplationState,
         setInteractiveState,
@@ -290,14 +286,14 @@ export const useGameStore = defineStore('gameStorage', () => {
         setLevelFinishingState,
         setPromptState,
         gameState,
-        isLevelPreparingState,
-        isCountdownState,
-        isRoundPreparingState,
-        isContemplationState,
-        isInteractiveState,
-        isRoundFinishingState,
-        isLevelFinishingState,
-        isPromptState,
+        isInLevelPreparingState,
+        isInGamePreparingState,
+        isInRoundPreparingState,
+        isInContemplationState,
+        isInInteractiveState,
+        isInRoundFinishingState,
+        isInLevelFinishingState,
+        isInPromptState,
 
         totalTime,
         startTotalTimer,

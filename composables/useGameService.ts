@@ -1,4 +1,4 @@
-import type { GameEnum } from '~/entities/enums/GameEnum';
+import type { GameEnum } from '~/entities/enums/games/GameEnum';
 
 export const useGameService = () => {
     const { $api } = useNuxtApp();
