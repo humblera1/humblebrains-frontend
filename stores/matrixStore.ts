@@ -614,6 +614,8 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * Завершает раунд, увеличивая серию проигранных раундов.
      */
     const finishRoundWithFailure = () => {
+        game.setFailedRoundFinishingState();
+
         successfulRoundsStreak = 0;
         unsuccessfulRoundsStreak++;
 
@@ -624,6 +626,8 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * Завершает раунд, увеличивая серию успешных раундов.
      */
     const finishRoundWithSuccess = () => {
+        game.setSuccessfulRoundFinishingState();
+
         unsuccessfulRoundsStreak = 0;
         successfulRoundsStreak++;
 
@@ -634,8 +638,6 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * Завершает раунд: устанавливает состояние roundFinishing, проверяет необходимость изменения уровня, начинает новый раунд.
      */
     const finishRound = () => {
-        game.setRoundFinishingState();
-
         clearCorrectlyOpenedCells().then(() => {
             clearColorizedCells();
             clearOrderedCells();

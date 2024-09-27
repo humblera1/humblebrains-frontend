@@ -230,8 +230,12 @@ export const useGameStore = defineStore('gameStorage', () => {
         setState(GameStateEnum.interactive);
     };
 
-    const setRoundFinishingState = (): void => {
-        setState(GameStateEnum.roundFinishing);
+    const setFailedRoundFinishingState = (): void => {
+        setState(GameStateEnum.failedRoundFinishing);
+    };
+
+    const setSuccessfulRoundFinishingState = (): void => {
+        setState(GameStateEnum.successfulRoundFinishing);
     };
 
     const setLevelFinishingState = (): void => {
@@ -242,7 +246,7 @@ export const useGameStore = defineStore('gameStorage', () => {
         setState(GameStateEnum.prompt);
     };
 
-    /** Проверки */
+    /** ************************************************************************************************************************ Проверки */
 
     const isInLevelPreparingState = (): boolean => {
         return isState(GameStateEnum.levelPreparing);
@@ -264,8 +268,16 @@ export const useGameStore = defineStore('gameStorage', () => {
         return isState(GameStateEnum.interactive);
     };
 
+    const isInFailedRoundFinishingState = (): boolean => {
+        return isState(GameStateEnum.failedRoundFinishing);
+    };
+
+    const isInSuccessfulRoundFinishingState = (): boolean => {
+        return isState(GameStateEnum.successfulRoundFinishing);
+    };
+
     const isInRoundFinishingState = (): boolean => {
-        return isState(GameStateEnum.roundFinishing);
+        return isInSuccessfulRoundFinishingState() || isInFailedRoundFinishingState();
     };
 
     const isInLevelFinishingState = (): boolean => {
@@ -282,7 +294,8 @@ export const useGameStore = defineStore('gameStorage', () => {
         setRoundPreparingState,
         setContemplationState,
         setInteractiveState,
-        setRoundFinishingState,
+        setFailedRoundFinishingState,
+        setSuccessfulRoundFinishingState,
         setLevelFinishingState,
         setPromptState,
         gameState,
@@ -291,6 +304,8 @@ export const useGameStore = defineStore('gameStorage', () => {
         isInRoundPreparingState,
         isInContemplationState,
         isInInteractiveState,
+        isInFailedRoundFinishingState,
+        isInSuccessfulRoundFinishingState,
         isInRoundFinishingState,
         isInLevelFinishingState,
         isInPromptState,

@@ -1,4 +1,5 @@
 .game-layout {
+    overflow: hidden;
     position: relative;
     display: flex;
     justify-content: center;
@@ -15,12 +16,12 @@
     &__inner {
         display: flex;
         flex-direction: column;
-        gap: 120px;
+        gap: 60px;
         width: 100%;
         max-width: 610px;
 
         @include mobile {
-            gap: 60px;
+            gap: 30px;
         }
     }
 
@@ -39,7 +40,44 @@
 
     &__timeline {
         display: flex;
-        justify-content: center;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &__cross,
+    &__check {
+        opacity: 0;
+        transition: opacity 200ms linear;
+    }
+
+    &__cross {
+        width: 20px;
+        height: 20px;
+        color: var(--game-invalid);
+
+        @include mobile {
+            width: 12px;
+            height: 12px;
+        }
+
+        &_visible {
+            opacity: 1;
+        }
+    }
+
+    &__check {
+        width: 24px;
+        height: 18px;
+        color: var(--game-success);
+
+        @include mobile {
+            width: 18px;
+            height: 12px;
+        }
+
+        &_visible {
+            opacity: 1;
+        }
     }
 
     &__field {
