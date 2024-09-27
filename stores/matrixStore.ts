@@ -679,6 +679,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * Повышает уровень игры.
      */
     const promoteLevel = (): void => {
+        game.setLevelPromotionState();
         currentLevelNumber.value++;
 
         changeLevel();
@@ -688,6 +689,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * Понижает уровень игры.
      */
     const demoteLevel = () => {
+        game.setLevelDemotionState();
         currentLevelNumber.value--;
 
         changeLevel();
@@ -698,8 +700,6 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * а также за анимации перестроения поля и обратного отсчёта.
      */
     const changeLevel = () => {
-        game.setLevelFinishingState();
-
         setupLevel();
         setupLevelColors();
 

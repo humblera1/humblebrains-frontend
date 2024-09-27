@@ -1,0 +1,21 @@
+.game-message {
+    min-height: 20px;
+    opacity: 0;
+    visibility: hidden;
+
+    transition: opacity 250ms linear;
+
+    &_visible {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    &__text {
+        text-align: center;
+        @include mainFont(500, 20, var(--primary-title));
+
+        @include mobile {
+            @include mainFont(500, 16, var(--primary-title));
+        }
+    }
+}

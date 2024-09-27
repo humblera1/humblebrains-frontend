@@ -1,7 +1,18 @@
 <template>
     <div class="game-score">
         <div ref="chart" class="game-score__chart" />
-        <p class="game-score__title">{{ currentScore }}</p>
+        <div :class="badgeClasses">
+            <div class="game-score__flipper">
+                <div class="game-score__front">
+                    <p class="game-score__title">
+                        {{ currentScore }}
+                    </p>
+                </div>
+                <div class="game-score__back">
+                    <IconGamePromotion :class="iconClasses"/>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -13,10 +24,27 @@ import type { EChartsType } from 'echarts';
 
 use([CanvasRenderer]);
 
+const game = useGameStore();
+
 const colorMode = useColorMode();
 
 const currentScore = ref<number>(0);
 const maxScore = ref<number>(100);
+
+const badgeClasses = computed(() => {
+    return [
+        'game-score__badge',
+        {
+            'game-score__badge_flipped': game.isInLevelFinishingState(),
+        },
+    ];
+});
+
+const iconClasses = computed(() => {
+    return {
+        'game-score__demotion': game.isInLevelDemotionState(),
+    }
+});
 
 const chartOptions = {
     silent: true,

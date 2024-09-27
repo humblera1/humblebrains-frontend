@@ -170,7 +170,6 @@ export const useGameStore = defineStore('gameStorage', () => {
                         clearTimeout(countdownTimerId);
                         countdownTimerId = null;
 
-                        setLevelFinishingState();
                         resolve(); // Resolve the promise when countdown finishes
 
                         countdown.value = COUNTDOWN_INITIAL_VALUE;
@@ -238,8 +237,12 @@ export const useGameStore = defineStore('gameStorage', () => {
         setState(GameStateEnum.successfulRoundFinishing);
     };
 
-    const setLevelFinishingState = (): void => {
-        setState(GameStateEnum.levelFinishing);
+    const setLevelDemotionState = (): void => {
+        setState(GameStateEnum.levelDemotion);
+    };
+
+    const setLevelPromotionState = (): void => {
+        setState(GameStateEnum.levelPromotion);
     };
 
     const setPromptState = (): void => {
@@ -281,7 +284,15 @@ export const useGameStore = defineStore('gameStorage', () => {
     };
 
     const isInLevelFinishingState = (): boolean => {
-        return isState(GameStateEnum.levelFinishing);
+        return isInLevelDemotionState() || isInLevelPromotionState();
+    };
+
+    const isInLevelDemotionState = (): boolean => {
+        return isState(GameStateEnum.levelDemotion);
+    };
+
+    const isInLevelPromotionState = (): boolean => {
+        return isState(GameStateEnum.levelPromotion);
     };
 
     const isInPromptState = (): boolean => {
@@ -296,7 +307,8 @@ export const useGameStore = defineStore('gameStorage', () => {
         setInteractiveState,
         setFailedRoundFinishingState,
         setSuccessfulRoundFinishingState,
-        setLevelFinishingState,
+        setLevelDemotionState,
+        setLevelPromotionState,
         setPromptState,
         gameState,
         isInLevelPreparingState,
@@ -308,6 +320,8 @@ export const useGameStore = defineStore('gameStorage', () => {
         isInSuccessfulRoundFinishingState,
         isInRoundFinishingState,
         isInLevelFinishingState,
+        isInLevelDemotionState,
+        isInLevelPromotionState,
         isInPromptState,
 
         totalTime,

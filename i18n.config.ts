@@ -17,6 +17,10 @@ export default defineI18nConfig(() => ({
             usermail: 'Имя пользователя или почта',
             password: 'Пароль',
 
+            // Games
+            levelDown: 'Уровень понижен',
+            levelUp: 'Новый уровень!',
+
             // Matrix
             remember: 'Запомнил',
         },
@@ -34,6 +38,10 @@ export default defineI18nConfig(() => ({
 
             usermail: 'Username or E-mail',
             password: 'Password',
+
+            // Games
+            levelDown: 'Your level is down',
+            levelUp: 'Level Up!',
 
             // Matrix
             remember: 'Remember',

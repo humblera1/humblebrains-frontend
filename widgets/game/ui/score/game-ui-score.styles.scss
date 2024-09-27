@@ -4,6 +4,7 @@
     align-items: center;
     justify-content: center;
     width: 100%;
+    min-width: 100px;
     max-width: 130px;
     aspect-ratio: 1;
     background-color: var(--badge-bg);
@@ -12,6 +13,8 @@
     @include mainShadow();
 
     @include mobile {
+        aspect-ratio: 1;
+        min-width: 50px;
         max-width: 75px;
     }
 
@@ -24,8 +27,61 @@
         }
     }
 
-    &__title {
+    &__badge {
         position: absolute;
+        perspective: 1000px;
+
+        &_flipped {
+            .game-score__flipper {
+                transform: rotateY(180deg);
+            }
+        }
+    }
+
+    &__flipper {
+        position: relative;
+        transform-style: preserve-3d;
+        width: 100px;
+        height: 100px;
+        transition: 500ms;
+    }
+
+    &__front,
+    &__back {
+        position: absolute;
+        backface-visibility: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+    }
+
+    &__front {
+        z-index: 2;
+        transform: rotateY(0deg);
+    }
+
+    &__back {
+        transform: rotateY(180deg);
+
+        svg {
+            color: var(--purple);
+            width: 32px;
+            height: 32px;
+
+            @include mobile {
+                width: 24px;
+                height: 24px;
+            }
+        }
+    }
+
+    &__demotion {
+        transform: rotateX(180deg);
+    }
+
+    &__title {
         @include mainFont(500, 24, var(--purple));
 
         @include mobile {
