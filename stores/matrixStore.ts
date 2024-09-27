@@ -107,32 +107,6 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      */
     const availableColors: string[] = ['#59AF8E', '#E9CA6D', '#EE8670', '#C38AC1', '#9BC4F8', '#6878DE'];
 
-    const startNewRound = () => {
-        isRoundFailed.value = false;
-
-        // Переворачиваем все открытые ячейки
-        clearOpenedCells().then(() => {
-            // Возвращаем поле в исходное положение
-            // todo: найти баг вот тут
-            // rotationDegree.value = 0;
-
-            // Убираем цветные ячейки (пока стор в состоянии завершения и их не видно на поле)
-            discolorCells();
-
-            // Очищаем массивы с ответами
-            clearCorrectlyOpenedCells();
-            orderedNumbers.value = [];
-            setActiveColor();
-
-            gameStore.setRoundPreparingState();
-
-            // Заново раскрашиваем ячейки
-            colorizeCells().then(() => {
-                gameStore.setContemplationState();
-            });
-        });
-    };
-
     /**
      * todo: уровень будем брать из стора user
      */
@@ -167,7 +141,8 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     };
 
     /**
-     * Последовательно удаляет номера открытых ячеек один за одним с небольшой задержкой
+     * Последовательно удаляет номера открытых ячеек один за другим с небольшой задержкой
+     * todo: поменять анимацию
      */
     const clearOpenedCells = (): Promise<void> => {
         return new Promise((resolve) => {
@@ -408,29 +383,52 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     const finishRound = () => {
         gameStore.setRoundFinishingState();
 
-        // console.log('streak: ' + successfulRoundsStreak);
+        // Переворачиваем все открытые ячейки
+        clearOpenedCells().then(() => {
+            discolorCells();
 
-        if (successfulRoundsStreak >= currentLevel.value.correctAnswersBeforePromotion) {
-            if (!isFinalLevel()) {
-                promoteLevel();
+            // Очищаем массивы с ответами
+            clearCorrectlyOpenedCells();
 
-                return;
+            orderedNumbers.value = [];
+
+            if (successfulRoundsStreak >= currentLevel.value.correctAnswersBeforePromotion) {
+                if (!isFinalLevel()) {
+                    promoteLevel();
+
+                    return;
+                }
             }
-        }
 
-        if (unsuccessfulRoundsStreak >= currentLevel.value.incorrectAnswersBeforeDemotion) {
-            if (!isFirstLevel()) {
-                demoteLevel();
+            if (unsuccessfulRoundsStreak >= currentLevel.value.incorrectAnswersBeforeDemotion) {
+                if (!isFirstLevel()) {
+                    demoteLevel();
 
-                return;
+                    return;
+                }
             }
-        }
 
-        startNewRound();
+            startNewRound();
+        });
+    };
+
+    const startNewRound = () => {
+        isRoundFailed.value = false;
+        gameStore.setRoundPreparingState();
+
+        setActiveColor();
+
+        // Заново раскрашиваем ячейки
+        colorizeCells().then(() => {
+            gameStore.setContemplationState();
+        });
     };
 
     /** ************************************************************************************************************************** Уровни */
 
+    /**
+     *
+     */
     const promoteLevel = () => {
         currentLevelNumber.value++;
 
@@ -446,36 +444,36 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     const changeLevel = () => {
         console.log('Смена уровня!!!');
         rebuildField().then(() => {
+            // todo: логика показа обратного отсчета
             successfulRoundsStreak = 0;
             unsuccessfulRoundsStreak = 0;
-            setTimeout(startNewRound, 1000);
+
+            gameStore.startCountdown().then(() => startNewRound());
         });
     };
 
     /**
-     * Занимается перетсроением поля при смене уровня: сначала в массив fadingCells поочередно добавляются номера ячеек,
+     * Занимается перестроением поля при смене уровня: сначала в массив fadingCells поочередно добавляются номера ячеек,
      * которые исчезают с поля.
      */
     const rebuildField = (): Promise<void> => {
         return new Promise((resolve) => {
-            setTimeout(() => {
-                // Переворачиваем ячейки
-                correctlyOpenedCells.value.clear();
+            // Переворачиваем ячейки
+            correctlyOpenedCells.value.clear();
 
-                // Устанавливаем состояние
-                gameStore.setLevelFinishingState();
+            // Устанавливаем состояние
+            gameStore.setLevelFinishingState();
 
-                // Скрываем ячейки, после чего меняем уровень и делаем ячейки видимыми
-                hideCells().then(() => {
-                    gameStore.setLevelPreparingState();
-                    currentLevel.value = levels[currentLevelNumber.value];
-                    hiddenCells.value = useShuffle(generateAvailableNumbers());
+            // Скрываем ячейки, после чего меняем уровень и делаем ячейки видимыми
+            hideCells().then(() => {
+                gameStore.setLevelPreparingState();
+                currentLevel.value = levels[currentLevelNumber.value];
+                hiddenCells.value = useShuffle(generateAvailableNumbers());
 
-                    setLevelColors();
+                setLevelColors();
 
-                    showCells().then(() => resolve());
-                });
-            }, 500);
+                showCells().then(() => resolve());
+            });
         });
     };
 

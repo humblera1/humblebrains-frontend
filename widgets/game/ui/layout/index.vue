@@ -15,10 +15,10 @@
                 <slot />
             </section>
         </div>
+        <WidgetGameUiCountdown />
     </div>
 </template>
 
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
 
 <style scoped lang="scss" src="./game-ui-layout.styles.scss"></style>

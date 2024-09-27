@@ -3,6 +3,8 @@ import { GameStateEnum } from '~/entities/enums/GameStateEnum';
 
 // Базовый стор, отвечающий за действия, характерные всем играм
 export const useGameStore = defineStore('gameStorage', () => {
+    const COUNTDOWN_INITIAL_VALUE: number = 3;
+
     /**
      * Время на игру в секундах, скорее сего, будет приходить с бэка
      */
@@ -22,6 +24,16 @@ export const useGameStore = defineStore('gameStorage', () => {
      * Вспомогательная переменная, хранит оригинальное значение roundTime
      */
     const totalRoundTime = ref<number>(0);
+
+    /**
+     *
+     */
+    const countdown = ref<number>(COUNTDOWN_INITIAL_VALUE);
+
+    /**
+     *
+     */
+    let countdownTimerId: ReturnType<typeof setTimeout> | null = null;
 
     /**
      * Идентификатор таймера, ответственного за уменьшение переменной roundTime
@@ -141,6 +153,57 @@ export const useGameStore = defineStore('gameStorage', () => {
         return roundTimerId !== null;
     };
 
+    /** ***************************************************************************************************************** Обратный отсчёт */
+
+    const startCountdown = (): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            // check if timer is already started
+            if (isCountdownStarted()) {
+                return reject(new Error('Countdown already started'));
+            }
+
+            setTimeout(() => {
+                // todo: restarting behavior
+                countdown.value = COUNTDOWN_INITIAL_VALUE;
+                setCountdownState();
+                const tick = () => {
+                    if (countdown.value <= 1) {
+                        // @ts-ignore
+                        clearTimeout(countdownTimerId);
+                        countdownTimerId = null;
+
+                        // countdown.value = COUNTDOWN_INITIAL_VALUE;
+
+                        console.log('Обратный отсчёт завершен');
+
+                        setLevelFinishingState();
+                        resolve(); // Resolve the promise when countdown finishes
+                        return;
+                    }
+
+                    decreaseCountdown();
+                    countdownTimerId = setTimeout(tick, 1000);
+                };
+
+                countdownTimerId = setTimeout(tick, 1000);
+            }, 250);
+        });
+    };
+
+    /**
+     * Уменьшает значение переменной countdown на единицу
+     */
+    const decreaseCountdown = () => {
+        countdown.value--;
+    };
+
+    /**
+     * Проверяет, запущено ли уменьшение времени countdown
+     */
+    const isCountdownStarted = () => {
+        return countdownTimerId !== null;
+    };
+
     /** *********************************************************************************************************************** Состояния */
 
     const setState = (state: GameStateEnum): void => {
@@ -153,6 +216,10 @@ export const useGameStore = defineStore('gameStorage', () => {
 
     const setLevelPreparingState = (): void => {
         setState(GameStateEnum.levelPreparing);
+    };
+
+    const setCountdownState = (): void => {
+        setState(GameStateEnum.countdown);
     };
 
     const setRoundPreparingState = (): void => {
@@ -185,6 +252,10 @@ export const useGameStore = defineStore('gameStorage', () => {
         return isState(GameStateEnum.levelPreparing);
     };
 
+    const isCountdownState = (): boolean => {
+        return isState(GameStateEnum.countdown);
+    };
+
     const isRoundPreparingState = (): boolean => {
         return isState(GameStateEnum.roundPreparing);
     };
@@ -211,6 +282,7 @@ export const useGameStore = defineStore('gameStorage', () => {
 
     return {
         setLevelPreparingState,
+        setCountdownState,
         setRoundPreparingState,
         setContemplationState,
         setInteractiveState,
@@ -219,6 +291,7 @@ export const useGameStore = defineStore('gameStorage', () => {
         setPromptState,
         gameState,
         isLevelPreparingState,
+        isCountdownState,
         isRoundPreparingState,
         isContemplationState,
         isInteractiveState,
@@ -236,5 +309,8 @@ export const useGameStore = defineStore('gameStorage', () => {
         setRoundTime,
         startRoundTimer,
         stopRoundTimer,
+
+        countdown,
+        startCountdown,
     };
 });
