@@ -1,13 +1,11 @@
 <template>
     <div class="field">
         <div class="field__grid" :style="fieldStyles">
-            <WidgetGameMatrixCell v-for="key in cellsAmount" :key="key" :number="key" @select="handleSelection(key)" />
+            <WidgetGameMatrixCell v-for="key in cellsAmount" :key="key" :number="key" />
         </div>
         <br />
         <div class="field__controls">
-            <UiButton @click="store.setInteractiveState()">ready to play</UiButton>
-            <br />
-            <div v-show="gameStore.isInteractiveState()" :style="'width:100px;height:100px;background-color:' + store.activeRoundColor" />
+            <UiButton :class="readyButtonClass" @click="store.setInteractiveState()">{{ $t('remember') + '!' }}</UiButton>
         </div>
     </div>
 </template>
@@ -24,6 +22,7 @@ const cellsAmount = computed(() => {
 });
 
 const gameStore = useGameStore();
+const store = useMatrixStore();
 
 const maxCellSize = 120;
 
@@ -45,28 +44,37 @@ const fieldStyles = computed(() => {
     };
 });
 
-const handleSelection = (cell: number) => {
-    console.log('Выбрана ячейка под номером ' + cell);
-};
-
-const store = useMatrixStore();
-// const { setMatrixStore } = useMatrixStore();
-//
+const readyButtonClass = computed(() => {
+    return ['field__button', gameStore.isContemplationState() ? 'field__button_visible' : ''];
+});
 </script>
 
 <style scoped lang="scss">
 .field {
-    // todo: убрать после переноса кнопок в controls
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    align-items: center;
     width: 100%;
     height: 100%;
 
     &__grid {
         width: 100%;
-        height: 100%;
         display: grid;
         gap: 1%;
 
         transition: transform 500ms ease;
+    }
+
+    &__button {
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 250ms linear;
+
+        &_visible {
+            opacity: 1;
+            visibility: visible;
+        }
     }
 }
 </style>

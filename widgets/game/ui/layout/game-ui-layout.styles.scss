@@ -1,4 +1,5 @@
 .game-layout {
+    position: relative;
     display: flex;
     justify-content: center;
     width: 100%;
@@ -12,8 +13,15 @@
     }
 
     &__inner {
+        display: flex;
+        flex-direction: column;
+        gap: 120px;
         width: 100%;
         max-width: 610px;
+
+        @include mobile {
+            gap: 60px;
+        }
     }
 
     &__header {
@@ -35,6 +43,7 @@
     }
 
     &__field {
+        height: 100%;
         display: flex;
         justify-content: center;
     }

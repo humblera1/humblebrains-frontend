@@ -16,6 +16,9 @@ export default defineI18nConfig(() => ({
 
             usermail: 'Имя пользователя или почта',
             password: 'Пароль',
+
+            // Matrix
+            remember: 'Запомнил',
         },
         en: {
             signUp: 'Sign Up',
@@ -31,6 +34,9 @@ export default defineI18nConfig(() => ({
 
             usermail: 'Username or E-mail',
             password: 'Password',
+
+            // Matrix
+            remember: 'Remember',
         },
     },
 }));
