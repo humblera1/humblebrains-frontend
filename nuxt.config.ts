@@ -16,6 +16,7 @@ export default defineNuxtConfig({
         { path: '~/shared/icons', prefix: 'Icon' },
         { path: '~/features', prefix: 'Feature', extensions: ['.ts'] },
         { path: '~/widgets', prefix: 'Widget', extensions: ['.vue'] },
+        { path: '~/widgets/games', prefix: 'Game', extensions: ['.vue'] },
     ],
     css: ['~/assets/styles/index.scss'],
     runtimeConfig: {

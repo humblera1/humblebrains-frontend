@@ -1,5 +1,5 @@
 <template>
-    <WidgetGameMatrixField />
+    <GameMatrixField />
 </template>
 
 <script setup lang="ts">

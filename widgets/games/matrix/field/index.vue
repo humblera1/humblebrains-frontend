@@ -1,7 +1,7 @@
 <template>
     <div class="field">
         <div class="field__grid" :style="fieldStyles">
-            <WidgetGameMatrixCell v-for="key in store.cellsAmount" :key="key" :number="key" />
+            <GameMatrixCell v-for="key in store.cellsAmount" :key="key" :number="key" />
         </div>
         <br />
         <div class="field__controls">
@@ -37,32 +37,4 @@ const readyButtonClass = computed(() => {
 });
 </script>
 
-<style scoped lang="scss">
-.field {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-
-    &__grid {
-        width: 100%;
-        display: grid;
-        gap: 1%;
-
-        transition: transform 500ms ease;
-    }
-
-    &__button {
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 250ms linear;
-
-        &_visible {
-            opacity: 1;
-            visibility: visible;
-        }
-    }
-}
-</style>
+<style scoped lang="scss" src="./matrix-field.styles.scss"></style>

@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
 import { useMatrixStore } from '~/stores/matrixStore';
-import type { MatrixCellProps } from '~/widgets/game/matrix/cell/matrix-cell.types';
+import type { MatrixCellProps } from '~/widgets/games/matrix/cell/matrix-cell.types';
 
 const { number } = defineProps<MatrixCellProps>();
 
