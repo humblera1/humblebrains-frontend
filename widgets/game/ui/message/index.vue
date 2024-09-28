@@ -17,14 +17,7 @@ const messageClasses = computed(() => {
 });
 
 const message = computed((): string => {
-    switch (true) {
-        case game.isInLevelDemotionState():
-            return 'levelDown';
-        case game.isInLevelPromotionState():
-            return 'levelUp';
-        default:
-            return '';
-    }
+    return game.isInLevelPromotionState() ? 'levelUp' : 'levelDown';
 });
 </script>
 

@@ -9,7 +9,7 @@
                     </p>
                 </div>
                 <div class="game-score__back">
-                    <IconGamePromotion :class="iconClasses"/>
+                    <IconGamePromotion :class="iconClasses" />
                 </div>
             </div>
         </div>
@@ -43,7 +43,7 @@ const badgeClasses = computed(() => {
 const iconClasses = computed(() => {
     return {
         'game-score__demotion': game.isInLevelDemotionState(),
-    }
+    };
 });
 
 const chartOptions = {
