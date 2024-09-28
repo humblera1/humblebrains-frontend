@@ -19,3 +19,19 @@ ul {
 .no-transition .sidebar-item {
     transition: none !important;
 }
+
+.game-widget_invalid {
+    animation: light 1s ease-in-out;
+}
+
+@keyframes light {
+    0% {
+        background-color: transparent;
+    }
+    10% {
+        background-color: var(--game-invalid);
+    }
+    100% {
+        background-color: transparent;
+    }
+}

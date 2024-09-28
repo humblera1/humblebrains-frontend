@@ -5,6 +5,8 @@ import { GameStateEnum } from '~/entities/enums/games/GameStateEnum';
 export const useGameStore = defineStore('gameStorage', () => {
     const COUNTDOWN_INITIAL_VALUE: number = 3;
 
+    const TIME_TO_SHOW_INCORRECT_ANSWER_REACTION = 1000;
+
     /**
      * Время на игру в секундах, скорее сего, будет приходить с бэка
      */
@@ -39,6 +41,18 @@ export const useGameStore = defineStore('gameStorage', () => {
      * Идентификатор таймера, ответственного за уменьшение переменной roundTime
      */
     let roundTimerId: ReturnType<typeof setTimeout> | null = null;
+
+    /**
+     * Сигнализирует о том, что в текущем раунде была допущена ошибка при ответе.
+     */
+    const incorrectAnswersOnRound = ref<number>(0);
+
+    /**
+     * Вспомогательная переменная, отвечают за анимацию виджетов шаблона при неправильном ответе.
+     * При каждом неправильном ответе, данная переменная увеличивается на определённое время, и на поле появляется
+     * новый элемент, сигнализирующий о неправильном ответе.
+     */
+    const incorrectAnswerReactions = ref<{ id: number }[]>([]);
 
     const gameState = ref<GameStateEnum>();
 
@@ -199,6 +213,36 @@ export const useGameStore = defineStore('gameStorage', () => {
         return countdownTimerId !== null;
     };
 
+    /**
+     * Добавляет новый элемент в массив incorrectAnswerReactions.
+     * Благодаря этому, в шаблоне рендерится новый анимированный элемент, сигнализирующий пользователю о том,
+     * что был дан неверный ответ.
+     */
+    const addReaction = () => {
+        const reactionId = incorrectAnswersOnRound.value;
+        incorrectAnswerReactions.value.push({ id: reactionId });
+
+        setTimeout(() => {
+            incorrectAnswerReactions.value = incorrectAnswerReactions.value.filter((reaction) => reaction.id !== reactionId);
+        }, TIME_TO_SHOW_INCORRECT_ANSWER_REACTION);
+    };
+
+    /**
+     * Помечает раунд как проигранный.
+     */
+    const markRoundAsFailed = (): void => {
+        incorrectAnswersOnRound.value++;
+        addReaction();
+    };
+
+    const clearIncorrectAnswers = () => {
+        incorrectAnswersOnRound.value = 0;
+    };
+
+    const isRoundFailed = computed((): boolean => {
+        return incorrectAnswersOnRound.value !== 0;
+    });
+
     /** *********************************************************************************************************************** Состояния */
 
     const setState = (state: GameStateEnum): void => {
@@ -337,5 +381,11 @@ export const useGameStore = defineStore('gameStorage', () => {
 
         countdown,
         startCountdown,
+
+        isRoundFailed,
+        incorrectAnswersOnRound,
+        incorrectAnswerReactions,
+        markRoundAsFailed,
+        clearIncorrectAnswers,
     };
 });

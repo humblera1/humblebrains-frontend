@@ -48,6 +48,7 @@
     }
 
     &__container {
+        position: relative;
         display: flex;
         justify-content: start;
         width: 85%;
@@ -66,16 +67,14 @@
     }
 
     &__line {
+        position: absolute;
         width: 100%;
         height: 6px;
         border-radius: 6px;
+        background-color: var(--game-timeline);
 
         @include mobile {
             height: 4px;
-        }
-
-        &_green {
-            background-color: var(--game-timeline);
         }
 
         &_yellow {
@@ -84,6 +83,10 @@
 
         &_red {
             background-color: var(--game-timeline-error);
+        }
+
+        &_invalid {
+            background-color: transparent;
         }
     }
 }

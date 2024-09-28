@@ -46,11 +46,6 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     const state = ref<MatrixStateEnum>(MatrixStateEnum.default);
 
     /**
-     * Сигнализирует о том, что в текущем раунде была допущена ошибка при открытии ячеек.
-     */
-    const isRoundFailed = ref<boolean>(false);
-
-    /**
      * Количество раундов, в которых был дан правильный ответ, идущих подряд.
      */
     let successfulRoundsStreak: number = 0;
@@ -139,8 +134,8 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * Проверяет возможность открытия ячейки: игра находится в состоянии взаимодействия с пользователем,
      * при этом, в данный момент не происходит поворота игрового поля.
      */
-    const canTheCellBeOpened = (): boolean => {
-        return game.isInInteractiveState() && !isInRotatingState();
+    const canTheCellBeOpened = (cellNumber: number): boolean => {
+        return game.isInInteractiveState() && !isInRotatingState() && !isCellOpened(cellNumber);
     };
 
     /**
@@ -316,13 +311,6 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      */
     const generateAvailableNumbers = (): number[] => {
         return useRange(1, currentLevel.value.squareSide ** 2 + 1);
-    };
-
-    /**
-     * Помечает раунд как проигранный.
-     */
-    const markRoundAsFailed = (): void => {
-        isRoundFailed.value = true;
     };
 
     /**
@@ -565,7 +553,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * @param cellNumber
      */
     const handleCellOpening = (cellNumber: number): void => {
-        if (canTheCellBeOpened()) {
+        if (canTheCellBeOpened(cellNumber)) {
             if (isCellCorrect(cellNumber)) {
                 handleCorrectCellOpening(cellNumber);
             } else {
@@ -593,7 +581,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     const handleIncorrectCellOpening = (cellNumber: number): void => {
         incorrectlyOpenedCells.value.add(cellNumber);
 
-        markRoundAsFailed();
+        game.markRoundAsFailed();
         setTimeout(() => incorrectlyOpenedCells.value.delete(cellNumber), TIME_TO_CLOSE_INCORRECT_CELL);
     };
 
@@ -603,7 +591,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * Проверяет корректность ответов в текущем раунде и определяет алгоритм его завершения.
      */
     const handleRoundFinishing = () => {
-        if (isRoundFailed.value) {
+        if (game.isRoundFailed) {
             finishRoundWithFailure();
         } else {
             finishRoundWithSuccess();
@@ -664,7 +652,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     const startNewRound = () => {
         game.setRoundPreparingState();
 
-        isRoundFailed.value = false;
+        game.clearIncorrectAnswers();
 
         setupRoundColor();
 

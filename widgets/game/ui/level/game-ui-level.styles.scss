@@ -47,7 +47,13 @@
         }
     }
 
+    &__container {
+        position: relative;
+        width: 100%;
+    }
+
     &__progress {
+        position: absolute;
         width: 100%;
 
         &_separated {
@@ -86,15 +92,25 @@
             background-color: var(--level-progess-bar-active);
             @include boxShadow(-3, 3, 10, 0, rgba(#4382bc, 0.15));
         }
+
+        &_invalid {
+            box-shadow: unset;
+        }
     }
 
     &__bars {
+        position: absolute;
         height: 6px;
         border-radius: 6px;
         background-color: var(--level-progess-bar-active);
 
         @include mobile {
             height: 4px;
+        }
+
+        &_invalid {
+            z-index: 2;
+            background-color: transparent;
         }
     }
 }

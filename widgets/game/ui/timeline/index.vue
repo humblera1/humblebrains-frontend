@@ -2,17 +2,23 @@
     <div class="game-timeline">
         <div class="game-timeline__container">
             <div class="game-timeline__line" :style="timelineStyle" />
+            <div
+                v-for="reaction of game.incorrectAnswerReactions"
+                :key="reaction.id"
+                class="game-timeline__line game-timeline__line_invalid game-widget_invalid"
+                :style="timelineStyle"
+            />
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-const gameStore = useGameStore();
+const game = useGameStore();
 
-const totalTime: number = gameStore.totalTime;
+const totalTime: number = game.totalTime;
 
 const timelineStyle = computed(() => {
-    return `width: ${(gameStore.totalTime / totalTime) * 100}%`;
+    return `width: ${(game.totalTime / totalTime) * 100}%`;
 });
 </script>
 
