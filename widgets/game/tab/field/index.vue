@@ -1,4 +1,8 @@
-<template>this is the field tab</template>
+<template>
+    <div>
+        this is the field tab
+    </div>
+</template>
 
 <script setup lang="ts"></script>
 

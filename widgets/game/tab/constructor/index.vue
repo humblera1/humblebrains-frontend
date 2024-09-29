@@ -1,4 +1,8 @@
-<template>this is the constructor tab</template>
+<template>
+    <div>
+        this is the constructor tab
+    </div>
+</template>
 
 <script setup lang="ts"></script>
 

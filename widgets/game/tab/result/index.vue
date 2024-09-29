@@ -1,4 +1,8 @@
-<template>and finally, the is result tab</template>
+<template>
+    <div>
+        and finally, the is result tab
+    </div>
+</template>
 
 <script setup lang="ts"></script>
 
