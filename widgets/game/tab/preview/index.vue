@@ -1,8 +1,8 @@
 <template>
     <div v-if="page.game">
         this is preview tab of game {{ page.game }}
-        <UiButton @click="page.selectFieldTab()"> to the field </UiButton>
-        <UiButton @click="page.selectConstructorTab()"> to the constructor </UiButton>
+        <UiButton @click="page.selectFieldTab()"> field </UiButton>
+        <UiButton @click="page.selectConstructorTab()"> constructor </UiButton>
     </div>
 </template>
 

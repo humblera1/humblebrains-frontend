@@ -48,7 +48,6 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .container {
     position: relative;
-    //overflow: hidden;
     width: 100%;
     height: 100%;
 }
@@ -68,10 +67,10 @@ onUnmounted(() => {
 }
 
 .slide-fade-enter-from {
-    transform: translateX(100%);
+    transform: translateX(80%);
 }
 
 .slide-fade-leave-to {
-    transform: translateX(-100%);
+    transform: translateX(-5%);
 }
 </style>
