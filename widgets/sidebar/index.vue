@@ -15,6 +15,7 @@ import House from '~/shared/icons/sidebar/house.vue';
 import User from '~/shared/icons/sidebar/user.vue';
 import Gear from '~/shared/icons/sidebar/gear.vue';
 import Puzzle from '~/shared/icons/sidebar/puzzle.vue';
+import PieChart from '~/shared/icons/sidebar/pie-chart.vue';
 
 const items: SidebarItem[] = [
     {
@@ -31,6 +32,11 @@ const items: SidebarItem[] = [
         icon: Puzzle,
         to: '/games',
         title: 'games',
+    },
+    {
+        icon: PieChart,
+        to: '/progress',
+        title: 'progress',
     },
 ];
 

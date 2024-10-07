@@ -11,6 +11,7 @@ export default defineI18nConfig(() => ({
             profile: 'Профиль',
             games: 'Игры',
             settings: 'Настройки',
+            progress: 'Прогресс',
 
             gamesList: 'Список упражнений',
 
@@ -33,6 +34,7 @@ export default defineI18nConfig(() => ({
             profile: 'Profile',
             games: 'Games',
             settings: 'Settings',
+            progress: 'Progress',
 
             gamesList: 'Games List',
 
