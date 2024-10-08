@@ -31,6 +31,10 @@
     @include boxShadow(-5, 5, 15, 0, var(--main-shadow));
 }
 
+@mixin widgetContainerShadow() {
+    @include boxShadow(1, -1, 1, 0, var(--container-shadow));
+}
+
 @mixin lineclamp($lines) {
     text-overflow: ellipsis;
     display: -webkit-box;
