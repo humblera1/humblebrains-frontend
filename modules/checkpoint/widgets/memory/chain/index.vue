@@ -1,4 +1,4 @@
-<template>memory exercises chain</template>
+<template>memory exercises chain - from module!</template>
 
 <script setup lang="ts"></script>
 

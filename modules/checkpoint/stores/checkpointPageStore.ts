@@ -1,8 +1,24 @@
 import { defineStore } from 'pinia';
+import type { Component } from 'vue';
 import { CheckpointTestTabEnum } from '~/entities/enums/checkpoint/CheckpointTestTabEnum';
+import { CognitiveCategoryEnum } from '~/entities/enums/cognitiveCategoryEnum';
+import type { ChainComponent } from '~/modules/checkpoint/entities/types/ChainComponent';
 
 export const useCheckpointPageStore = defineStore('checkpointPageStorage', () => {
     const currentTab = ref<CheckpointTestTabEnum>(CheckpointTestTabEnum.preview);
+
+    const route = useRoute();
+
+    const currentCategory = ref<CognitiveCategoryEnum>();
+
+    const componentsChain: ChainComponent[] = [];
+
+    const currentChainIndex = ref<number>(0);
+
+    // todo: error
+    const currentTestComponent = computed((): ChainComponent | undefined => {
+        return componentsChain.at(currentChainIndex.value);
+    });
 
     const selectTab = (tab: CheckpointTestTabEnum): void => {
         currentTab.value = tab;
@@ -28,6 +44,79 @@ export const useCheckpointPageStore = defineStore('checkpointPageStorage', () =>
         return isTabSelected(CheckpointTestTabEnum.gameplay);
     };
 
+    const isCategoryEnum = (value: any): value is CognitiveCategoryEnum => {
+        return Object.values(CognitiveCategoryEnum).includes(value);
+    };
+
+    const initCategory = () => {
+        const category = route.params.category;
+
+        if (typeof category === 'string' && isCategoryEnum(category)) {
+            currentCategory.value = category;
+        } else {
+            // todo: недопустимая категория
+        }
+    };
+
+    /**
+     * https://github.com/vitejs/vite/pull/5491/commits
+     *
+     * todo: default value
+     */
+    const getComponents = (): Record<string, { default: Component }> | null => {
+        switch (currentCategory.value) {
+            case CognitiveCategoryEnum.memory:
+                return import.meta.glob('@/modules/checkpoint/widgets/memory/**/index.vue', { eager: true });
+            case CognitiveCategoryEnum.logic:
+                return import.meta.glob('@/modules/checkpoint/widgets/logic/**/index.vue', { eager: true });
+            case CognitiveCategoryEnum.attention:
+                return import.meta.glob('@/modules/checkpoint/widgets/attention/**/index.vue', { eager: true });
+            default:
+                return null;
+        }
+    };
+
+    /**
+     *
+     */
+    const initComponentsChain = () => {
+        if (!currentCategory.value) {
+            return;
+        }
+
+        const components = getComponents();
+
+        for (const path in components) {
+            if (path) {
+                const componentName = path.split('/').slice(-2, -1)[0];
+                const component = components[path];
+
+                componentsChain.push({
+                    name: componentName,
+                    component: component.default,
+                });
+            }
+        }
+    };
+
+    const initChainIndex = (): void => {
+        currentChainIndex.value = 0;
+    };
+
+    const setupStore = () => {
+        initCategory();
+        initComponentsChain();
+        initChainIndex();
+    };
+
+    const destroyStore = () => {
+        componentsChain.splice(0, componentsChain.length);
+        currentChainIndex.value = 0;
+        currentCategory.value = undefined;
+
+        selectPreviewTab();
+    };
+
     return {
         currentTab,
 
@@ -36,5 +125,12 @@ export const useCheckpointPageStore = defineStore('checkpointPageStorage', () =>
 
         selectGameplayTab,
         isGameplayTabSelected,
+
+        setupStore,
+        destroyStore,
+
+        componentsChain,
+
+        currentTestComponent,
     };
 });
