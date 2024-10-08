@@ -20,6 +20,10 @@ const currentTabComponent = computed(() => {
             return WidgetCheckpointTabConclusion;
     }
 });
+
+onUnmounted(() => {
+    currentTab.value = CheckpointTabEnum.preview;
+});
 </script>
 
 <style scoped lang="scss"></style>
