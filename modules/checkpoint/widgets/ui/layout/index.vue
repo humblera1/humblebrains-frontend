@@ -6,6 +6,7 @@
                     <WidgetCheckpointUiTime />
                     <WidgetCheckpointUiProgress />
                 </div>
+                <WidgetCheckpointUiPause />
             </section>
             <section class="checkpoint-layout__field">
                 <slot />
