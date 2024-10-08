@@ -3,6 +3,7 @@
         <div class="checkpoint-layout__inner">
             <section class="checkpoint-layout__header">
                 <div class="checkpoint-layout__widgets">
+                    <WidgetCheckpointUiTime />
                     <WidgetCheckpointUiProgress />
                 </div>
             </section>
