@@ -3,11 +3,13 @@
         <WidgetCheckpointTestPreview />
     </template>
     <template v-else-if="page.isGameplayTabSelected()">
-        <component
-            :is="page.currentTestComponent.component"
-            v-if="page.currentTestComponent?.component"
-            :key="page.currentTestComponent.name"
-        />
+        <WidgetCheckpointUiLayout>
+            <component
+                :is="page.currentTestComponent.component"
+                v-if="page.currentTestComponent?.component"
+                :key="page.currentTestComponent.name"
+            />
+        </WidgetCheckpointUiLayout>
     </template>
 </template>
 
