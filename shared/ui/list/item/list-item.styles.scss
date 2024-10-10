@@ -1,0 +1,50 @@
+.list-item {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 12px;
+    transition: background-color 250ms ease;
+
+    @include mobile {
+        padding: 6px 12px;
+        border-radius: 8px;
+    }
+
+    &__content {
+        display: flex;
+        gap: 12px;
+
+        @include mobile {
+            gap: 8px;
+        }
+    }
+
+    &__icon {
+        width: 20px;
+        height: 20px;
+
+        @include mobile {
+            width: 16px;
+            height: 16px;
+        }
+    }
+
+    svg {
+        object-fit: contain;
+        color: var(--primary-subtitle);
+        width: 100%;
+    }
+
+    &__title {
+        @include mainFont(400, 16, var(--primary-subtitle));
+
+        @include mobile {
+            font-size: 14px;
+        }
+    }
+
+    &:hover {
+        background-color: var(--item-hovered-bg);
+    }
+}

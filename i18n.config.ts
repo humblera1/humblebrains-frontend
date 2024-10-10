@@ -25,6 +25,7 @@ export default defineI18nConfig(() => ({
             levelUp: 'Новый уровень!',
             showRules: 'Показать обучение',
             quit: 'Выйти',
+            continue: 'Продолжить',
 
             // Matrix
             remember: 'Запомнил',
@@ -61,6 +62,7 @@ export default defineI18nConfig(() => ({
             levelUp: 'Level Up!',
             showRules: 'Show rules',
             quit: 'Quit',
+            continue: 'Continue',
 
             // Matrix
             remember: 'Remember',

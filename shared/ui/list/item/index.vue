@@ -1,7 +1,9 @@
 <template>
     <li class="list-item" @click="$emit('selected')">
         <span class="list-item__content">
-            <component :is="icon" :key="title" />
+            <span class="list-item__icon">
+                <component :is="icon" :key="title" />
+            </span>
             <span class="list-item__title">{{ $t(title) }}</span>
         </span>
     </li>
@@ -18,26 +20,4 @@ withDefaults(defineProps<ListItem>(), {
 });
 </script>
 
-<style scoped lang="scss">
-.list-item {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    padding: 8px 16px;
-    border-radius: 12px;
-    transition: background-color 250ms ease;
-
-    &__content {
-        display: flex;
-        gap: 12px;
-    }
-
-    &__title {
-        @include mainFont(400, 16, var(--primary-subtitle));
-    }
-
-    &:hover {
-        background-color: var(--item-hovered-bg);
-    }
-}
-</style>
+<style scoped lang="scss" />
