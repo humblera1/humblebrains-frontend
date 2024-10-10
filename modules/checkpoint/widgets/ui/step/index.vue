@@ -1,6 +1,6 @@
 <template>
     <div class="checkpoint-step">
-        <p class="checkpoint-step__title">{{ $t(page.getCategory()) }}</p>
+        <p class="checkpoint-step__title">{{ page.getCategory ? $t(page.getCategory()) : '' }}</p>
         <p class="checkpoint-step__subtitle">{{ $t('step') + ' ' + progress }}</p>
     </div>
 </template>

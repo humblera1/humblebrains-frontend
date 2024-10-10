@@ -22,5 +22,15 @@
         align-items: center;
         width: 100%;
         height: 100%;
+        gap: 48px;
+
+        @include tablet {
+            gap: 32px;
+        }
+
+        @include mobile {
+            gap: 16px;
+        }
+
     }
 }

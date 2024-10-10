@@ -11,19 +11,22 @@
 </template>
 
 <script setup lang="ts">
-const totalTime = ref<number>(5);
-const currentTime = ref<number>(3);
+import { useCheckpointStore } from '~/modules/checkpoint/stores/checkpointStore';
+
+const checkpoint = useCheckpointStore();
 
 const formattedTime = computed((): string => {
-    const minutes = Math.floor(totalTime.value / 60);
-    const seconds = totalTime.value % 60;
+    const minutes = Math.floor(checkpoint.time / 60);
+    const seconds = checkpoint.time % 60;
 
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 });
 
 const lineStyle = computed(() => {
-    return `width: ${(currentTime.value / totalTime.value) * 100}%`;
+    return `width: ${(checkpoint.time / checkpoint.totalTime) * 100}%`;
 });
+
+checkpoint.startTimer();
 </script>
 
 <style scoped lang="scss" src="./checkpoint-ui-time.styles.scss" />

@@ -5,8 +5,8 @@
             <WidgetCheckpointUiStep />
         </div>
         <div class="checkpoint-header__widgets">
-            <WidgetCheckpointUiTime />
             <WidgetCheckpointUiProgress />
+            <WidgetCheckpointUiTime />
         </div>
     </section>
 </template>
