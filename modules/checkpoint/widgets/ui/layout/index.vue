@@ -2,12 +2,16 @@
     <div class="checkpoint-layout">
         <div class="checkpoint-layout__inner">
             <section class="checkpoint-layout__header">
+                <WidgetCheckpointUiPause />
+                <div class="checkpoint-layout__step">
+                    <WidgetCheckpointUiStep />
+                </div>
                 <div class="checkpoint-layout__widgets">
                     <WidgetCheckpointUiTime />
                     <WidgetCheckpointUiProgress />
                 </div>
-                <WidgetCheckpointUiPause />
             </section>
+
             <section class="checkpoint-layout__field">
                 <slot />
             </section>
@@ -15,6 +19,7 @@
     </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+</script>
 
 <style scoped lang="scss" src="./checkpoint-ui-layout.styles.scss" />

@@ -48,16 +48,6 @@ export const useCheckpointPageStore = defineStore('checkpointPageStorage', () =>
         return Object.values(CognitiveCategoryEnum).includes(value);
     };
 
-    const initCategory = () => {
-        const category = route.params.category;
-
-        if (typeof category === 'string' && isCategoryEnum(category)) {
-            currentCategory.value = category;
-        } else {
-            // todo: недопустимая категория
-        }
-    };
-
     /**
      * https://github.com/vitejs/vite/pull/5491/commits
      *
@@ -73,6 +63,28 @@ export const useCheckpointPageStore = defineStore('checkpointPageStorage', () =>
                 return import.meta.glob('@/modules/checkpoint/widgets/attention/**/index.vue', { eager: true });
             default:
                 return null;
+        }
+    };
+
+    const getStep = (): number => {
+        return currentChainIndex.value + 1;
+    };
+
+    const getNumberOfSteps = (): number => {
+        return componentsChain.length;
+    };
+
+    const getCategory = (): string => {
+        return currentCategory.value ?? '';
+    };
+
+    const initCategory = () => {
+        const category = route.params.category;
+
+        if (typeof category === 'string' && isCategoryEnum(category)) {
+            currentCategory.value = category;
+        } else {
+            // todo: недопустимая категория
         }
     };
 
@@ -128,6 +140,10 @@ export const useCheckpointPageStore = defineStore('checkpointPageStorage', () =>
 
         setupStore,
         destroyStore,
+
+        getStep,
+        getNumberOfSteps,
+        getCategory,
 
         componentsChain,
 

@@ -1,0 +1,29 @@
+.checkpoint-step {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    @include tablet {
+        text-align: center;
+    }
+
+    &__title {
+        @include mainFont(500, 24, var(--primary-title));
+
+        @include tablet {
+            font-size: 20px;
+        }
+
+        @include mobile {
+            font-size: 16px;
+        }
+    }
+
+    &__subtitle {
+        @include mainFont(500, 16, var(--primary-subtitle));
+
+        @include mobile {
+            font-size: 12px;
+        }
+    }
+}
