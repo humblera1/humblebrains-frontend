@@ -1,13 +1,13 @@
 <template>
-    <div class="checkpoint-pause" @click="openModal">
+    <div class="checkpoint-pause" @click="openModal(WidgetModalPauseTest)">
         <IconGamePause />
     </div>
 </template>
 
 <script setup lang="ts">
-const openModal = () => {
-    // ...
-};
+import { WidgetModalPauseTest } from '#components';
+
+const { openModal } = useHumbleModal();
 </script>
 
 <style scoped lang="scss" src="./checkpoint-ui-pause.styles.scss" />

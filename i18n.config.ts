@@ -5,6 +5,7 @@ export default defineI18nConfig(() => ({
         ru: {
             signUp: 'Регистрация',
             signIn: 'Вход',
+            pause: 'Пауза',
 
             // Sidebar:
             home: 'Главная',
@@ -22,6 +23,8 @@ export default defineI18nConfig(() => ({
             // Games
             levelDown: 'Уровень понижен',
             levelUp: 'Новый уровень!',
+            showRules: 'Показать обучение',
+            quit: 'Выйти',
 
             // Matrix
             remember: 'Запомнил',
@@ -38,6 +41,7 @@ export default defineI18nConfig(() => ({
         en: {
             signUp: 'Sign Up',
             signIn: 'Sign In',
+            pause: 'Pause',
 
             // Sidebar:
             home: 'Home',
@@ -55,6 +59,8 @@ export default defineI18nConfig(() => ({
             // Games
             levelDown: 'Your level is down',
             levelUp: 'Level Up!',
+            showRules: 'Show rules',
+            quit: 'Quit',
 
             // Matrix
             remember: 'Remember',
