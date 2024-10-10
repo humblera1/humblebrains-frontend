@@ -34,7 +34,16 @@ export const usePointsStore = defineStore('pointsStorage', () => {
      */
     const levelsToWarmUp: ITestLevels<PointsLevel> = {
         1: {
+            points: 1,
+        },
+        2: {
+            points: 2,
+        },
+        3: {
             points: 3,
+        },
+        4: {
+            points: 4,
         },
     };
 
@@ -121,36 +130,6 @@ export const usePointsStore = defineStore('pointsStorage', () => {
         pointedNumbers.value.length = 0;
     };
 
-    // const flushPointedNumbers = (): Promise<void> => {
-    //     return new Promise((resolve) => {
-    //         const removeNumber = () => {
-    //             if (pointedNumbers.value.length !== 0) {
-    //                 pointedNumbers.value.pop();
-    //                 setTimeout(removeNumber, 250);
-    //             } else {
-    //                 resolve();
-    //             }
-    //         }
-    //
-    //         setTimeout(removeNumber, 250);
-    //     }
-    // };
-    //
-    // const flushOpenedNumbers = (): Promise<void> => {
-    //     return new Promise((resolve) => {
-    //         const removeNumber = () => {
-    //             if (pointedNumbers.value.length !== 0) {
-    //                 pointedNumbers.value.pop();
-    //                 setTimeout(removeNumber, 250);
-    //             } else {
-    //                 resolve();
-    //             }
-    //         }
-    //
-    //         setTimeout(removeNumber, 250);
-    //     }
-    // };
-
     const finishRound = () => {
         saveSubtotal();
 
@@ -158,6 +137,8 @@ export const usePointsStore = defineStore('pointsStorage', () => {
         flushPointedNumbers();
 
         checkpoint.promoteLevel();
+
+        console.log('is warm up? ' + mode.isWarmUp());
 
         if (mode.isWarmUp()) {
             if (checkpoint.currentLevelNumber <= checkpoint.levelsAmount) {
@@ -180,7 +161,7 @@ export const usePointsStore = defineStore('pointsStorage', () => {
     const setupStore = () => {
         state.setTestPreparingState();
 
-        checkpoint.setLevelsAmount(Object.keys(levels).length);
+        checkpoint.setLevelsAmount(Object.keys(levelsToWarmUp).length);
         checkpoint.setFirstLevel();
 
         mode.setWarmUpMode();

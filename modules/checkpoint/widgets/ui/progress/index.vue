@@ -8,11 +8,12 @@
 </template>
 
 <script setup lang="ts">
-const totalLevels = ref<number>(5);
-const currentLevel = ref<number>(3);
+import { useCheckpointStore } from '~/modules/checkpoint/stores/checkpointStore';
+
+const checkpoint = useCheckpointStore();
 
 const lineStyle = computed(() => {
-    return `width: ${(currentLevel.value / totalLevels.value) * 100}%`;
+    return `width: ${(checkpoint.finishedLevelsAmount / checkpoint.levelsAmount) * 100}%`;
 });
 </script>
 

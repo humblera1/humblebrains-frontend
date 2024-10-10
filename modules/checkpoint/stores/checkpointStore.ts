@@ -42,6 +42,11 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
     /**
      *
      */
+    const finishedLevelsAmount = ref<number>(0);
+
+    /**
+     *
+     */
     const message = ref<string | number>('');
 
     /**
@@ -57,9 +62,9 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
     /**
      * todo: //
      */
-    const finishedLevelsAmount = computed((): number => {
-        return currentLevelNumber.value - 1;
-    });
+    // const finishedLevelsAmount = computed((): number => {
+    //     return currentLevelNumber.value - 1;
+    // });
 
     const setMessage = (value: string | number): void => {
         message.value = value;
@@ -77,6 +82,7 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
     };
 
     const setCurrentLevel = (level: number) => {
+        finishedLevelsAmount.value = level - 1;
         currentLevelNumber.value = level;
     };
 
@@ -145,6 +151,10 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
      *
      */
     const promoteLevel = () => {
+        if (finishedLevelsAmount.value < levelsAmount.value) {
+            finishedLevelsAmount.value++;
+        }
+
         if (currentLevelNumber.value < levelsAmount.value) {
             currentLevelNumber.value++;
         }

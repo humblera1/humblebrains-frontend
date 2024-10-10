@@ -33,6 +33,7 @@
         height: 6px;
         border-radius: 6px;
         background-color: var(--accent-blue);
+        transition: width 500ms ease;
 
         @include mobile {
             height: 4px;
