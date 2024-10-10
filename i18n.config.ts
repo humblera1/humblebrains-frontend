@@ -12,6 +12,7 @@ export default defineI18nConfig(() => ({
             games: 'Игры',
             settings: 'Настройки',
             progress: 'Прогресс',
+            time: 'Время',
 
             gamesList: 'Список упражнений',
 
@@ -24,6 +25,15 @@ export default defineI18nConfig(() => ({
 
             // Matrix
             remember: 'Запомнил',
+
+            // Tests
+            checkpoint: 'Контрольная точка',
+            step: 'Шаг',
+
+            // Categories
+            memory: 'Память',
+            logic: 'Логика',
+            attention: 'Внимание',
         },
         en: {
             signUp: 'Sign Up',
@@ -35,6 +45,7 @@ export default defineI18nConfig(() => ({
             games: 'Games',
             settings: 'Settings',
             progress: 'Progress',
+            time: 'Time',
 
             gamesList: 'Games List',
 
@@ -47,6 +58,15 @@ export default defineI18nConfig(() => ({
 
             // Matrix
             remember: 'Remember',
+
+            // Tests
+            checkpoint: 'Checkpoint',
+            step: 'Step',
+
+            // Categories
+            memory: 'Memory',
+            logic: 'Logic',
+            attention: 'Attention',
         },
     },
 }));

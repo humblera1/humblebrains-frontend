@@ -1,0 +1,38 @@
+.checkpoint-footer {
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+
+    &__info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        @include mobile {
+            gap: 4px;
+        }
+    }
+
+    &__title {
+        @include mainFont(400, 14, var(--primary-subtitle));
+
+        @include mobile {
+            font-size: 12px;
+        }
+    }
+
+    svg {
+        color: var(--primary-subtitle);
+        min-width: 14px;
+        width: 14px;
+        height: 14px;
+
+        @include mobile {
+            min-width: 10px;
+            width: 10px;
+            height: 10px;
+        }
+    }
+}

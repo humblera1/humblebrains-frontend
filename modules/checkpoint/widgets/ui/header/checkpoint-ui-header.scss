@@ -1,0 +1,36 @@
+.checkpoint-header {
+    position: relative;
+    display: flex;
+    width: 100%;
+
+    @include tablet {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    &__step {
+        position: absolute;
+        display: flex;
+        justify-content: flex-start;
+
+        @include tablet {
+            position: relative;
+            justify-content: center;
+        }
+    }
+
+    &__widgets {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        gap: 8px;
+
+        :first-child {
+            z-index: 2;
+        }
+
+        @include mobile {
+            gap: 4px;
+        }
+    }
+}
