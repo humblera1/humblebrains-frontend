@@ -56,11 +56,11 @@ export const useCheckpointPageStore = defineStore('checkpointPageStorage', () =>
     const getComponents = (): Record<string, { default: Component }> | null => {
         switch (currentCategory.value) {
             case CognitiveCategoryEnum.memory:
-                return import.meta.glob('@/modules/checkpoint/widgets/memory/**/index.vue', { eager: true });
+                return import.meta.glob('@/modules/checkpoint/widgets/memory/*/index.vue', { eager: true });
             case CognitiveCategoryEnum.logic:
-                return import.meta.glob('@/modules/checkpoint/widgets/logic/**/index.vue', { eager: true });
+                return import.meta.glob('@/modules/checkpoint/widgets/logic/*/index.vue', { eager: true });
             case CognitiveCategoryEnum.attention:
-                return import.meta.glob('@/modules/checkpoint/widgets/attention/**/index.vue', { eager: true });
+                return import.meta.glob('@/modules/checkpoint/widgets/attention/*/index.vue', { eager: true });
             default:
                 return null;
         }
