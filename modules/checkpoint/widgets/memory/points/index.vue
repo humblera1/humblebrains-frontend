@@ -1,0 +1,61 @@
+<template>
+    <div class="points">
+        <div class="points__field" :style="fieldStyles">
+            <WidgetCheckpointMemoryPointsCell v-for="key in store.getCellsAmount()" :key="key" :number="key" />
+        </div>
+        <div class="points__control" :class="controlsClass">
+            <UiButton @click="store.finishRound"> Продолжить </UiButton>
+        </div>
+    </div>
+</template>
+
+<script setup lang="ts">
+import { usePointsStore } from '~/modules/checkpoint/stores/memory/piontsStore';
+import { useStateStore } from '~/modules/checkpoint/stores/stateStore';
+
+const store = usePointsStore();
+
+const state = useStateStore();
+
+const squareSide = computed((): number => {
+    return Math.floor(Math.sqrt(store.getCellsAmount()));
+});
+
+const fieldStyles = computed(() => {
+    return {
+        gridTemplateColumns: `repeat(${squareSide.value}, 1fr)`,
+    };
+});
+
+const controlsClass = computed((): string => {
+    return state.isInteractive() ? 'points__control_visible' : '';
+});
+
+store.setupStore();
+</script>
+
+<style scoped lang="scss">
+.points {
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+
+    &__field {
+        display: grid;
+        gap: 4px;
+    }
+
+    &__control {
+        display: flex;
+        justify-content: center;
+        transition: opacity 0.5s ease;
+        visibility: hidden;
+        opacity: 0;
+
+        &_visible {
+            visibility: visible;
+            opacity: 1;
+        }
+    }
+}
+</style>

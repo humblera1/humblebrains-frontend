@@ -101,6 +101,12 @@
     --matrix-cell-valid: #A2D999;
     --matrix-cell-invalid: #ED9797;
 
+    // Tests
+
+    // Points
+    --points-cell-opened: #C7C8DB;
+    --points-point: #6771A2;
+
 }
 
 .dark-mode {
@@ -198,4 +204,10 @@
     --matrix-cell-active: #333345;
     --matrix-cell-valid: #5F9A55;
     --matrix-cell-invalid: #A54E4E;
+
+    // Tests
+
+    // Points
+    --points-cell-opened: #3B3B4E;
+    --points-point: #747996;
 }
