@@ -2,6 +2,7 @@
     <div class="checkpoint-layout">
         <div class="checkpoint-layout__inner">
             <WidgetCheckpointUiHeader />
+            <WidgetCheckpointUiMessage />
             <section class="checkpoint-layout__field">
                 <slot />
             </section>
