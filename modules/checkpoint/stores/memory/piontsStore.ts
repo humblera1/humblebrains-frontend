@@ -97,12 +97,20 @@ export const usePointsStore = defineStore('pointsStorage', () => {
         return checkpoint.isInContemplationState() && pointedNumbers.value.includes(cellNumber);
     };
 
+    const hideCells = () => {
+        isCellsHidden.value = true;
+    };
+
+    const showCells = () => {
+        isCellsHidden.value = false;
+    };
+
     const toggleCellsVisibility = async (): Promise<void> => {
         return new Promise((resolve) => {
-            isCellsHidden.value = true;
+            hideCells();
 
             setTimeout(() => {
-                isCellsHidden.value = false;
+                showCells();
                 resolve();
             }, 1000);
         });
@@ -115,12 +123,14 @@ export const usePointsStore = defineStore('pointsStorage', () => {
         const shuffledAvailableNumbers = useShuffle(getAvailableNumbers());
 
         pointedNumbers.value = shuffledAvailableNumbers.slice(0, currentLevel.value.points);
-    }
+    };
 
     /**
      * Начинает новый уровень
      */
     const startLevel = async () => {
+        checkpoint.setLevelPreparingState();
+
         checkpoint.setLevelPreparingState();
         setPointedNumbers();
 
@@ -148,7 +158,7 @@ export const usePointsStore = defineStore('pointsStorage', () => {
         pointedNumbers.value.length = 0;
     };
 
-    const finishRound = () => {
+    const finishRound = async () => {
         checkpoint.resetTimer();
         saveSubtotal();
 
@@ -161,7 +171,7 @@ export const usePointsStore = defineStore('pointsStorage', () => {
 
         if (checkpoint.finishedLevelsAmount >= checkpoint.levelsAmount) {
             if (checkpoint.isInWarmUpMode()) {
-                handleModeSwitching();
+                await handleModeSwitching();
             } else {
                 finishTest();
 
@@ -169,7 +179,7 @@ export const usePointsStore = defineStore('pointsStorage', () => {
             }
         }
 
-        startLevel();
+        await startLevel();
     };
 
     const finishTest = () => {
@@ -182,22 +192,31 @@ export const usePointsStore = defineStore('pointsStorage', () => {
         // ...
     };
 
-    const setupStore = () => {
+    const setupStore = async () => {
         checkpoint.setTestPreparingState();
 
         checkpoint.setLevelsAmount(Object.keys(levelsToWarmUp).length);
-        // checkpoint.setFirstLevel();
-
         checkpoint.setWarmUpMode();
 
-        startLevel();
+        await checkpoint.showPrompt('warmUpPrompt');
+        await startLevel();
     };
 
-    const handleModeSwitching = () => {
+    const handleModeSwitching = (): Promise<void> => {
         checkpoint.setMessage('Разминка завершена!');
-        checkpoint.setLevelsAmount(Object.keys(levels).length);
-        checkpoint.resetProgress();
-        checkpoint.setGameMode();
+        hideCells();
+
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                checkpoint.setLevelsAmount(Object.keys(levels).length);
+                checkpoint.resetProgress();
+                checkpoint.setGameMode();
+
+                showCells();
+
+                resolve();
+            }, 1000);
+        });
     };
 
     return {

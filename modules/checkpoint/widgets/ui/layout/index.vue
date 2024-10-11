@@ -6,6 +6,7 @@
             <section class="checkpoint-layout__field">
                 <slot />
             </section>
+            <WidgetCheckpointUiPrompt />
             <WidgetCheckpointUiFooter />
         </div>
     </div>

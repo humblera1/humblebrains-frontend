@@ -35,6 +35,7 @@ export default defineI18nConfig(() => ({
             // Tests
             checkpoint: 'Контрольная точка',
             step: 'Шаг',
+            warmUpPrompt: 'Вам будет представлено несколько разминочных раундов',
 
             // Categories
             memory: 'Память',
@@ -74,6 +75,7 @@ export default defineI18nConfig(() => ({
             // Tests
             checkpoint: 'Checkpoint',
             step: 'Step',
+            warmUpPrompt: '',
 
             // Categories
             memory: 'Memory',

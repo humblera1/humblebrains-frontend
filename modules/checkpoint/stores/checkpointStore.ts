@@ -17,6 +17,16 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
     const state = ref<TestStateEnum>();
 
     /**
+     * Переменная, хранящая функцию для разрешения промиса, который ответственен за показ подсказки пользователю во время теста.
+     */
+    let promptResolver: (() => void) | undefined;
+
+    /**
+     * Содержимое подсказки
+     */
+    const promptContent = ref<string>('');
+
+    /**
      * Вспомогательная переменная, хранит неизменяемое значение времени на тест
      */
     const totalTime = ref<number>(50);
@@ -74,9 +84,19 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
     /**
      * todo: //
      */
-    // const finishedLevelsAmount = computed((): number => {
-    //     return currentLevelNumber.value - 1;
-    // });
+    const showPrompt = (content: string): Promise<void> => {
+        promptContent.value = content;
+        setPromptState();
+        return new Promise((resolve) => {
+            promptResolver = resolve;
+        });
+    };
+
+    const closePrompt = () => {
+        if (promptResolver) {
+            promptResolver();
+        }
+    };
 
     const setMessage = (value: string | number): void => {
         message.value = value;
@@ -106,7 +126,7 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         return message.value !== '';
     };
 
-    const startCountdown = async (): Promise<void> => {
+    const startCountdown = (): Promise<void> => {
         if (isCountdownStarted()) {
             throw new Error('Countdown already started');
         }
@@ -138,7 +158,7 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         countdownTimerId = null;
 
         countdown.value = COUNTDOWN_INITIAL_VALUE;
-    }
+    };
 
     /**
      * Уменьшает значение переменной countdown на единицу
@@ -202,7 +222,7 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
     const resetTimer = () => {
         stopTimer();
         time.value = totalTime.value;
-    }
+    };
 
     /**
      * Проверяет, запущено ли уменьшение времени time
@@ -312,7 +332,6 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         return isState(TestStateEnum.pause);
     };
 
-
     /** ********************************************************************************************************* Работа с режимами теста */
 
     /**
@@ -371,10 +390,15 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         // setFirstLevel,
         resetProgress,
 
+        // Работа с подсказками
+        promptContent,
         promoteLevel,
         setLevelsAmount,
 
-        //Работа с режимами
+        showPrompt,
+        closePrompt,
+
+        // Работа с режимами
         setWarmUpMode,
         setGameMode,
         isInWarmUpMode,
