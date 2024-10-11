@@ -82,6 +82,15 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
     let countdownTimerId: ReturnType<typeof setTimeout> | null = null;
 
     /**
+     * Вклады тестовых упражнений в результат данного этапа
+     */
+    const testContributions: number[] = [];
+
+    const saveTestContribution = (contribution: number) => {
+        testContributions.push(contribution);
+    };
+
+    /**
      * todo: //
      */
     const showPrompt = (content: string): Promise<void> => {
@@ -390,13 +399,16 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         // setFirstLevel,
         resetProgress,
 
-        // Работа с подсказками
-        promptContent,
         promoteLevel,
         setLevelsAmount,
 
+        // Работа с подсказками
+        promptContent,
         showPrompt,
         closePrompt,
+
+        // Обработка результатов
+        saveTestContribution,
 
         // Работа с режимами
         setWarmUpMode,

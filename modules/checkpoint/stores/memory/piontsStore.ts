@@ -19,9 +19,15 @@ export const usePointsStore = defineStore('pointsStorage', () => {
     /**
      * Массив ячеек, открытых пользователем в текущем раунде.
      */
-    const openedNumbers = ref<Set<number>>(new Set());
+    const openedNumbers = ref<number[]>([]);
 
-    const isCellsHidden = ref<boolean>(false);
+    const isCellsHidden = ref<boolean>(true);
+
+    /**
+     * Массив, хранящий процент правильно открытых ячеек за каждый уровень.
+     * По окончанию игры рассчитывается среднее на основании всех элементов массива.
+     */
+    const subtotals: number[] = [];
 
     /**
      * Разминочные уровни
@@ -82,15 +88,19 @@ export const usePointsStore = defineStore('pointsStorage', () => {
     };
 
     const openCell = (cellNumber: number) => {
-        openedNumbers.value.add(cellNumber);
+        openedNumbers.value.push(cellNumber);
     };
 
     const closeCell = (cellNumber: number) => {
-        openedNumbers.value.delete(cellNumber);
+        const indexToRemove = openedNumbers.value.indexOf(cellNumber);
+
+        if (indexToRemove !== -1) {
+            openedNumbers.value.splice(indexToRemove, 1);
+        }
     };
 
     const isCellOpened = (cellNumber: number): boolean => {
-        return openedNumbers.value.has(cellNumber);
+        return openedNumbers.value.includes(cellNumber);
     };
 
     const isPointVisible = (cellNumber: number): boolean => {
@@ -151,7 +161,7 @@ export const usePointsStore = defineStore('pointsStorage', () => {
     };
 
     const flushOpenedNumbers = () => {
-        openedNumbers.value.clear();
+        openedNumbers.value.length = 0;
     };
 
     const flushPointedNumbers = () => {
@@ -159,8 +169,10 @@ export const usePointsStore = defineStore('pointsStorage', () => {
     };
 
     const finishRound = async () => {
-        checkpoint.resetTimer();
         saveSubtotal();
+
+        checkpoint.setFailedLevelFinishingState();
+        checkpoint.resetTimer();
 
         flushOpenedNumbers();
         flushPointedNumbers();
@@ -183,13 +195,32 @@ export const usePointsStore = defineStore('pointsStorage', () => {
     };
 
     const finishTest = () => {
+        saveTotal();
         checkpoint.setTestFinishingState();
         checkpoint.setMessage('Отлично! Готовим следующий этап...');
+
+        // двигаемся по цепочке к следующему результату
+    };
+
+    const saveTotal = () => {
+        const mean = useMean(subtotals);
+        const total = parseFloat(mean.toFixed(2));
+
+        checkpoint.saveTestContribution(total);
     };
 
     const saveSubtotal = () => {
-        console.log(openedNumbers.value);
-        // ...
+        if (checkpoint.isInWarmUpMode()) {
+            return;
+        }
+
+        const correctAnswers = useIntersection(openedNumbers.value, pointedNumbers.value);
+        const incorrectAnswers = useDifference(openedNumbers.value, pointedNumbers.value);
+
+        const points = correctAnswers.length - incorrectAnswers.length;
+        const percent = points > 0 ? (points * 100) / pointedNumbers.value.length : 0;
+
+        subtotals.push(percent);
     };
 
     const setupStore = async () => {
@@ -199,24 +230,25 @@ export const usePointsStore = defineStore('pointsStorage', () => {
         checkpoint.setWarmUpMode();
 
         await checkpoint.showPrompt('warmUpPrompt');
+
+        showCells();
+
         await startLevel();
     };
 
-    const handleModeSwitching = (): Promise<void> => {
+    const handleModeSwitching = async (): Promise<void> => {
         checkpoint.setMessage('Разминка завершена!');
         hideCells();
 
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                checkpoint.setLevelsAmount(Object.keys(levels).length);
-                checkpoint.resetProgress();
-                checkpoint.setGameMode();
+        await checkpoint.showPrompt('gameStartPrompt');
 
-                showCells();
+        checkpoint.setLevelPreparingState();
+        checkpoint.clearMessage();
 
-                resolve();
-            }, 1000);
-        });
+        showCells();
+        checkpoint.setGameMode();
+        checkpoint.setLevelsAmount(Object.keys(levels).length);
+        checkpoint.resetProgress();
     };
 
     return {
