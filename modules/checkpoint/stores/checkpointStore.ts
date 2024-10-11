@@ -210,6 +210,7 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         startTimer,
         stopTimer,
 
+        clearMessage,
         setMessage,
         getMessage,
         isMessageSet,

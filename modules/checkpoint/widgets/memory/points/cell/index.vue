@@ -43,7 +43,7 @@ const pointClasses = computed(() => {
     height: 65px;
     border-radius: 16px;
     opacity: 1;
-    transition: opacity 0.5s ease;
+    transition: opacity 250ms ease;
 
     &__inner {
         width: 100%;

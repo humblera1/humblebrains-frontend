@@ -54,6 +54,10 @@ export const useStateStore = defineStore('checkpointTestStateStorage', () => {
         setState(TestStateEnum.pause);
     };
 
+    const setTestFinishingState = (): void => {
+        setState(TestStateEnum.testFinishing);
+    };
+
     /** ************************************************************************************************************************ Проверки */
 
     const isInTestPreparingState = (): boolean => {
@@ -94,6 +98,7 @@ export const useStateStore = defineStore('checkpointTestStateStorage', () => {
         setContemplationState,
         setInteractiveState,
         setRoundFinishingState,
+        setTestFinishingState,
         setPromptState,
         setPauseState,
         isInTestPreparingState,

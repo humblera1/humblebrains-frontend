@@ -103,6 +103,17 @@ export const usePointsStore = defineStore('pointsStorage', () => {
         return state.isInContemplationState() && pointedNumbers.value.includes(cellNumber);
     };
 
+    const toggleCellsVisibility = (): Promise<void> => {
+        return new Promise((resolve) => {
+            isCellsHidden.value = true;
+
+            setTimeout(() => {
+                isCellsHidden.value = false;
+                resolve();
+            }, 1000);
+        });
+    };
+
     /**
      * Начинает новый уровень
      */
@@ -116,8 +127,10 @@ export const usePointsStore = defineStore('pointsStorage', () => {
             state.setContemplationState();
 
             setTimeout(() => {
-                // здесь необходимо скрыть поле, а затем снова показать его
-                state.setInteractiveState();
+                toggleCellsVisibility().then(() => {
+                    checkpoint.setMessage('Откройте все ячейки, где ранее находились точки');
+                    state.setInteractiveState();
+                });
             }, 1000);
         });
     };
@@ -136,19 +149,26 @@ export const usePointsStore = defineStore('pointsStorage', () => {
         flushOpenedNumbers();
         flushPointedNumbers();
 
+        checkpoint.clearMessage();
+
         checkpoint.promoteLevel();
 
         if (checkpoint.finishedLevelsAmount >= checkpoint.levelsAmount) {
-            // или завершаем игру, или переключаем режим
             if (mode.isWarmUp()) {
                 handleModeSwitching();
             } else {
-                console.log('game is over');
+                finishTest();
+
                 return;
             }
         }
 
         startLevel();
+    };
+
+    const finishTest = () => {
+        state.setTestFinishingState();
+        checkpoint.setMessage('Отлично! Готовим следующий этап...');
     };
 
     const saveSubtotal = () => {

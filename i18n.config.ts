@@ -27,6 +27,7 @@ export default defineI18nConfig(() => ({
             quit: 'Выйти',
             continue: 'Продолжить',
             warmUp: 'Разминка',
+            ok: 'Ок',
 
             // Matrix
             remember: 'Запомнил',
@@ -65,6 +66,7 @@ export default defineI18nConfig(() => ({
             quit: 'Quit',
             continue: 'Continue',
             warmUp: 'Warming-Up',
+            ok: 'Ok',
 
             // Matrix
             remember: 'Remember',
