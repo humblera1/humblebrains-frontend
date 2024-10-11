@@ -129,6 +129,7 @@ export const usePointsStore = defineStore('pointsStorage', () => {
             setTimeout(() => {
                 toggleCellsVisibility().then(() => {
                     checkpoint.setMessage('Откройте все ячейки, где ранее находились точки');
+                    checkpoint.startTimer();
                     state.setInteractiveState();
                 });
             }, 1000);
@@ -144,6 +145,7 @@ export const usePointsStore = defineStore('pointsStorage', () => {
     };
 
     const finishRound = () => {
+        checkpoint.resetTimer();
         saveSubtotal();
 
         flushOpenedNumbers();

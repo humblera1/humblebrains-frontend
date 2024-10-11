@@ -188,6 +188,11 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         timerId = null;
     };
 
+    const resetTimer = () => {
+        stopTimer();
+        time.value = totalTime.value;
+    }
+
     /**
      * Проверяет, запущено ли уменьшение времени time
      */
@@ -209,6 +214,7 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         currentStep,
         startTimer,
         stopTimer,
+        resetTimer,
 
         clearMessage,
         setMessage,

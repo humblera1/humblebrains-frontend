@@ -25,8 +25,6 @@ const formattedTime = computed((): string => {
 const lineStyle = computed(() => {
     return `width: ${(checkpoint.time / checkpoint.totalTime) * 100}%`;
 });
-
-checkpoint.startTimer();
 </script>
 
 <style scoped lang="scss" src="./checkpoint-ui-time.styles.scss" />
