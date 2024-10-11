@@ -1,6 +1,6 @@
 <template>
     <WidgetCheckpointUiBadge>
-        <template v-if="mode.isWarmUp()">
+        <template v-if="checkpoint.isInWarmUpMode()">
             <span>
                 <span class="checkpoint-progress__title">{{ $t('warmUp') }}: </span>
                 <span class="checkpoint-progress__value">{{ formattedProgress }}</span>
@@ -17,10 +17,8 @@
 
 <script setup lang="ts">
 import { useCheckpointStore } from '~/modules/checkpoint/stores/checkpointStore';
-import { useModeStore } from '~/modules/checkpoint/stores/modeStore';
 
 const checkpoint = useCheckpointStore();
-const mode = useModeStore();
 
 const lineStyle = computed(() => {
     return `width: ${(checkpoint.finishedLevelsAmount / checkpoint.levelsAmount) * 100}%`;

@@ -1,8 +1,14 @@
 // Базовый стор, отвечающий за действия, свойственные всем тестам
 import { defineStore } from 'pinia';
+import { TestModeEnum } from '~/modules/checkpoint/entities/enums/TestModeEnum';
 
 export const useCheckpointStore = defineStore('checkpointStorage', () => {
     const COUNTDOWN_INITIAL_VALUE = 3;
+
+    /**
+     * Текущий режим теста
+     */
+    const mode  = ref<TestModeEnum>();
 
     /**
      * Вспомогательная переменная, хранит неизменяемое значение времени на тест
@@ -207,6 +213,41 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         time.value--;
     };
 
+
+    /** ********************************************************************************************************** Работа с режимами игры */
+
+    /**
+     * Устанавливает переданный режим
+     * @param modeToSet
+     */
+    const setMode = (modeToSet: TestModeEnum): void => {
+        mode.value = modeToSet;
+    };
+
+    /**
+     * Проверяет соответствие переданного режима текущему
+     * @param modeToCheck
+     */
+    const isMode = (modeToCheck: TestModeEnum): boolean => {
+        return mode.value === modeToCheck;
+    };
+
+    const setWarmUpMode = () => {
+        setMode(TestModeEnum.warmUp);
+    };
+
+    const setGameMode = () => {
+        setMode(TestModeEnum.game);
+    };
+
+    const isInWarmUpMode = (): boolean => {
+        return isMode(TestModeEnum.warmUp);
+    };
+
+    const isInGameMode = (): boolean => {
+        return isMode(TestModeEnum.game);
+    };
+
     return {
         totalTime,
         time,
@@ -233,5 +274,11 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
 
         promoteLevel,
         setLevelsAmount,
+
+        //Работа с режимами игры
+        setWarmUpMode,
+        setGameMode,
+        isInWarmUpMode,
+        isInGameMode,
     };
 });

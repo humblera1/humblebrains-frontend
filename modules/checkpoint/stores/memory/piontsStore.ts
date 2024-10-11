@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia';
 import type { PointsLevel } from '~/modules/checkpoint/entities/types/points/PointsLevel';
 import { useStateStore } from '~/modules/checkpoint/stores/stateStore';
-import { useModeStore } from '~/modules/checkpoint/stores/modeStore';
 import type { ITestLevels } from '~/modules/checkpoint/entities/interfaces/ITestLevels';
 import { useCheckpointStore } from '~/modules/checkpoint/stores/checkpointStore';
 
@@ -14,8 +13,6 @@ export const usePointsStore = defineStore('pointsStorage', () => {
     const checkpoint = useCheckpointStore();
 
     const state = useStateStore();
-
-    const mode = useModeStore();
 
     /**
      * Массив номеров ячеек, которые содержат точки.
@@ -57,7 +54,7 @@ export const usePointsStore = defineStore('pointsStorage', () => {
     };
 
     const currentLevel = computed((): PointsLevel => {
-        return mode.isWarmUp() ? levelsToWarmUp[checkpoint.currentLevelNumber] : levels[checkpoint.currentLevelNumber];
+        return checkpoint.isInWarmUpMode() ? levelsToWarmUp[checkpoint.currentLevelNumber] : levels[checkpoint.currentLevelNumber];
     });
 
     /**
@@ -156,7 +153,7 @@ export const usePointsStore = defineStore('pointsStorage', () => {
         checkpoint.promoteLevel();
 
         if (checkpoint.finishedLevelsAmount >= checkpoint.levelsAmount) {
-            if (mode.isWarmUp()) {
+            if (checkpoint.isInWarmUpMode()) {
                 handleModeSwitching();
             } else {
                 finishTest();
@@ -184,7 +181,7 @@ export const usePointsStore = defineStore('pointsStorage', () => {
         checkpoint.setLevelsAmount(Object.keys(levelsToWarmUp).length);
         // checkpoint.setFirstLevel();
 
-        mode.setWarmUpMode();
+        checkpoint.setWarmUpMode();
 
         startLevel();
     };
@@ -193,7 +190,7 @@ export const usePointsStore = defineStore('pointsStorage', () => {
         checkpoint.setMessage('Разминка завершена!');
         checkpoint.setLevelsAmount(Object.keys(levels).length);
         checkpoint.resetProgress();
-        mode.setGameMode();
+        checkpoint.setGameMode();
     };
 
     return {
