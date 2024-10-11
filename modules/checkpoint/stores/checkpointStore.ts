@@ -112,10 +112,6 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         message.value = value;
     };
 
-    const getMessage = (): string | number => {
-        return message.value;
-    };
-
     /**
      * @param amount
      */
@@ -386,11 +382,6 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         stopTimer,
         resetTimer,
 
-        clearMessage,
-        setMessage,
-        getMessage,
-        isMessageSet,
-
         startCountdown,
 
         levelsAmount,
@@ -403,6 +394,12 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
 
         promoteLevel,
         setLevelsAmount,
+
+        // Работа с сообщениями
+        message,
+        clearMessage,
+        setMessage,
+        isMessageSet,
 
         // Работа с подсказками
         promptContent,

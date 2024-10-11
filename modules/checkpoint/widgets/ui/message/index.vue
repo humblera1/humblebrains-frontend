@@ -1,6 +1,6 @@
 <template>
     <div :class="messageClasses">
-        <p class="checkpoint-message__text">{{ checkpoint.isMessageSet() ? $t(checkpoint.getMessage()) : '' }}</p>
+        <p class="checkpoint-message__text">{{ needToTranslate() ? $t(checkpoint.message) : checkpoint.message }}</p>
     </div>
 </template>
 
@@ -8,6 +8,11 @@
 import { useCheckpointStore } from '~/modules/checkpoint/stores/checkpointStore';
 
 const checkpoint = useCheckpointStore();
+
+// Не переводим, если сообщение не задано или содержит только число
+const needToTranslate = () => {
+    return typeof checkpoint.message === 'string' && checkpoint.message !== '';
+};
 
 const messageClasses = computed(() => {
     return [
