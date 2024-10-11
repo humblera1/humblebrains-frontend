@@ -9,6 +9,8 @@ import { useCheckpointStore } from '~/modules/checkpoint/stores/checkpointStore'
 export const usePointsStore = defineStore('pointsStorage', () => {
     const CELLS_AMOUNT = 16;
 
+    const TIME_TO_GIVE_ANSWER = 30;
+
     const checkpoint = useCheckpointStore();
 
     /**
@@ -250,6 +252,10 @@ export const usePointsStore = defineStore('pointsStorage', () => {
         checkpoint.setLevelsAmount(Object.keys(levels).length);
         checkpoint.resetProgress();
     };
+
+    useListenEvent('test:timeIsOver', async () => {
+        await finishRound();
+    });
 
     return {
         getCellsAmount,

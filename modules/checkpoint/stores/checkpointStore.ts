@@ -2,6 +2,7 @@
 import { defineStore } from 'pinia';
 import { TestModeEnum } from '~/modules/checkpoint/entities/enums/TestModeEnum';
 import { TestStateEnum } from '~/modules/checkpoint/entities/enums/TestStateEnum';
+import { useEmitEvent } from '#imports';
 
 export const useCheckpointStore = defineStore('checkpointStorage', () => {
     const COUNTDOWN_INITIAL_VALUE = 3;
@@ -197,7 +198,8 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
     };
 
     /**
-     * Инициирует уменьшение переменной totalTime (на единицу каждую секунду)
+     * Инициирует уменьшение переменной totalTime (на единицу каждую секунду).
+     * Когда время выходит, необходимо прерывать уровень тестового задания и переходить к следующему.
      */
     const startTimer = () => {
         // check if timer is already started
@@ -205,18 +207,18 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
             return;
         }
 
-        timerId = setTimeout(function tick() {
+        const tick = () => {
             if (time.value <= 0) {
                 // @ts-ignore
                 clearTimeout(timerId);
-                // todo:
-                console.log('Вышло время на ответ');
-
-                return;
+                useEmitEvent('test:timeIsOver');
+            } else {
+                decreaseTime();
+                timerId = setTimeout(tick, 1000);
             }
-            decreaseTime();
-            timerId = setTimeout(tick, 1000);
-        });
+        };
+
+        timerId = setTimeout(tick, 1000);
     };
 
     /**
