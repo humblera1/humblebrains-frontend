@@ -81,13 +81,9 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         levelsAmount.value = amount;
     };
 
-    const setCurrentLevel = (level: number) => {
-        finishedLevelsAmount.value = level - 1;
-        currentLevelNumber.value = level;
-    };
-
-    const setFirstLevel = () => {
-        setCurrentLevel(1);
+    const resetProgress = () => {
+        currentLevelNumber.value = 1;
+        finishedLevelsAmount.value = 0;
     };
 
     const clearMessage = (): void => {
@@ -223,8 +219,11 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         levelsAmount,
         finishedLevelsAmount,
         currentLevelNumber,
-        setCurrentLevel,
-        setFirstLevel,
+
+        // setCurrentLevel,
+        // setFirstLevel,
+        resetProgress,
+
         promoteLevel,
         setLevelsAmount,
     };

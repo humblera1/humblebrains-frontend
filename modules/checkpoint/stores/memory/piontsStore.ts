@@ -39,12 +39,6 @@ export const usePointsStore = defineStore('pointsStorage', () => {
         2: {
             points: 2,
         },
-        3: {
-            points: 3,
-        },
-        4: {
-            points: 4,
-        },
     };
 
     /**
@@ -53,6 +47,12 @@ export const usePointsStore = defineStore('pointsStorage', () => {
     const levels: ITestLevels<PointsLevel> = {
         1: {
             points: 1,
+        },
+        2: {
+            points: 2,
+        },
+        3: {
+            points: 5,
         },
     };
 
@@ -138,16 +138,14 @@ export const usePointsStore = defineStore('pointsStorage', () => {
 
         checkpoint.promoteLevel();
 
-        console.log('is warm up? ' + mode.isWarmUp());
-
-        if (mode.isWarmUp()) {
-            if (checkpoint.currentLevelNumber <= checkpoint.levelsAmount) {
-                startLevel();
-
+        if (checkpoint.finishedLevelsAmount >= checkpoint.levelsAmount) {
+            // или завершаем игру, или переключаем режим
+            if (mode.isWarmUp()) {
+                handleModeSwitching();
+            } else {
+                console.log('game is over');
                 return;
             }
-
-            handleModeSwitching();
         }
 
         startLevel();
@@ -162,7 +160,7 @@ export const usePointsStore = defineStore('pointsStorage', () => {
         state.setTestPreparingState();
 
         checkpoint.setLevelsAmount(Object.keys(levelsToWarmUp).length);
-        checkpoint.setFirstLevel();
+        // checkpoint.setFirstLevel();
 
         mode.setWarmUpMode();
 
@@ -170,8 +168,9 @@ export const usePointsStore = defineStore('pointsStorage', () => {
     };
 
     const handleModeSwitching = () => {
+        checkpoint.setMessage('Разминка завершена!');
         checkpoint.setLevelsAmount(Object.keys(levels).length);
-        checkpoint.setFirstLevel();
+        checkpoint.resetProgress();
         mode.setGameMode();
     };
 

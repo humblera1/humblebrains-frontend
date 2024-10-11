@@ -8,6 +8,10 @@
         }
     }
 
+    &__value {
+        color: var(--primary-title);
+    }
+
     &__container {
         position: relative;
         display: flex;
