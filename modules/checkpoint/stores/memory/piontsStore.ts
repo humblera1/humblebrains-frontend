@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
 import type { PointsLevel } from '~/modules/checkpoint/entities/types/points/PointsLevel';
-import { useStateStore } from '~/modules/checkpoint/stores/stateStore';
 import type { ITestLevels } from '~/modules/checkpoint/entities/interfaces/ITestLevels';
 import { useCheckpointStore } from '~/modules/checkpoint/stores/checkpointStore';
 
@@ -11,8 +10,6 @@ export const usePointsStore = defineStore('pointsStorage', () => {
     const CELLS_AMOUNT = 16;
 
     const checkpoint = useCheckpointStore();
-
-    const state = useStateStore();
 
     /**
      * Массив номеров ячеек, которые содержат точки.
@@ -69,7 +66,7 @@ export const usePointsStore = defineStore('pointsStorage', () => {
     };
 
     const canCellBeOpened = (): boolean => {
-        return state.isInteractive();
+        return checkpoint.isInInteractiveState();
     };
 
     const handleCellOpening = (cellNumber: number) => {
@@ -97,10 +94,10 @@ export const usePointsStore = defineStore('pointsStorage', () => {
     };
 
     const isPointVisible = (cellNumber: number): boolean => {
-        return state.isInContemplationState() && pointedNumbers.value.includes(cellNumber);
+        return checkpoint.isInContemplationState() && pointedNumbers.value.includes(cellNumber);
     };
 
-    const toggleCellsVisibility = (): Promise<void> => {
+    const toggleCellsVisibility = async (): Promise<void> => {
         return new Promise((resolve) => {
             isCellsHidden.value = true;
 
@@ -112,25 +109,35 @@ export const usePointsStore = defineStore('pointsStorage', () => {
     };
 
     /**
-     * Начинает новый уровень
+     * Случайным образом выбирает номера ячеек, в которые будут помещены точки
      */
-    const startLevel = () => {
-        state.setRoundPreparingState();
+    const setPointedNumbers = () => {
         const shuffledAvailableNumbers = useShuffle(getAvailableNumbers());
 
         pointedNumbers.value = shuffledAvailableNumbers.slice(0, currentLevel.value.points);
+    }
 
-        checkpoint.startCountdown().then(() => {
-            state.setContemplationState();
+    /**
+     * Начинает новый уровень
+     */
+    const startLevel = async () => {
+        checkpoint.setLevelPreparingState();
+        setPointedNumbers();
 
-            setTimeout(() => {
-                toggleCellsVisibility().then(() => {
-                    checkpoint.setMessage('Откройте все ячейки, где ранее находились точки');
-                    checkpoint.startTimer();
-                    state.setInteractiveState();
-                });
-            }, 1000);
-        });
+        await checkpoint.startCountdown();
+
+        checkpoint.setContemplationState();
+
+        setTimeout(async () => {
+            await toggleCellsVisibility();
+
+            if (checkpoint.isInWarmUpMode()) {
+                checkpoint.setMessage('Откройте все ячейки, где ранее находились точки');
+            }
+
+            checkpoint.startTimer();
+            checkpoint.setInteractiveState();
+        }, 1000);
     };
 
     const flushOpenedNumbers = () => {
@@ -166,7 +173,7 @@ export const usePointsStore = defineStore('pointsStorage', () => {
     };
 
     const finishTest = () => {
-        state.setTestFinishingState();
+        checkpoint.setTestFinishingState();
         checkpoint.setMessage('Отлично! Готовим следующий этап...');
     };
 
@@ -176,7 +183,7 @@ export const usePointsStore = defineStore('pointsStorage', () => {
     };
 
     const setupStore = () => {
-        state.setTestPreparingState();
+        checkpoint.setTestPreparingState();
 
         checkpoint.setLevelsAmount(Object.keys(levelsToWarmUp).length);
         // checkpoint.setFirstLevel();

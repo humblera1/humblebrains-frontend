@@ -11,11 +11,10 @@
 
 <script setup lang="ts">
 import { usePointsStore } from '~/modules/checkpoint/stores/memory/piontsStore';
-import { useStateStore } from '~/modules/checkpoint/stores/stateStore';
+import { useCheckpointStore } from '~/modules/checkpoint/stores/checkpointStore';
 
 const store = usePointsStore();
-
-const state = useStateStore();
+const checkpoint = useCheckpointStore();
 
 const squareSide = computed((): number => {
     return Math.floor(Math.sqrt(store.getCellsAmount()));
@@ -28,7 +27,7 @@ const fieldStyles = computed(() => {
 });
 
 const controlsClass = computed((): string => {
-    return state.isInteractive() ? 'points__control_visible' : '';
+    return checkpoint.isInInteractiveState() ? 'points__control_visible' : '';
 });
 
 store.setupStore();
@@ -48,7 +47,7 @@ store.setupStore();
     &__control {
         display: flex;
         justify-content: center;
-        transition: opacity 0.5s ease;
+        transition: opacity 500ms ease, visibility 500ms ease;
         visibility: hidden;
         opacity: 0;
 

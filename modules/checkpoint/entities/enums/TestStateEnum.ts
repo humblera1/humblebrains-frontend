@@ -7,7 +7,7 @@ export enum TestStateEnum {
     /**
      * Подготовка уровня
      */
-    roundPreparing,
+    levelPreparing,
 
     /**
      * Этап, на котором происходит запоминание условий тестового задания перед ответом
@@ -20,9 +20,19 @@ export enum TestStateEnum {
     interactive,
 
     /**
+     * Завершение уровня, на котором не было сделано ошибок
+     */
+    successfulLevelFinishing,
+
+    /**
+     * Завершение уровня, на котором была допущена ошибка
+     */
+    failedLevelFinishing,
+
+    /**
      * Завершение уровня
      */
-    roundFinishing,
+    // roundFinishing,
 
     /**
      * Завершение тестового задания

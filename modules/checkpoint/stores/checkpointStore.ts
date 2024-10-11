@@ -1,6 +1,7 @@
 // Базовый стор, отвечающий за действия, свойственные всем тестам
 import { defineStore } from 'pinia';
 import { TestModeEnum } from '~/modules/checkpoint/entities/enums/TestModeEnum';
+import { TestStateEnum } from '~/modules/checkpoint/entities/enums/TestStateEnum';
 
 export const useCheckpointStore = defineStore('checkpointStorage', () => {
     const COUNTDOWN_INITIAL_VALUE = 3;
@@ -8,7 +9,12 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
     /**
      * Текущий режим теста
      */
-    const mode  = ref<TestModeEnum>();
+    const mode = ref<TestModeEnum>();
+
+    /**
+     * Текущее состояние тестового упражнения
+     */
+    const state = ref<TestStateEnum>();
 
     /**
      * Вспомогательная переменная, хранит неизменяемое значение времени на тест
@@ -100,40 +106,39 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         return message.value !== '';
     };
 
-    const startCountdown = (): Promise<void> => {
-        return new Promise((resolve, reject) => {
-            // check if timer is already started
-            if (isCountdownStarted()) {
-                return reject(new Error('Countdown already started'));
-            }
+    const startCountdown = async (): Promise<void> => {
+        if (isCountdownStarted()) {
+            throw new Error('Countdown already started');
+        }
 
-            setTimeout(() => {
-                // todo: restarting behavior
-                const tick = () => {
-                    if (countdown.value < 1) {
-                        // @ts-ignore
-                        clearTimeout(countdownTimerId);
-                        countdownTimerId = null;
+        return new Promise((resolve) => {
+            const tick = () => {
+                if (countdown.value < 1) {
+                    clearMessage();
+                    resetCountdown();
 
-                        resolve(); // Resolve the promise when countdown finishes
+                    resolve();
 
-                        clearMessage();
+                    return;
+                }
 
-                        countdown.value = COUNTDOWN_INITIAL_VALUE;
+                setMessage(countdown.value);
 
-                        return;
-                    }
-
-                    setMessage(countdown.value);
-
-                    decreaseCountdown();
-                    countdownTimerId = setTimeout(tick, 1000);
-                };
-
+                decreaseCountdown();
                 countdownTimerId = setTimeout(tick, 1000);
-            }, 250);
+            };
+
+            countdownTimerId = setTimeout(tick, 1000);
         });
     };
+
+    const resetCountdown = () => {
+        // @ts-ignore
+        clearTimeout(countdownTimerId);
+        countdownTimerId = null;
+
+        countdown.value = COUNTDOWN_INITIAL_VALUE;
+    }
 
     /**
      * Уменьшает значение переменной countdown на единицу
@@ -213,8 +218,102 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         time.value--;
     };
 
+    /** ****************************************************************************************************** Работа с состояниями теста */
 
-    /** ********************************************************************************************************** Работа с режимами игры */
+    /**
+     * Устанавливает переданное состояние.
+     * @param stateToSet
+     */
+    const setState = (stateToSet: TestStateEnum): void => {
+        state.value = stateToSet;
+    };
+
+    /**
+     * Проверяет соответствие переданного состояния текущему состоянию тестового задания.
+     * @param stateToCheck
+     */
+    const isState = (stateToCheck: TestStateEnum): boolean => {
+        return state.value === stateToCheck;
+    };
+
+    const setTestPreparingState = (): void => {
+        setState(TestStateEnum.testPreparing);
+    };
+
+    const setLevelPreparingState = (): void => {
+        setState(TestStateEnum.levelPreparing);
+    };
+
+    const setContemplationState = (): void => {
+        setState(TestStateEnum.contemplation);
+    };
+
+    const setInteractiveState = (): void => {
+        setState(TestStateEnum.interactive);
+    };
+
+    const setSuccessfulLevelFinishingState = (): void => {
+        setState(TestStateEnum.successfulLevelFinishing);
+    };
+
+    const setFailedLevelFinishingState = (): void => {
+        setState(TestStateEnum.failedLevelFinishing);
+    };
+
+    const setTestFinishingState = (): void => {
+        setState(TestStateEnum.testFinishing);
+    };
+
+    const setPromptState = (): void => {
+        setState(TestStateEnum.prompt);
+    };
+
+    const setPauseState = (): void => {
+        setState(TestStateEnum.pause);
+    };
+
+    const isInTestPreparingState = (): boolean => {
+        return isState(TestStateEnum.testPreparing);
+    };
+
+    const isLevelPreparing = (): boolean => {
+        return isState(TestStateEnum.levelPreparing);
+    };
+
+    const isInContemplationState = (): boolean => {
+        return isState(TestStateEnum.contemplation);
+    };
+
+    const isInInteractiveState = (): boolean => {
+        return isState(TestStateEnum.interactive);
+    };
+
+    const isInSuccessfulLevelFinishingState = (): boolean => {
+        return isState(TestStateEnum.successfulLevelFinishing);
+    };
+
+    const isInFailedLevelFinishingState = (): boolean => {
+        return isState(TestStateEnum.failedLevelFinishing);
+    };
+
+    const isInLevelFinishingState = (): boolean => {
+        return isInSuccessfulLevelFinishingState() || isInFailedLevelFinishingState();
+    };
+
+    const isInTestFinishingState = (): boolean => {
+        return isState(TestStateEnum.testFinishing);
+    };
+
+    const isInPromptState = (): boolean => {
+        return isState(TestStateEnum.prompt);
+    };
+
+    const isInPauseState = (): boolean => {
+        return isState(TestStateEnum.pause);
+    };
+
+
+    /** ********************************************************************************************************* Работа с режимами теста */
 
     /**
      * Устанавливает переданный режим
@@ -275,10 +374,31 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         promoteLevel,
         setLevelsAmount,
 
-        //Работа с режимами игры
+        //Работа с режимами
         setWarmUpMode,
         setGameMode,
         isInWarmUpMode,
         isInGameMode,
+
+        // Работа с состояниями
+        setTestPreparingState,
+        setLevelPreparingState,
+        setContemplationState,
+        setInteractiveState,
+        setSuccessfulLevelFinishingState,
+        setFailedLevelFinishingState,
+        setTestFinishingState,
+        setPromptState,
+        setPauseState,
+        isInTestPreparingState,
+        isLevelPreparing,
+        isInContemplationState,
+        isInInteractiveState,
+        isInSuccessfulLevelFinishingState,
+        isInFailedLevelFinishingState,
+        isInLevelFinishingState,
+        isInTestFinishingState,
+        isInPromptState,
+        isInPauseState,
     };
 });
