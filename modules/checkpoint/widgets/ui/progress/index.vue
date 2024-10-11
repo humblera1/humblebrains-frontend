@@ -1,17 +1,20 @@
 <template>
     <WidgetCheckpointUiBadge>
-        <template v-if="checkpoint.isInWarmUpMode()">
-            <span>
-                <span class="checkpoint-progress__title">{{ $t('warmUp') }}: </span>
-                <span class="checkpoint-progress__value">{{ formattedProgress }}</span>
-            </span>
-        </template>
-        <template v-else>
-            <p class="checkpoint-progress__title">{{ $t('progress') }}</p>
-        </template>
+    <div class="checkpoint-progress__inner">
+            <transition name="fade" mode="out-in">
+                <span v-if="checkpoint.isInWarmUpMode()" class="checkpoint-progress__info checkpoint-progress__info_warmup">
+                    <span class="checkpoint-progress__title">{{ $t('warmUp') }}: </span>
+                    <span class="checkpoint-progress__value">{{ formattedProgress }}</span>
+                </span>
+                <span v-else class="checkpoint-progress__info">
+                    <span class="checkpoint-progress__title">{{ $t('progress') }}</span>
+                </span>
+            </transition>
+    </div>
         <div class="checkpoint-progress__container">
             <div class="checkpoint-progress__line" :style="lineStyle" />
         </div>
+        <!--        </div>-->
     </WidgetCheckpointUiBadge>
 </template>
 
