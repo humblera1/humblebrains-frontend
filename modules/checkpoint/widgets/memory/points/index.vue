@@ -27,7 +27,7 @@ const fieldStyles = computed(() => {
 });
 
 const controlsClass = computed((): string => {
-    return checkpoint.isInInteractiveState() ? 'points__control_visible' : '';
+    return checkpoint.isInInteractiveState() && !store.isCellsHidden ? 'points__control_visible' : '';
 });
 
 onMounted(() => {
