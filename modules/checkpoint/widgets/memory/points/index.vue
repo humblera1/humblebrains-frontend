@@ -30,7 +30,13 @@ const controlsClass = computed((): string => {
     return checkpoint.isInInteractiveState() ? 'points__control_visible' : '';
 });
 
-store.setupStore();
+onMounted(() => {
+    store.setupStore();
+});
+
+onUnmounted(() => {
+    store.$reset();
+});
 </script>
 
 <style scoped lang="scss">

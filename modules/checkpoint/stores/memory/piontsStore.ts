@@ -11,6 +11,16 @@ export const usePointsStore = defineStore('pointsStorage', () => {
 
     const TIME_TO_GIVE_ANSWER = 30;
 
+    /**
+     * Время, отведённое на запоминание расположения точек на поле
+     */
+    const TIME_FOR_CONTEMPLATION = 1000;
+
+    /**
+     * Время сокрытия поля от пользователя после показа расположения точек
+     */
+    const TIME_FOR_TOGGLE_VISIBILITY = 1000;
+
     const checkpoint = useCheckpointStore();
 
     /**
@@ -24,6 +34,16 @@ export const usePointsStore = defineStore('pointsStorage', () => {
     const openedNumbers = ref<number[]>([]);
 
     const isCellsHidden = ref<boolean>(true);
+
+    /**
+     * Идентификатор таймера, ответственного за показ точек на определённое время (TIME_FOR_CONTEMPLATION)
+     */
+    let contemplationTimerId: ReturnType<typeof setTimeout>;
+
+    /**
+     * Идентификатор таймера, ответственного за сокрытие игрового поля после показа точек на определённое время (TIME_FOR_TOGGLE_VISIBILITY)
+     */
+    let visibilityToggleTimerId: ReturnType<typeof setTimeout>;
 
     /**
      * Массив, хранящий процент правильно открытых ячеек за каждый уровень.
@@ -117,14 +137,14 @@ export const usePointsStore = defineStore('pointsStorage', () => {
         isCellsHidden.value = false;
     };
 
-    const toggleCellsVisibility = async (): Promise<void> => {
+    const toggleCellsVisibility = (): Promise<void> => {
         return new Promise((resolve) => {
             hideCells();
 
-            setTimeout(() => {
+            visibilityToggleTimerId = setTimeout(() => {
                 showCells();
                 resolve();
-            }, 1000);
+            }, TIME_FOR_TOGGLE_VISIBILITY);
         });
     };
 
@@ -143,14 +163,19 @@ export const usePointsStore = defineStore('pointsStorage', () => {
     const startLevel = async () => {
         checkpoint.setLevelPreparingState();
 
-        checkpoint.setLevelPreparingState();
         setPointedNumbers();
 
         await checkpoint.startCountdown();
+        showAndHideField();
+    };
 
+    /**
+     * Функция, ответственная за показ точек на поле, а также их сокрытие через определённой время
+     */
+    const showAndHideField = () => {
         checkpoint.setContemplationState();
 
-        setTimeout(async () => {
+        contemplationTimerId = setTimeout(async () => {
             await toggleCellsVisibility();
 
             if (checkpoint.isInWarmUpMode()) {
@@ -159,7 +184,24 @@ export const usePointsStore = defineStore('pointsStorage', () => {
 
             checkpoint.startTimer();
             checkpoint.setInteractiveState();
-        }, 1000);
+        }, TIME_FOR_CONTEMPLATION);
+    };
+
+    const clearContemplationTimer = () => {
+        if (contemplationTimerId) {
+            clearTimeout(contemplationTimerId);
+        }
+    };
+
+    const clearVisibilityToggleTimer = () => {
+        if (visibilityToggleTimerId) {
+            clearTimeout(visibilityToggleTimerId);
+        }
+    };
+
+    const clearTimers = () => {
+        clearContemplationTimer();
+        clearVisibilityToggleTimer();
     };
 
     const flushOpenedNumbers = () => {
@@ -253,6 +295,15 @@ export const usePointsStore = defineStore('pointsStorage', () => {
         checkpoint.resetProgress();
     };
 
+    const $reset = () => {
+        clearTimers();
+        hideCells();
+        flushOpenedNumbers();
+        flushPointedNumbers();
+        checkpoint.setTestPreparingState();
+        checkpoint.$reset();
+    };
+
     useListenEvent('test:timeIsOver', async () => {
         await finishRound();
     });
@@ -267,6 +318,8 @@ export const usePointsStore = defineStore('pointsStorage', () => {
 
         isCellsHidden,
         openedNumbers,
+
+        $reset,
 
         // debug
         pointedNumbers,

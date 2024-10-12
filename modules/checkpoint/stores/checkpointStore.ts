@@ -158,11 +158,15 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         });
     };
 
-    const resetCountdown = () => {
-        // @ts-ignore
-        clearTimeout(countdownTimerId);
-        countdownTimerId = null;
+    const clearCountdownTimer = () => {
+        if (countdownTimerId) {
+            clearTimeout(countdownTimerId);
+            countdownTimerId = null;
+        }
+    };
 
+    const resetCountdown = () => {
+        clearCountdownTimer();
         countdown.value = COUNTDOWN_INITIAL_VALUE;
     };
 
@@ -373,6 +377,15 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         return isMode(TestModeEnum.game);
     };
 
+    const $reset = () => {
+        resetCountdown();
+        resetTimer();
+        resetProgress();
+        setGameMode();
+        clearMessage();
+        // ...
+    };
+
     return {
         totalTime,
         time,
@@ -435,5 +448,7 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         isInTestFinishingState,
         isInPromptState,
         isInPauseState,
+
+        $reset,
     };
 });

@@ -22,6 +22,8 @@ page.setupStore();
 
 onUnmounted(() => {
     page.destroyStore();
+    console.log('destroying page store');
+    // Производить сброс стора checkpoint здесь или в дочерних сторах?
 });
 </script>
 

@@ -122,7 +122,7 @@ export const useCheckpointPageStore = defineStore('checkpointPageStorage', () =>
     };
 
     const destroyStore = () => {
-        componentsChain.splice(0, componentsChain.length);
+        componentsChain.length = 0;
         currentChainIndex.value = 0;
         currentCategory.value = undefined;
 
