@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import type { PointsLevel } from '~/modules/checkpoint/entities/types/points/PointsLevel';
 import type { ITestLevels } from '~/modules/checkpoint/entities/interfaces/ITestLevels';
 import { useCheckpointStore } from '~/modules/checkpoint/stores/checkpointStore';
+import { useCheckpointPageStore } from '~/modules/checkpoint/stores/checkpointPageStore';
 
 /**
  * Тест 'Запомни и расставь точки'
@@ -22,6 +23,8 @@ export const usePointsStore = defineStore('pointsStorage', () => {
     const TIME_FOR_TOGGLE_VISIBILITY = 1000;
 
     const checkpoint = useCheckpointStore();
+
+    const page = useCheckpointPageStore();
 
     /**
      * Массив номеров ячеек, которые содержат точки.
@@ -251,7 +254,7 @@ export const usePointsStore = defineStore('pointsStorage', () => {
         checkpoint.setTestFinishingState();
         checkpoint.setMessage('Отлично! Готовим следующий этап...');
 
-        // двигаемся по цепочке к следующему результату
+        page.moveChain();
     };
 
     const saveTotal = () => {

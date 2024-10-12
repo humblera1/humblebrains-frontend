@@ -3,8 +3,12 @@ import type { Component } from 'vue';
 import { CheckpointTestTabEnum } from '~/entities/enums/checkpoint/CheckpointTestTabEnum';
 import { CognitiveCategoryEnum } from '~/entities/enums/cognitiveCategoryEnum';
 import type { ChainComponent } from '~/modules/checkpoint/entities/types/ChainComponent';
+import { CheckpointTabEnum } from '~/entities/enums/checkpoint/CheckpointTabEnum';
+import { useCheckpointStore } from '~/modules/checkpoint/stores/checkpointStore';
 
 export const useCheckpointPageStore = defineStore('checkpointPageStorage', () => {
+    const checkpoint = useCheckpointStore();
+
     const currentTab = ref<CheckpointTestTabEnum>(CheckpointTestTabEnum.preview);
 
     const route = useRoute();
@@ -19,6 +23,18 @@ export const useCheckpointPageStore = defineStore('checkpointPageStorage', () =>
     const currentTestComponent = computed((): ChainComponent | undefined => {
         return componentsChain.at(currentChainIndex.value);
     });
+
+    /**
+     * Осуществляет переход к следующему компоненту в цепочке
+     */
+    const moveChain = () => {
+        if (++currentChainIndex.value >= getNumberOfSteps()) {
+            const checkpointTab = useState('checkpoint');
+            checkpointTab.value = CheckpointTabEnum.conclusion;
+
+            checkpoint.$reset();
+        }
+    };
 
     const selectTab = (tab: CheckpointTestTabEnum): void => {
         currentTab.value = tab;
@@ -148,5 +164,7 @@ export const useCheckpointPageStore = defineStore('checkpointPageStorage', () =>
         componentsChain,
 
         currentTestComponent,
+
+        moveChain,
     };
 });
