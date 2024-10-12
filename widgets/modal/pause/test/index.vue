@@ -21,6 +21,9 @@
 
 <script setup lang="ts">
 import { IconGameGraduationCap, IconGameLeftToBracket } from '#components';
+import { useCheckpointStore } from '~/modules/checkpoint/stores/checkpointStore';
+
+const checkpoint = useCheckpointStore();
 
 const { closeModal } = useHumbleModal();
 
@@ -33,7 +36,7 @@ const quit = () => {
 };
 
 const close = () => {
-    // ...
+    checkpoint.endPause();
     closeModal();
 };
 </script>

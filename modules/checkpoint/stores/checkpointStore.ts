@@ -18,9 +18,26 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
     const state = ref<TestStateEnum>();
 
     /**
+     * Предыдущее состояние тестового упражнения
+     */
+    const previousState = ref<TestStateEnum>();
+
+    /**
      * Переменная, хранящая функцию для разрешения промиса, который ответственен за показ подсказки пользователю во время теста.
      */
     let promptResolver: (() => void) | undefined;
+
+    /**
+     * Переменная, хранящая функцию для разрешения промиса, который ответственен за состояние паузы.
+     * При переходе в состоянии паузы создаётся промис, а его resolve-функция записывается в данную переменную.
+     * По выходу из режима паузы должен происходить вызов функции в переменной: это приведёт к разрешению промиса.
+     */
+    let pauseResolver: (() => void) | undefined;
+
+    /**
+     * Промис, создаваемый при переходе в режим паузы. Его разрешение означает выход из режима.
+     */
+    let pausePromise: Promise<void>;
 
     /**
      * Содержимое подсказки
@@ -105,6 +122,23 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
     const closePrompt = () => {
         if (promptResolver) {
             promptResolver();
+        }
+    };
+
+    const setPause = () => {
+        setPauseState();
+        pausePromise = new Promise((resolve) => {
+            pauseResolver = resolve;
+        });
+    };
+
+    const endPause = () => {
+        if (previousState.value) {
+            setState(previousState.value);
+        }
+
+        if (pauseResolver) {
+            pauseResolver();
         }
     };
 
@@ -207,7 +241,11 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
             return;
         }
 
-        const tick = () => {
+        const tick = async () => {
+            if (isInPauseState()) {
+                await pausePromise;
+            }
+
             if (time.value <= 0) {
                 // @ts-ignore
                 clearTimeout(timerId);
@@ -256,6 +294,7 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
      * @param stateToSet
      */
     const setState = (stateToSet: TestStateEnum): void => {
+        previousState.value = state.value;
         state.value = stateToSet;
     };
 
@@ -407,6 +446,10 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
 
         promoteLevel,
         setLevelsAmount,
+
+        // Паузы
+        setPause,
+        endPause,
 
         // Работа с сообщениями
         message,
