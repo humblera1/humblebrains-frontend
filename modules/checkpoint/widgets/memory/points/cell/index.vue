@@ -97,6 +97,8 @@ const pointClasses = computed(() => {
         opacity: 0;
         visibility: hidden;
 
+        transition: all 250ms ease;
+
         &_visible {
             opacity: 1;
             visibility: visible;

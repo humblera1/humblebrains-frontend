@@ -141,7 +141,11 @@ export const usePointsStore = defineStore('pointsStorage', () => {
         return new Promise((resolve) => {
             hideCells();
 
-            visibilityToggleTimerId = setTimeout(() => {
+            visibilityToggleTimerId = setTimeout(async () => {
+                if (checkpoint.isInPauseState()) {
+                    await checkpoint.getPausePromise();
+                }
+
                 showCells();
                 resolve();
             }, TIME_FOR_TOGGLE_VISIBILITY);
@@ -176,6 +180,11 @@ export const usePointsStore = defineStore('pointsStorage', () => {
         checkpoint.setContemplationState();
 
         contemplationTimerId = setTimeout(async () => {
+            if (checkpoint.isInPauseState()) {
+                await checkpoint.getPausePromise();
+            }
+
+            checkpoint.setInteractiveState();
             await toggleCellsVisibility();
 
             if (checkpoint.isInWarmUpMode()) {
@@ -183,7 +192,6 @@ export const usePointsStore = defineStore('pointsStorage', () => {
             }
 
             checkpoint.startTimer();
-            checkpoint.setInteractiveState();
         }, TIME_FOR_CONTEMPLATION);
     };
 

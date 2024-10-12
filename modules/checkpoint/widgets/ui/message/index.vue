@@ -18,7 +18,7 @@ const messageClasses = computed(() => {
     return [
         'checkpoint-message',
         {
-            'checkpoint-message_visible': checkpoint.isMessageSet(),
+            'checkpoint-message_visible': checkpoint.isMessageSet() && !checkpoint.isInPauseState(),
         },
     ];
 });
@@ -28,7 +28,7 @@ const messageClasses = computed(() => {
 .checkpoint-message {
     min-height: 24px;
     opacity: 0;
-    transition: opacity 250ms linear;
+    transition: opacity 250ms ease;
 
     &__text {
         @include mainFont(500, 20, var(--text-primary));

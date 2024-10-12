@@ -15,7 +15,7 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
     /**
      * Текущее состояние тестового упражнения
      */
-    const state = ref<TestStateEnum>();
+    const state = ref<TestStateEnum>(TestStateEnum.testPreparing);
 
     /**
      * Предыдущее состояние тестового упражнения
@@ -133,13 +133,17 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
     };
 
     const endPause = () => {
-        if (previousState.value) {
+        if (previousState.value !== undefined) {
             setState(previousState.value);
         }
 
         if (pauseResolver) {
             pauseResolver();
         }
+    };
+
+    const getPausePromise = () => {
+        return pausePromise;
     };
 
     const setMessage = (value: string | number): void => {
@@ -172,7 +176,12 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         }
 
         return new Promise((resolve) => {
-            const tick = () => {
+            const tick = async () => {
+                if (isInPauseState()) {
+                    await pausePromise;
+                    resetCountdown();
+                }
+
                 if (countdown.value < 1) {
                     clearMessage();
                     resetCountdown();
@@ -448,6 +457,7 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         setLevelsAmount,
 
         // Паузы
+        getPausePromise,
         setPause,
         endPause,
 

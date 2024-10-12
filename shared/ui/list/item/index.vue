@@ -20,4 +20,4 @@ withDefaults(defineProps<ListItem>(), {
 });
 </script>
 
-<style scoped lang="scss" />
+<style scoped lang="scss" src="./list-item.styles.scss" />

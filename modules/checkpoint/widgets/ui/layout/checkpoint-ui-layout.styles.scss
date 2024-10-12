@@ -38,6 +38,15 @@
     &__field {
         max-width: 610px;
         height: 375px;
+        visibility: visible;
+        opacity: 1;
+
+        transition: all 250ms ease;
+
+        &_hidden {
+            visibility: hidden;
+            opacity: 0;
+        }
     }
 
     @include tablet {
