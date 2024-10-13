@@ -38,6 +38,8 @@ export default defineI18nConfig(() => ({
             warmUpPrompt: 'Вам будет представлено несколько разминочных раундов',
             gameStartPrompt: 'Теперь играем серьезно',
 
+            'thorndike:findNumbers': 'Найдите следующие числа:',
+
             // Categories
             memory: 'Память',
             logic: 'Логика',
@@ -78,6 +80,8 @@ export default defineI18nConfig(() => ({
             step: 'Step',
             warmUpPrompt: '',
             gameStartPrompt: '',
+
+            'thorndike:findNumbers': 'Find the following numbers:',
 
             // Categories
             memory: 'Memory',

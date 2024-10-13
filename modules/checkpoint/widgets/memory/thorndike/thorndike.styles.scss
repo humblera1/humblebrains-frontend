@@ -1,0 +1,37 @@
+.thorndike {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+
+    &__header {
+        z-index: 10;
+        display: flex;
+        justify-content: center;
+        flex-direction: row-reverse;
+        gap: 4px;
+        min-height: 33px;
+    }
+
+    &__field {
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        width: fit-content;
+    }
+
+    &__control {
+        display: flex;
+        justify-content: center;
+        transition:
+                opacity 500ms ease,
+                visibility 500ms ease;
+        visibility: hidden;
+        opacity: 0;
+
+        &_visible {
+            visibility: visible;
+            opacity: 1;
+        }
+    }
+}

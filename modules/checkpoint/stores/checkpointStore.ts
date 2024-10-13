@@ -47,12 +47,12 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
     /**
      * Вспомогательная переменная, хранит неизменяемое значение времени на тест
      */
-    const totalTime = ref<number>(50);
+    const totalTime = ref<number>(0);
 
     /**
      * Время на решение тестового задания, устанавливается конкретным стором, уменьшается после запуска startTimer()
      */
-    const time = ref<number>(50);
+    const time = ref<number>(0);
 
     /**
      * Идентификатор таймера, ответственного за уменьшение переменной time
@@ -425,6 +425,29 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         return isMode(TestModeEnum.game);
     };
 
+    /**
+     * Вспомогательный метод, сигнализирует о том, что достигнут максимальный уровень в упражнении.
+     */
+    const isTimeToFinishTest = () => {
+        return finishedLevelsAmount.value >= levelsAmount.value;
+    };
+
+    const setTotalTime = (timeToSet: number) => {
+        time.value = timeToSet;
+        totalTime.value = timeToSet;
+    };
+
+    /**
+     * Выполняет стандартный набор действий по завершении уровня.
+     */
+    const finishLevel = () => {
+        // todo: level finishing state
+        setFailedLevelFinishingState();
+        resetTimer();
+        clearMessage();
+        promoteLevel();
+    };
+
     const $reset = () => {
         resetCountdown();
         resetTimer();
@@ -442,6 +465,7 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         startTimer,
         stopTimer,
         resetTimer,
+        setTotalTime,
 
         startCountdown,
 
@@ -455,6 +479,9 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
 
         promoteLevel,
         setLevelsAmount,
+
+        isTimeToFinishTest,
+        finishLevel,
 
         // Паузы
         getPausePromise,

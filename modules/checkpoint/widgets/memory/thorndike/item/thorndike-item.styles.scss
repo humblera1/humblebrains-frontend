@@ -1,0 +1,35 @@
+.thorndike-item {
+    cursor: pointer;
+    background-color: var(--game-field-bg);
+    padding: 6px 8px;
+    transition: all 250ms ease;
+    opacity: 0;
+    visibility: hidden;
+
+    @include mainFont(400, 18, var(--primary-subtitle));
+
+    &_badged {
+        pointer-events: none;
+        padding: 6px 12px;
+        border-radius: 8px;
+        background-color: var(--badge-bg);
+
+        @include mainFont(500, 18, var(--primary-title));
+
+        @include mainShadow();
+    }
+
+    &_selected {
+        color: var(--primary-title);
+        text-decoration: underline;
+    }
+
+    &_visible {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    &:hover {
+        color: var(--primary-title);
+    }
+}
