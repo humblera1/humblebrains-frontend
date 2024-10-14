@@ -1,15 +1,25 @@
 <template>
     <div class="gorbov-schulte">
         <div class="gorbov-schulte__field">
-            <div v-for="i in side" :key="i" class="gorbov-schulte__row">
-                <WidgetCheckpointMemoryGorbovSchulteCell v-for="j in side" :key="i * side - j + 1" :number="i * side - j + 1" />
+            <div v-for="i in gorbovSchulte.dimension" :key="i" class="gorbov-schulte__row">
+                <WidgetCheckpointMemoryGorbovSchulteCell v-for="j in gorbovSchulte.dimension" :key="i * gorbovSchulte.dimension - j + 1" :number="i * gorbovSchulte.dimension - j + 1" />
             </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-const side = 5;
+import { useGorbovSchulteStore } from '~/modules/checkpoint/stores/memory/gorbovSchulteStore';
+
+const gorbovSchulte = useGorbovSchulteStore();
+
+onMounted(() => {
+    gorbovSchulte.$setup();
+})
+
+onUnmounted(() => {
+    gorbovSchulte.$reset();
+})
 </script>
 
 <style scoped lang="scss">

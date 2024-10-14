@@ -1,24 +1,24 @@
 <template>
-    <div :class="cellClasses">
+    <div :class="cellClasses" @click="gorbovSchulte.handleCellOpening(number)">
         <div class="cell__badge" />
         <p class="cell__number">
-            {{ number }}
+            {{ gorbovSchulte.getCellIndex(number) }}
         </p>
     </div>
 </template>
 
 <script setup lang="ts">
 import type { gorbovSchulteCellProps } from '~/modules/checkpoint/widgets/memory/gorbov-schulte/cell/gorbov-schulte-cell.types';
+import { useGorbovSchulteStore } from '~/modules/checkpoint/stores/memory/gorbovSchulteStore';
 
-defineProps<gorbovSchulteCellProps>();
+const { number } = defineProps<gorbovSchulteCellProps>();
+
+const gorbovSchulte = useGorbovSchulteStore();
 
 const cellClasses = computed(() => {
     return [
         'cell',
-        {
-            cell_primary: false,
-            cell_secondary: true,
-        },
+        `cell_${gorbovSchulte.getCellType(number)}`,
     ];
 });
 </script>
@@ -34,7 +34,7 @@ const cellClasses = computed(() => {
 
     &:hover {
         .cell__badge {
-            opacity: 0.75;
+            opacity: 0.70;
         }
     }
 
@@ -62,7 +62,7 @@ const cellClasses = computed(() => {
     &_primary {
         &:hover {
             .cell__number {
-                color: red;
+                color: var(--primary-title);
             }
         }
     }
@@ -78,7 +78,7 @@ const cellClasses = computed(() => {
 
         &:hover {
             .cell__badge {
-                opacity: 0.95;
+                opacity: 0.85;
             }
 
             .cell__number {
