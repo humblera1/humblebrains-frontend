@@ -107,6 +107,11 @@
     --points-cell-opened: #8d93c1;
     --points-point: #6771A2;
 
+    // Gorbov-Schulte
+    --gs-secondary-bg: #4149a0;
+    --gs-secondary-text: #eeeff7;
+    --gs-secondary-text-hovered: #ffffff;
+
 }
 
 .dark-mode {
@@ -210,4 +215,9 @@
     // Points
     --points-cell-opened: #3B3B4E;
     --points-point: #747996;
+
+    // Gorbov-Schulte
+    --gs-secondary-bg: #313888;
+    --gs-secondary-text: #bbbfd3;
+    --gs-secondary-text-hovered: #ffffff;
 }
