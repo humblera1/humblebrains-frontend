@@ -34,11 +34,11 @@ const messageClasses = computed(() => {
         @include mainFont(500, 20, var(--text-primary));
 
         @include tablet {
-            font-size: 16px;
+            font-size: 18px;
         }
 
         @include mobile {
-            font-size: 14px;
+            font-size: 16px;
         }
     }
 

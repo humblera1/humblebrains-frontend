@@ -10,14 +10,17 @@
         display: flex;
         justify-content: center;
         flex-direction: row-reverse;
+        flex-wrap: wrap;
         gap: 4px;
         min-height: 33px;
     }
 
     &__field {
-        display: grid;
-        grid-template-columns: repeat(10, 1fr);
-        width: fit-content;
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        width: 100%;
+        max-width: 500px;
     }
 
     &__control {
