@@ -225,7 +225,7 @@ export const useThorndikeStore = defineStore('thorndikeStorage', () => {
         }
     };
 
-    const numberToFindTimer = () => {
+    const clearNumberToFindTimer = () => {
         if (numberToFindTimerId) {
             clearTimeout(numberToFindTimerId);
         }
@@ -233,7 +233,7 @@ export const useThorndikeStore = defineStore('thorndikeStorage', () => {
 
     const clearTimers = () => {
         clearNumberAddingTimer();
-        numberToFindTimer();
+        clearNumberToFindTimer();
     };
 
     const handleModeSwitching = async () => {
@@ -268,6 +268,12 @@ export const useThorndikeStore = defineStore('thorndikeStorage', () => {
         }
 
         const time = checkpoint.totalTime - checkpoint.time;
+
+        if (time > TOTAL_TIME) {
+            subtotals.push(0);
+            return;
+        }
+
         const maxAssessment = thorndikeAssessmentTable.at(0);
         const maxPoints = maxAssessment?.point ?? 19;
 
@@ -292,10 +298,7 @@ export const useThorndikeStore = defineStore('thorndikeStorage', () => {
     };
 
     const saveTotal = () => {
-        const mean = useMean(subtotals);
-        const total = parseFloat(mean.toFixed(2));
-
-        checkpoint.saveTestContribution(total);
+        checkpoint.saveTestContribution(subtotals);
     };
 
     const $setup = async () => {

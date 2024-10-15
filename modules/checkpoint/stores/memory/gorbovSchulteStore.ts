@@ -4,12 +4,13 @@ import { useCheckpointPageStore } from '~/modules/checkpoint/stores/checkpointPa
 import type { GorbovSchulteLevel } from '~/modules/checkpoint/entities/types/gorbov-schulte/GorbovSchulteLevel';
 import type { ITestLevels } from '~/modules/checkpoint/entities/interfaces/ITestLevels';
 import { RuleEnum } from '~/modules/checkpoint/entities/enums/gorbov-schulte/RuleEnum';
+import { gorbovSchulteAssessmentTable } from '~/modules/checkpoint/data/gorbovSchulteAssessmentTable';
 
 export const useGorbovSchulteStore = defineStore('gorbovSchulteStorage', () => {
     /**
      *
      */
-    const TOTAL_TIME = 350;
+    const TOTAL_TIME = 250;
 
     const CELL_SHOWING_TIME = 150;
 
@@ -33,6 +34,14 @@ export const useGorbovSchulteStore = defineStore('gorbovSchulteStorage', () => {
     let cellAnimationTimerId: ReturnType<typeof setTimeout> | null = null;
 
     let activeNumber: number;
+
+    let mistakesAmount: number = 0;
+
+    /**
+     * Массив, хранящий процент правильно выбранных чисел за каждый уровень.
+     * По окончанию игры рассчитывается среднее на основании всех элементов массива.
+     */
+    const subtotals: number[] = [];
 
     const levelsToWarmUp: ITestLevels<GorbovSchulteLevel> = {
         1: {
@@ -172,6 +181,8 @@ export const useGorbovSchulteStore = defineStore('gorbovSchulteStorage', () => {
 
             setActiveRule();
             setActiveNumber();
+        } else {
+            mistakesAmount++;
         }
     };
 
@@ -179,7 +190,14 @@ export const useGorbovSchulteStore = defineStore('gorbovSchulteStorage', () => {
         alreadyFound.value.length = 0;
     };
 
+    const flushMistakesAmount = () => {
+        mistakesAmount = 0;
+    };
+
     const finishLevel = async () => {
+        saveSubtotal();
+        flushMistakesAmount();
+
         checkpoint.setFailedLevelFinishingState();
         checkpoint.stopTimer();
 
@@ -212,13 +230,43 @@ export const useGorbovSchulteStore = defineStore('gorbovSchulteStorage', () => {
     };
 
     const saveSubtotal = () => {
-        // ...
+        if (checkpoint.isInWarmUpMode()) {
+            return;
+        }
+
+        const time = checkpoint.totalTime - checkpoint.time;
+
+        if (time > TOTAL_TIME) {
+            subtotals.push(0);
+            return;
+        }
+
+        const maxAssessment = gorbovSchulteAssessmentTable.at(0);
+        const maxPoints = maxAssessment?.point ?? 19;
+
+        const currentAssessment = gorbovSchulteAssessmentTable.find((assessment) => {
+            return assessment.time.min <= time && assessment.time.max >= time;
+        });
+
+        const point = currentAssessment?.point ?? 0;
+
+        const totalPoints = point - mistakesAmount * 2;
+
+        if (totalPoints <= 0) {
+            subtotals.push(0);
+            return;
+        }
+
+        const totalPercent = (totalPoints * 100) / maxPoints;
+
+        subtotals.push(totalPercent);
     };
 
     const saveTotal = () => {
-        // ...
+        checkpoint.saveTestContribution(subtotals);
     };
 
+    // todo: duplicates
     const handleModeSwitching = async () => {
         checkpoint.setMessage('Разминка завершена!');
         await checkpoint.showPrompt('gameStartPrompt');
@@ -273,6 +321,12 @@ export const useGorbovSchulteStore = defineStore('gorbovSchulteStorage', () => {
         checkpoint.setInteractiveState();
     };
 
+    const clearCellAnimationTimer = () => {
+        if (cellAnimationTimerId) {
+            clearTimeout(cellAnimationTimerId);
+        }
+    };
+
     const $setup = async () => {
         checkpoint.setTestPreparingState();
         checkpoint.setWarmUpMode();
@@ -287,7 +341,10 @@ export const useGorbovSchulteStore = defineStore('gorbovSchulteStorage', () => {
     };
 
     const $reset = () => {
-        // ...
+        clearCellAnimationTimer();
+        flushFoundNumbers();
+        checkpoint.setTestPreparingState();
+        checkpoint.$reset();
     };
 
     return {

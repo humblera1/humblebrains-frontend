@@ -258,10 +258,7 @@ export const usePointsStore = defineStore('pointsStorage', () => {
     };
 
     const saveTotal = () => {
-        const mean = useMean(subtotals);
-        const total = parseFloat(mean.toFixed(2));
-
-        checkpoint.saveTestContribution(total);
+        checkpoint.saveTestContribution(subtotals);
     };
 
     const saveSubtotal = () => {

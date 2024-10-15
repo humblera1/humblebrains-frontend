@@ -104,7 +104,10 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
      */
     const testContributions: number[] = [];
 
-    const saveTestContribution = (contribution: number) => {
+    const saveTestContribution = (subtotals: number[]) => {
+        const mean = useMean(subtotals);
+        const contribution = parseFloat(mean.toFixed(2));
+
         testContributions.push(contribution);
     };
 
