@@ -2,7 +2,11 @@
     <div class="gorbov-schulte">
         <div class="gorbov-schulte__field">
             <div v-for="i in gorbovSchulte.dimension" :key="i" class="gorbov-schulte__row">
-                <WidgetCheckpointMemoryGorbovSchulteCell v-for="j in gorbovSchulte.dimension" :key="i * gorbovSchulte.dimension - j + 1" :number="i * gorbovSchulte.dimension - j + 1" />
+                <WidgetCheckpointMemoryGorbovSchulteCell
+                    v-for="j in gorbovSchulte.dimension"
+                    :key="i * gorbovSchulte.dimension - j + 1"
+                    :number="i * gorbovSchulte.dimension - j + 1"
+                />
             </div>
         </div>
     </div>
@@ -15,11 +19,11 @@ const gorbovSchulte = useGorbovSchulteStore();
 
 onMounted(() => {
     gorbovSchulte.$setup();
-})
+});
 
 onUnmounted(() => {
     gorbovSchulte.$reset();
-})
+});
 </script>
 
 <style scoped lang="scss">

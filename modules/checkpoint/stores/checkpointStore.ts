@@ -355,7 +355,7 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         return isState(TestStateEnum.testPreparing);
     };
 
-    const isLevelPreparing = (): boolean => {
+    const isLevelPreparingState = (): boolean => {
         return isState(TestStateEnum.levelPreparing);
     };
 
@@ -429,6 +429,7 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
      * Вспомогательный метод, сигнализирует о том, что достигнут максимальный уровень в упражнении.
      */
     const isTimeToFinishTest = () => {
+        console.log();
         return finishedLevelsAmount.value >= levelsAmount.value;
     };
 
@@ -519,7 +520,7 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         setPromptState,
         setPauseState,
         isInTestPreparingState,
-        isLevelPreparing,
+        isLevelPreparingState,
         isInContemplationState,
         isInInteractiveState,
         isInSuccessfulLevelFinishingState,

@@ -19,6 +19,9 @@ const cellClasses = computed(() => {
     return [
         'cell',
         `cell_${gorbovSchulte.getCellType(number)}`,
+        {
+            cell_hidden: gorbovSchulte.isCellHidden(number),
+        },
     ];
 });
 </script>
@@ -30,11 +33,13 @@ const cellClasses = computed(() => {
     display: flex;
     justify-content: center;
     align-items: center;
+    opacity: 1;
+    visibility: visible;
     transition: all 250ms ease;
 
     &:hover {
         .cell__badge {
-            opacity: 0.70;
+            opacity: 0.7;
         }
     }
 
@@ -85,6 +90,11 @@ const cellClasses = computed(() => {
                 color: var(--gs-secondary-text-hovered);
             }
         }
+    }
+
+    &_hidden {
+        opacity: 0;
+        visibility: hidden;
     }
 }
 </style>
