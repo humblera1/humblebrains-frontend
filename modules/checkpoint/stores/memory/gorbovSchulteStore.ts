@@ -83,11 +83,11 @@ export const useGorbovSchulteStore = defineStore('gorbovSchulteStorage', () => {
         secondaryNumbers.value = chunks[1] || [];
     };
 
-    const isPrimaryRuleActive = () => {
+    const isPrimaryRuleActive = (): boolean => {
         return activeRule.value === RuleEnum.primary;
     };
 
-    const isSecondaryRuleActive = () => {
+    const isSecondaryRuleActive = (): boolean => {
         return activeRule.value === RuleEnum.secondary;
     };
 
@@ -354,6 +354,7 @@ export const useGorbovSchulteStore = defineStore('gorbovSchulteStorage', () => {
         getCellIndex,
         handleCellOpening,
         isCellHidden,
+        isSecondaryRuleActive,
 
         $setup,
         $reset,

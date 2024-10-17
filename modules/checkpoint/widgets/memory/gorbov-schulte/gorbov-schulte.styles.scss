@@ -1,0 +1,45 @@
+.gorbov-schulte {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+
+    @include tablet {
+        gap: 24px;
+    }
+
+    @include mobile {
+        gap: 12px;
+    }
+
+    &__field {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        @include tablet {
+            gap: 5px;
+        }
+
+        @include mobile {
+            // todo: 8px maybe
+            gap: 6px;
+        }
+    }
+
+    &__row {
+        display: flex;
+        flex-direction: row-reverse;
+        gap: 4px;
+
+        @include tablet {
+            gap: 5px;
+        }
+
+        @include mobile {
+            gap: 6px;
+        }
+    }
+}

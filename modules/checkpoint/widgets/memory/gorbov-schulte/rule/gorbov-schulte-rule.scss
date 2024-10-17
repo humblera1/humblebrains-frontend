@@ -1,0 +1,76 @@
+.rule {
+    cursor: pointer;
+    position: absolute;
+    left: 0;
+    top: 42px;
+
+    @include tablet {
+        position: relative;
+        top: unset;
+    }
+
+    &_primary {
+        .rule__outer {
+            border-color: var(--badge-bg);
+        }
+
+        .rule__inner {
+            background-color: var(--badge-bg);
+
+            svg {
+                color: var(--primary-subtitle);
+            }
+        }
+    }
+
+    &_secondary {
+        .rule__outer {
+            border-color: var(--gs-secondary-bg);
+        }
+
+        .rule__inner {
+            transform: rotateX(180deg);
+            background-color: var(--gs-secondary-bg);
+
+            svg {
+                color: var(--gs-secondary-text);
+            }
+        }
+    }
+
+    &__outer {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 48px;
+        height: 48px;
+        border: 3px solid;
+        border-radius: 14px;
+        perspective: 1000px;
+
+        @include mainShadow();
+
+        transition: border-color 0.3s ease;
+
+        @include mobile {
+            width: 42px;
+            height: 42px;
+        }
+    }
+
+    &__inner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        transition: transform 0.3s ease;
+        transform-style: preserve-3d;
+
+        @include mobile {
+            width: 32px;
+            height: 32px;
+        }
+    }
+}

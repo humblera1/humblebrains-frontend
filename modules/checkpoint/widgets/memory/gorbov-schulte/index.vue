@@ -1,5 +1,6 @@
 <template>
     <div class="gorbov-schulte">
+        <WidgetCheckpointMemoryGorbovSchulteRule />
         <div class="gorbov-schulte__field">
             <div v-for="i in gorbovSchulte.dimension" :key="i" class="gorbov-schulte__row">
                 <WidgetCheckpointMemoryGorbovSchulteCell
@@ -26,18 +27,4 @@ onUnmounted(() => {
 });
 </script>
 
-<style scoped lang="scss">
-.gorbov-schulte {
-    &__field {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
-
-    &__row {
-        display: flex;
-        flex-direction: row-reverse;
-        gap: 4px;
-    }
-}
-</style>
+<style scoped lang="scss" src="./gorbov-schulte.styles.scss" />

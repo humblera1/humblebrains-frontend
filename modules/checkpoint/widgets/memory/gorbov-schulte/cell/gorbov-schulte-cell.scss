@@ -1,0 +1,85 @@
+.cell {
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    visibility: visible;
+    transition: all 250ms ease;
+
+    &:hover {
+        .cell__badge {
+            opacity: 0.7;
+        }
+    }
+
+    &__badge {
+        width: 60px;
+        min-width: 60px;
+        aspect-ratio: 1;
+        border-radius: 12px;
+        background-color: var(--badge-bg);
+
+        transition: opacity 250ms ease;
+
+        @include boxShadow(-5, 5, 5, 0, var(--main-shadow));
+
+        @include tablet {
+            width: 55px;
+            min-width: 55px;
+        }
+
+        @include mobile {
+            width: 36px;
+            min-width: 36px;
+            border-radius: 8px;
+        }
+    }
+
+    &__number {
+        z-index: 11;
+        position: absolute;
+
+        transition: color 250ms ease;
+
+        @include mainFont(500, 20, var(--primary-subtitle));
+
+        @include mobile {
+            font-size: 14px;
+        }
+    }
+
+    &_primary {
+        &:hover {
+            .cell__number {
+                color: var(--primary-title);
+            }
+        }
+    }
+
+    &_secondary {
+        .cell__badge {
+            background-color: var(--gs-secondary-bg);
+        }
+
+        .cell__number {
+            color: var(--gs-secondary-text);
+        }
+
+        &:hover {
+            .cell__badge {
+                opacity: 0.85;
+            }
+
+            .cell__number {
+                color: var(--gs-secondary-text-hovered);
+            }
+        }
+    }
+
+    &_hidden {
+        opacity: 0;
+        visibility: hidden;
+    }
+}
