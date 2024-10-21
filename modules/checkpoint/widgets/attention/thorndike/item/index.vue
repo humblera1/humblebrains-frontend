@@ -5,8 +5,8 @@
 </template>
 
 <script setup lang="ts">
-import type { thorndikeItemProps } from '~/modules/checkpoint/widgets/memory/thorndike/item/thorndike-item.types';
-import { useThorndikeStore } from '~/modules/checkpoint/stores/memory/thorndikeStore';
+import type { thorndikeItemProps } from '~/modules/checkpoint/widgets/attention/thorndike/item/thorndike-item.types';
+import { useThorndikeStore } from '~/modules/checkpoint/stores/attention/thorndikeStore';
 
 const { number, withBadge } = withDefaults(defineProps<thorndikeItemProps>(), {
     withBadge: false,

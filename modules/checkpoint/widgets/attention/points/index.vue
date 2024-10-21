@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { usePointsStore } from '~/modules/checkpoint/stores/memory/piontsStore';
+import { usePointsStore } from '~/modules/checkpoint/stores/attention/piontsStore';
 import { useCheckpointStore } from '~/modules/checkpoint/stores/checkpointStore';
 
 const store = usePointsStore();

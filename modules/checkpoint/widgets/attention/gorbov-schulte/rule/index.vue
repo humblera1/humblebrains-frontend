@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { useGorbovSchulteStore } from '~/modules/checkpoint/stores/memory/gorbovSchulteStore';
+import { useGorbovSchulteStore } from '~/modules/checkpoint/stores/attention/gorbovSchulteStore';
 
 const gorbovSchulte = useGorbovSchulteStore();
 

@@ -8,8 +8,8 @@
 </template>
 
 <script setup lang="ts">
-import type { gorbovSchulteCellProps } from '~/modules/checkpoint/widgets/memory/gorbov-schulte/cell/gorbov-schulte-cell.types';
-import { useGorbovSchulteStore } from '~/modules/checkpoint/stores/memory/gorbovSchulteStore';
+import type { gorbovSchulteCellProps } from '~/modules/checkpoint/widgets/attention/gorbov-schulte/cell/gorbov-schulte-cell.types';
+import { useGorbovSchulteStore } from '~/modules/checkpoint/stores/attention/gorbovSchulteStore';
 
 const { number } = defineProps<gorbovSchulteCellProps>();
 

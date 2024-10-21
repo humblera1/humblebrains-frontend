@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { useThorndikeStore } from '~/modules/checkpoint/stores/memory/thorndikeStore';
+import { useThorndikeStore } from '~/modules/checkpoint/stores/attention/thorndikeStore';
 import { useCheckpointStore } from '~/modules/checkpoint/stores/checkpointStore';
 
 const thorndike = useThorndikeStore();

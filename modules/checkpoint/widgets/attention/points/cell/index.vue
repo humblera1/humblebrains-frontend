@@ -10,8 +10,8 @@
 </template>
 
 <script setup lang="ts">
-import type { PointsCellProps } from '~/modules/checkpoint/widgets/memory/points/cell/points-cell.types';
-import { usePointsStore } from '~/modules/checkpoint/stores/memory/piontsStore';
+import type { PointsCellProps } from '~/modules/checkpoint/widgets/attention/points/cell/points-cell.types';
+import { usePointsStore } from '~/modules/checkpoint/stores/attention/piontsStore';
 
 const { number } = defineProps<PointsCellProps>();
 
