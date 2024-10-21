@@ -1,7 +1,8 @@
+import type { ComputedRef } from 'vue';
 import type { IUserProxyContext } from '~/modules/user/entities/interfaces/IUserProxyContext';
 import { useUserStore } from '~/modules/user/stores/userStore';
 import type { UserPersonalData } from '~/modules/user/entities/interfaces/UserPersonalData';
-import type { ComputedRef } from 'vue';
+import type { ICheckpoint } from '~/modules/checkpoint/entities/interfaces/ICheckpoint';
 
 export class UserProxy implements IUserProxyContext {
     username!: ComputedRef<string>;
@@ -9,6 +10,9 @@ export class UserProxy implements IUserProxyContext {
     firstName!: ComputedRef<string>;
     secondName!: ComputedRef<string>;
     isAnonymous!: ComputedRef<boolean>;
+    isRunCheckpoint!: ComputedRef<boolean>;
+    isRunProgram!: ComputedRef<boolean>;
+    checkpoint!: ComputedRef<ICheckpoint | undefined>;
 
     constructor() {
         const store = useUserStore();
@@ -31,6 +35,31 @@ export class UserProxy implements IUserProxyContext {
             }
 
             return store.user.isAnonymous;
-        })
+        });
+
+        this.checkpoint = computed((): ICheckpoint => {
+            return store.user.checkpoint;
+        });
+
+        /**
+         * Возможны два состояния: пользователь проходит программу или пользователь завершил программу и проходит контрольную точку.
+         * Данное свойство сигнализирует о том, что пользователь проходит контрольную точку.
+         */
+        this.isRunCheckpoint = computed((): boolean => {
+            if (this.checkpoint.value) {
+                return !this.checkpoint.value.isCompleted;
+            }
+
+            return false;
+        });
+
+        /**
+         * Возможны два состояния: пользователь проходит программу или пользователь завершил программу и проходит контрольную точку.
+         * Данное свойство сигнализирует о том, что пользователь ещё не завершил программу и не может быть допущен к выполнению контрольной точки.
+         */
+        this.isRunProgram = computed((): boolean => {
+            // todo: method logic
+            return false;
+        });
     }
 }

@@ -10,7 +10,7 @@ export default defineNuxtRouteMiddleware(() => {
 
     if (import.meta.client && store.user.id === undefined) {
         fetchUser()
-            .then((user: User) => store.setUserData(user))
+            .then((user: User) => store.setUserData(user.data))
             .catch((error) => console.log(error.data));
     }
 });
