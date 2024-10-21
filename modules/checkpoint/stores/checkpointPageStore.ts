@@ -5,9 +5,12 @@ import { CognitiveCategoryEnum } from '~/entities/enums/cognitiveCategoryEnum';
 import type { ChainComponent } from '~/modules/checkpoint/entities/types/ChainComponent';
 import { CheckpointTabEnum } from '~/entities/enums/checkpoint/CheckpointTabEnum';
 import { useCheckpointStore } from '~/modules/checkpoint/stores/checkpointStore';
+import { useCheckpointService } from '~/modules/checkpoint/composables/useCheckpointService';
 
 export const useCheckpointPageStore = defineStore('checkpointPageStorage', () => {
     const checkpoint = useCheckpointStore();
+
+    const service = useCheckpointService();
 
     const currentTab = ref<CheckpointTestTabEnum>(CheckpointTestTabEnum.preview);
 
@@ -25,9 +28,12 @@ export const useCheckpointPageStore = defineStore('checkpointPageStorage', () =>
     /**
      * Осуществляет переход к следующему компоненту в цепочке
      */
-    const moveChain = () => {
+    const moveChain = async () => {
         if (++currentChainIndex.value >= getNumberOfSteps()) {
             const checkpointTab = useState('checkpoint');
+
+            await service.sendStageResults(currentCategory.value, checkpoint.getTotal());
+
             checkpointTab.value = CheckpointTabEnum.conclusion;
 
             checkpoint.$reset();

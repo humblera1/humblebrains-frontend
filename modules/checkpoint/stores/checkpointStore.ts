@@ -1,9 +1,8 @@
-// Базовый стор, отвечающий за действия, свойственные всем тестам
 import { defineStore } from 'pinia';
 import { TestModeEnum } from '~/modules/checkpoint/entities/enums/TestModeEnum';
 import { TestStateEnum } from '~/modules/checkpoint/entities/enums/TestStateEnum';
-import { useEmitEvent } from '#imports';
 
+// Базовый стор, отвечающий за действия, свойственные всем тестам
 export const useCheckpointStore = defineStore('checkpointStorage', () => {
     const COUNTDOWN_INITIAL_VALUE = 3;
 
@@ -432,13 +431,16 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
      * Вспомогательный метод, сигнализирует о том, что достигнут максимальный уровень в упражнении.
      */
     const isTimeToFinishTest = () => {
-        console.log();
         return finishedLevelsAmount.value >= levelsAmount.value;
     };
 
     const setTotalTime = (timeToSet: number) => {
         time.value = timeToSet;
         totalTime.value = timeToSet;
+    };
+
+    const getTotal = (): number => {
+        return Math.round(useMean(testContributions));
     };
 
     /**
@@ -534,5 +536,8 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         isInPauseState,
 
         $reset,
+
+        // Результат тестовых упражнений
+        getTotal,
     };
 });
