@@ -11,8 +11,6 @@ export const useCheckpointPageStore = defineStore('checkpointPageStorage', () =>
 
     const currentTab = ref<CheckpointTestTabEnum>(CheckpointTestTabEnum.preview);
 
-    const route = useRoute();
-
     const currentCategory = ref<CognitiveCategoryEnum>();
 
     const componentsChain: ChainComponent[] = [];
@@ -95,6 +93,7 @@ export const useCheckpointPageStore = defineStore('checkpointPageStorage', () =>
     };
 
     const initCategory = () => {
+        const route = useRoute();
         const category = route.params.category;
 
         if (typeof category === 'string' && isCategoryEnum(category)) {
