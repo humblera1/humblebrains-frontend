@@ -58,4 +58,4 @@ const iconStyles = computed(() => {
 });
 </script>
 
-<style lang="scss" src="./matrix-cell.styles.scss"></style>
+<style scoped lang="scss" src="./matrix-cell.styles.scss"></style>
