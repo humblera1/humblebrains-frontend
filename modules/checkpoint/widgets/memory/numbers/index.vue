@@ -10,7 +10,7 @@
                 />
             </TransitionGroup>
         </div>
-        <div class="numbers__variants">
+        <div :class="variantsClasses" @dragover.prevent @drop="onDrop">
             <TransitionGroup name="scale">
                 <WidgetCheckpointMemoryNumbersVariant
                     v-for="(number, index) in numbers.variants"
@@ -28,6 +28,19 @@ import { useNumbersStore } from '~/modules/checkpoint/stores/memory/numbersStore
 
 const numbers = useNumbersStore();
 
+const onDrop = () => {
+    numbers.handleNumberDrop();
+};
+
+const variantsClasses = computed(() => {
+    return [
+        'numbers__variants',
+        {
+            'numbers__variants_drag-entered': numbers.isNumberDragged,
+        },
+    ];
+});
+
 onMounted(() => {
     numbers.$setup();
 });
@@ -43,6 +56,7 @@ onUnmounted(() => {
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
+    user-select: none;
 
     // todo:
     gap: 60px;
@@ -59,6 +73,15 @@ onUnmounted(() => {
         flex-wrap: wrap;
         justify-content: center;
         gap: 4px;
+        border-radius: 12px;
+        padding: 16px 8px;
+        border: 2px dashed transparent;
+
+        transition: all 250ms ease;
+
+        &_drag-entered {
+            border: 2px dashed var(--primary-subtitle);
+        }
     }
 }
 

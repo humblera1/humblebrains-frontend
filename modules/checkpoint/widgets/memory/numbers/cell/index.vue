@@ -3,8 +3,10 @@
         <div :class="numberClasses">
             {{ number }}
         </div>
-        <div :class="answerClasses">
-            {{ numbers.getAnsweredNumber(index) }}
+        <div :class="answerClasses" draggable="true" @dragstart="onDragStart" @dragend="onDragEnd">
+<!--            <p>-->
+                {{ numbers.getAnsweredNumber(index) }}
+<!--            </p>-->
         </div>
     </div>
 </template>
@@ -20,6 +22,14 @@ const numbers = useNumbersStore();
 const checkpoint = useCheckpointStore();
 
 const isDragEntered = ref<boolean>(false);
+
+const onDragStart = () => {
+    numbers.handleNumberDragStart(index);
+};
+
+const onDragEnd = () => {
+    numbers.handleNumberDragEnd();
+};
 
 const cellClasses = computed(() => {
     return {
@@ -94,9 +104,9 @@ const onDragLeave = () => {
     }
 
     &__answer {
+        cursor: grab;
         position: absolute;
         z-index: 2;
-        cursor: pointer;
         display: flex;
         justify-content: center;
         align-items: center;

@@ -41,7 +41,12 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
     /**
      * Вариант, переносимый в ячейку.
      */
-    let draggedVariant: DraggedItem | undefined;
+    const draggedVariant = ref<DraggedItem | undefined>();
+
+    /**
+     * Номер из ячейки, переносимый обратно в варианты.
+     */
+    const draggedNumber = ref<DraggedItem | undefined>();
 
     /**
      * Массив, хранящий процент правильно выбранных чисел за каждый уровень.
@@ -176,9 +181,16 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
      * @param variantValue
      */
     const handleDragStart = (variantIndex: number, variantValue: number) => {
-        draggedVariant = {
+        draggedVariant.value = {
             index: variantIndex,
             value: variantValue,
+        };
+    };
+
+    const handleNumberDragStart = (numberIndex: number) => {
+        draggedNumber.value = {
+            index: numberIndex,
+            value: getAnsweredNumber(numberIndex),
         };
     };
 
@@ -186,28 +198,69 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
      * Обрабатывает окончание переноса элемента.
      */
     const handleDragEnd = () => {
-        draggedVariant = undefined;
+        draggedVariant.value = undefined;
     };
 
     /**
-     * Обрабатывает сброс варианта на ячейку.
-     *
-     * @param cellIndex Индекс ячейки.
+     * Обрабатывает окончание переноса номера ячейки.
      */
-    const handleDrop = (cellIndex: number) => {
-        if (draggedVariant !== undefined) {
-            // Удаляем перенесённый элемент из массива вариантов
-            variants.value.splice(draggedVariant.index, 1);
+    const handleNumberDragEnd = () => {
+        draggedNumber.value = undefined;
+    };
 
-            // Если ячейка уже содержит вариант, возвращаем его в массив вариантов
-            const previousVariant = answeredNumbers.value.at(cellIndex);
+    const isVariantDragged = computed((): boolean => {
+        return draggedVariant.value !== undefined;
+    });
 
-            if (previousVariant !== undefined) {
-                variants.value.push(previousVariant);
+    const isNumberDragged = computed((): boolean => {
+        return draggedNumber.value !== undefined;
+    });
+
+    /**
+     * Обрабатывает сброс на ячейку.
+     *
+     * @param newCellIndex Индекс ячейки, в которую будет осуществлён перенос.
+     */
+    const handleDrop = (newCellIndex: number) => {
+        if (!isVariantDragged.value && !isNumberDragged.value) {
+            return;
+        }
+
+        const previousNumber = answeredNumbers.value.at(newCellIndex);
+
+        if (draggedVariant.value !== undefined) {
+            // Если ячейка уже содержала число, возвращаем его в массив вариантов
+            if (previousNumber !== undefined) {
+                variants.value.push(previousNumber);
             }
 
-            // Записываем новый вариант в ячейку
-            answeredNumbers.value[cellIndex] = draggedVariant.value;
+            // Удаляем перенесённый элемент из массива вариантов
+            variants.value.splice(draggedVariant.value.index, 1);
+            answeredNumbers.value[newCellIndex] = draggedVariant.value.value;
+        }
+
+        if (draggedNumber.value !== undefined) {
+            // Если ячейка уже содержала число, возвращаем его в массив вариантов
+            if (previousNumber !== undefined && previousNumber !== draggedNumber.value.value) {
+                variants.value.push(previousNumber);
+            }
+
+            // Удаляем перенесённый элемент из предыдущей ячейки и перемещаем на новую
+            answeredNumbers.value[draggedNumber.value.index] = undefined;
+            answeredNumbers.value[newCellIndex] = draggedNumber.value.value;
+        }
+    };
+
+    /**
+     * Обрабатываем сброс содержимого ячейки обратно в варианты.
+     */
+    const handleNumberDrop = () => {
+        if (draggedNumber.value !== undefined) {
+            // Удаляем перенесённый элемент из массива ответов
+            answeredNumbers.value[draggedNumber.value.index] = undefined;
+
+            // Возвращаем вариант в массив.
+            variants.value.push(draggedNumber.value.value);
         }
     };
 
@@ -252,13 +305,22 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
         getAnsweredNumber,
 
         // drag-n-drop
+        isVariantDragged,
+        isNumberDragged,
         handleDrop,
         handleDragStart,
         handleDragEnd,
+
+        handleNumberDrop,
+        handleNumberDragStart,
+        handleNumberDragEnd,
 
         // isDragged,
 
         $setup,
         $reset,
+
+        // debug
+        draggedNumber,
     };
 });
