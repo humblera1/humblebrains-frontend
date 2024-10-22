@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { useCheckpointStore } from '~/modules/checkpoint/stores/checkpointStore';
 import type { ITestLevels } from '~/modules/checkpoint/entities/interfaces/ITestLevels';
 import type { NumbersLevel } from '~/modules/checkpoint/entities/types/numbers/NumbersLevel';
+import type { DraggedItem } from '~/modules/checkpoint/entities/types/numbers/draggedItem';
 
 /**
  * Содержит логику теста, связанного с проверкой кратковременной памяти на числа.
@@ -18,7 +19,7 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
      * Массив номеров, которые будут использоваться в тесте.
      * Ключ отвечает за индекс ячейки, значение - то число, которое необходимо запомнить пользователю.
      */
-    const numbers = ref<number[]>([]);
+    let numbers: number[] = [];
 
     /**
      * Дублирует массив numbers, но используется для анимации последовательного вывода чисел на странице.
@@ -32,15 +33,15 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
     const variants = ref<number[]>([]);
 
     /**
-     * Дублирует массив variants, но используется для анимации последовательного вывода вариантов.
-     */
-    const visibleVariants = ref<number[]>([]);
-
-    /**
      * Массив чисел, которые пользователь расставил в качестве ответа.
      * Сравнение данного массива с массивом numbers даёт информацию о количестве правильных ответов.
      */
-    const answeredNumbers = ref<number[]>([]);
+    const answeredNumbers = ref<number[] | undefined[]>([]);
+
+    /**
+     * Вариант, переносимый в ячейку.
+     */
+    let draggedVariant: DraggedItem | undefined;
 
     /**
      * Массив, хранящий процент правильно выбранных чисел за каждый уровень.
@@ -90,17 +91,17 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
     });
 
     /**
-     * Генерирует необходимое количество уникальных трёхзначных чисел и устанавливает их в переменную numbers.
+     * Генерирует необходимое количество уникальных двухзначных чисел и устанавливает их в переменную numbers.
      */
     const setNumbers = (): void => {
         const totalNumbers = currentLevel.value.totalNumbers;
         const randomNumbers: Set<number> = new Set();
 
         while (randomNumbers.size < totalNumbers) {
-            randomNumbers.add(useRandom(100, 999));
+            randomNumbers.add(useRandom(10, 99));
         }
 
-        numbers.value = Array.from(randomNumbers);
+        numbers = Array.from(randomNumbers);
     };
 
     /**
@@ -109,10 +110,10 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
      */
     const setVariants = (): void => {
         const totalVariants = currentLevel.value.totalVariants;
-        const initialVariants = new Set(numbers.value);
+        const initialVariants = new Set(numbers);
 
         while (initialVariants.size < totalVariants) {
-            initialVariants.add(useRandom(100, 999));
+            initialVariants.add(useRandom(10, 99));
         }
 
         variants.value = useShuffle(Array.from(initialVariants));
@@ -125,12 +126,12 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
     const setAnsweredNumbers = (): void => {
         const totalNumbers = currentLevel.value.totalNumbers;
 
-        answeredNumbers.value = Array(totalNumbers).fill(0);
+        answeredNumbers.value = Array(totalNumbers).fill(undefined);
     };
 
     const showNumbersSequentially = (): Promise<void> => {
         return new Promise((resolve) => {
-            const numbersToAdd = [...numbers.value];
+            const numbersToAdd = [...numbers];
 
             const show = async () => {
                 if (checkpoint.isInPauseState()) {
@@ -153,6 +154,10 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
         });
     };
 
+    const showCellNumber = (cellNumber: number) => {
+        return checkpoint.isInContemplationState() || answeredNumbers.value.includes(cellNumber);
+    };
+
     const clearNumberShowingTimer = () => {
         if (numberShowingTimerId) {
             clearTimeout(numberShowingTimerId);
@@ -164,20 +169,75 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
         clearNumberShowingTimer();
     };
 
+    /**
+     * Обрабатывает начало переноса элемента.
+     *
+     * @param variantIndex
+     * @param variantValue
+     */
+    const handleDragStart = (variantIndex: number, variantValue: number) => {
+        draggedVariant = {
+            index: variantIndex,
+            value: variantValue,
+        };
+    };
+
+    /**
+     * Обрабатывает окончание переноса элемента.
+     */
+    const handleDragEnd = () => {
+        draggedVariant = undefined;
+    };
+
+    /**
+     * Обрабатывает сброс варианта на ячейку.
+     *
+     * @param cellIndex Индекс ячейки.
+     */
+    const handleDrop = (cellIndex: number) => {
+        if (draggedVariant !== undefined) {
+            // Удаляем перенесённый элемент из массива вариантов
+            variants.value.splice(draggedVariant.index, 1);
+
+            // Если ячейка уже содержит вариант, возвращаем его в массив вариантов
+            const previousVariant = answeredNumbers.value.at(cellIndex);
+
+            if (previousVariant !== undefined) {
+                variants.value.push(previousVariant);
+            }
+
+            // Записываем новый вариант в ячейку
+            answeredNumbers.value[cellIndex] = draggedVariant.value;
+        }
+    };
+
     const startLevel = async () => {
         setNumbers();
         setVariants();
         setAnsweredNumbers();
 
-        await checkpoint.startCountdown();
+        // await checkpoint.startCountdown();
         await showNumbersSequentially();
     };
 
-    const $setup = () => {
-        startLevel();
-        console.log(numbers.value);
-        console.log(variants.value);
+    const isCellAnswered = (cellIndex: number): boolean => {
+        return answeredNumbers.value.at(cellIndex) !== undefined;
+    };
+
+    const getAnsweredNumber = (cellIndex: number) => {
+        return answeredNumbers.value.at(cellIndex);
+    };
+
+    const $setup = async () => {
+        checkpoint.setContemplationState();
+        await startLevel();
+
         console.log(answeredNumbers.value);
+
+        checkpoint.setInteractiveState();
+
+        // todo:
+        variants.value = [...variants.value];
     };
 
     const $reset = () => {
@@ -186,7 +246,17 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
 
     return {
         visibleNumbers,
-        visibleVariants,
+        variants,
+        showCellNumber,
+        isCellAnswered,
+        getAnsweredNumber,
+
+        // drag-n-drop
+        handleDrop,
+        handleDragStart,
+        handleDragEnd,
+
+        // isDragged,
 
         $setup,
         $reset,
