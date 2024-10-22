@@ -1,6 +1,8 @@
+@use "../collection/_mixins.scss" as mixins;
+
 body {
     background-color: var(--secondary-bg);
-    @include mainFont(500, 16, black);
+    @include mixins.mainFont(500, 16, black);
 }
 
 ul {

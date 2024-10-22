@@ -33,6 +33,7 @@ export default defineNuxtConfig({
         css: {
             preprocessorOptions: {
                 scss: {
+                    api: 'modern-compiler',
                     additionalData: '@use "~/assets/styles/collection/index.scss" as *;',
                 },
             },

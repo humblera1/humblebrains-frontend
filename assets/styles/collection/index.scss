@@ -1,5 +1,5 @@
-@import "colors";
-@import "fonts";
-@import "functions";
-@import "mixins";
-@import "medias";
+@forward "colors";
+@forward "fonts";
+@forward "functions";
+@forward "mixins";
+@forward "medias";

@@ -1,6 +1,5 @@
-@import "global/reset";
+@forward "global/reset";
 
-@import "collection/colors";
-@import "collection/fonts";
+@forward "collection/index";
 
-@import "global/base";
+@forward "global/base";
