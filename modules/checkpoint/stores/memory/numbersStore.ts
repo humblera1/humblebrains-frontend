@@ -3,11 +3,18 @@ import { useCheckpointStore } from '~/modules/checkpoint/stores/checkpointStore'
 import type { ITestLevels } from '~/modules/checkpoint/entities/interfaces/ITestLevels';
 import type { NumbersLevel } from '~/modules/checkpoint/entities/types/numbers/NumbersLevel';
 import type { DraggedItem } from '~/modules/checkpoint/entities/types/numbers/draggedItem';
+import { useCheckpointPageStore } from '~/modules/checkpoint/stores/checkpointPageStore';
 
 /**
  * Содержит логику теста, связанного с проверкой кратковременной памяти на числа.
  */
 export const useNumbersStore = defineStore('numbersStorage', () => {
+    const CELLS_PER_ROW = 4;
+
+    const TOTAL_ANSWER_TIME = 120;
+
+    const TOTAL_CONTEMPLATION_TIME = 5;
+
     /**
      * Интервал, с которым новые номера появляются на поле в начале уровня.
      */
@@ -16,6 +23,8 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
     const device = useDevice();
 
     const checkpoint = useCheckpointStore();
+
+    const page = useCheckpointPageStore();
 
     /**
      * Массив номеров, которые будут использоваться в тесте.
@@ -104,13 +113,26 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
     });
 
     /**
+     *
+     */
+    const totalNumbersAmount = computed((): number => {
+        return currentLevel.value?.totalNumbers ?? 0;
+    });
+
+    /**
+     *
+     */
+    const fieldColumnsAmount = computed((): number => {
+        return totalNumbersAmount.value < CELLS_PER_ROW ? totalNumbersAmount.value : CELLS_PER_ROW;
+    });
+
+    /**
      * Генерирует необходимое количество уникальных двухзначных чисел и устанавливает их в переменную numbers.
      */
     const setNumbers = (): void => {
-        const totalNumbers = currentLevel.value.totalNumbers;
         const randomNumbers: Set<number> = new Set();
 
-        while (randomNumbers.size < totalNumbers) {
+        while (randomNumbers.size < totalNumbersAmount.value) {
             randomNumbers.add(useRandom(10, 99));
         }
 
@@ -123,7 +145,7 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
      */
     const setVariants = (): void => {
         const totalVariants = currentLevel.value.totalVariants;
-        const initialVariants = new Set(numbers);
+        const initialVariants: Set<number> = new Set(numbers);
 
         while (initialVariants.size < totalVariants) {
             initialVariants.add(useRandom(10, 99));
@@ -137,9 +159,7 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
      * Массив предварительно заполняется нулевыми значениями.
      */
     const setAnsweredNumbers = (): void => {
-        const totalNumbers = currentLevel.value.totalNumbers;
-
-        answeredNumbers.value = Array(totalNumbers).fill(undefined);
+        answeredNumbers.value = Array(totalNumbersAmount.value).fill(undefined);
     };
 
     const showNumbersSequentially = (): Promise<void> => {
@@ -165,10 +185,6 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
 
             numberShowingTimerId = setTimeout(show, NUMBER_SHOWING_TIME);
         });
-    };
-
-    const showCellNumber = (cellNumber: number) => {
-        return checkpoint.isInContemplationState() || answeredNumbers.value.includes(cellNumber);
     };
 
     const clearNumberShowingTimer = () => {
@@ -199,15 +215,19 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
         };
     };
 
-    const handleNumberDragStart = (numberIndex: number) => {
+    const handleNumberDragStart = (cellIndex: number) => {
         if (!isDraggableMode.value) {
             return;
         }
 
-        draggedNumber.value = {
-            index: numberIndex,
-            value: getAnsweredNumber(numberIndex),
-        };
+        const answerInCell = getAnsweredNumber(cellIndex);
+
+        if (answerInCell !== undefined) {
+            draggedNumber.value = {
+                index: cellIndex,
+                value: answerInCell,
+            };
+        }
     };
 
     /**
@@ -265,7 +285,7 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
             return;
         }
 
-        const answerInCell = answeredNumbers.value.at(newCellIndex);
+        const answerInCell = getAnsweredNumber(newCellIndex);
 
         if (draggedVariant.value !== undefined) {
             // Удаляем перенесённый элемент из массива вариантов
@@ -304,23 +324,134 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
     };
 
     const startLevel = async () => {
+        checkpoint.setLevelPreparingState();
+        checkpoint.setTotalTime(TOTAL_CONTEMPLATION_TIME);
+
         setNumbers();
-        setVariants();
         setAnsweredNumbers();
 
-        // await checkpoint.startCountdown();
+        await checkpoint.startCountdown();
         await showNumbersSequentially();
 
         if (isClickableMode.value) {
             findActiveCell(); // Выбираем первую ячейку, которую пользователь будет заполнять.
         }
+
+        checkpoint.setContemplationState();
+        checkpoint.startTimer();
+    };
+
+    /**
+     *
+     */
+    const startInteractiveState = () => {
+        if (checkpoint.isInContemplationState()) {
+            checkpoint.setTotalTime(TOTAL_ANSWER_TIME);
+            checkpoint.resetTimer();
+
+            setVariants();
+
+            checkpoint.startTimer();
+
+            checkpoint.setInteractiveState();
+        }
+    };
+
+    const finishLevel = () => {
+        saveSubtotal();
+        flushAllLevelData();
+
+        // checkpoint.stopTimer();
+        // todo: ждем завершения анимации скрытия ячеек
+        setTimeout(async () => {
+            checkpoint.finishLevel();
+
+            if (checkpoint.isTimeToFinishTest()) {
+                finishTest();
+
+                return;
+            }
+
+            if (checkpoint.isTimeToSwitchMode()) {
+                await handleModeSwitching();
+            }
+
+            checkpoint.resetTimer();
+
+            await startLevel();
+        }, 500);
+    };
+
+    // todo: duplicates
+    const handleModeSwitching = async () => {
+        checkpoint.setMessage('Разминка завершена!');
+        await checkpoint.showPrompt('gameStartPrompt');
+
+        checkpoint.setLevelPreparingState();
+        checkpoint.clearMessage();
+
+        checkpoint.setGameMode();
+        checkpoint.setLevelsAmount(Object.keys(levels).length);
+        checkpoint.resetProgress();
+    };
+
+    const finishTest = () => {
+        saveTotal();
+        checkpoint.setTestFinishingState();
+        checkpoint.setMessage('Отлично! Готовим следующий этап...');
+
+        page.moveChain();
+    };
+
+    const saveSubtotal = () => {
+        const len = numbers.length;
+
+        let correctAnsweredNumbers = 0;
+
+        for (let i = 0; i < len; i++) {
+            if (answeredNumbers.value.at(i) === numbers.at(i)) {
+                correctAnsweredNumbers++;
+            }
+        }
+
+        const totalPercent = (correctAnsweredNumbers * 100) / len;
+
+        subtotals.push(totalPercent);
+    };
+
+    const saveTotal = () => {
+        checkpoint.saveTestContribution(subtotals);
+    };
+
+    const flushNumbers = () => {
+        numbers.length = 0;
+    };
+
+    const flushVisibleNumbers = () => {
+        visibleNumbers.value.length = 0;
+    };
+
+    const flushAnsweredNumbers = () => {
+        answeredNumbers.value.length = 0;
+    };
+
+    const flushVariants = () => {
+        variants.value.length = 0;
+    };
+
+    const flushAllLevelData = () => {
+        flushAnsweredNumbers();
+        flushVisibleNumbers();
+        flushVariants();
+        flushNumbers();
+
+        removeActiveCell();
     };
 
     /**
      * Выбирает ячейку, которую сделает активной для заполнения - это первая незаполненная ячейка.
      */
     const findActiveCell = () => {
-        console.log('выбор активной ячейки...');
         const n = answeredNumbers.value.length;
 
         for (let i = 0; i < n; i++) {
@@ -401,25 +532,32 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
     };
 
     const $setup = async () => {
-        checkpoint.setContemplationState();
+        checkpoint.setTestPreparingState();
+        checkpoint.setWarmUpMode();
+
+        checkpoint.setLevelsAmount(Object.keys(levelsToWarmUp).length);
+
+        await checkpoint.showPrompt('warmUpPrompt');
         await startLevel();
-
-        console.log(answeredNumbers.value);
-
-        checkpoint.setInteractiveState();
-
-        // todo:
-        variants.value = [...variants.value];
     };
 
     const $reset = () => {
         clearTimers();
     };
 
+    useListenEvent('test:timeIsOver', async () => {
+        if (checkpoint.isInContemplationState()) {
+            startInteractiveState();
+        } else if (checkpoint.isInInteractiveState()) {
+            finishLevel();
+        }
+    });
+
     return {
+        fieldColumnsAmount,
+
         visibleNumbers,
         variants,
-        showCellNumber,
         isCellAnswered,
         getAnsweredNumber,
 
@@ -440,7 +578,9 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
         handleClickOnCell,
         handleClickOnVariant,
 
-        // isDragged,
+        // controls
+        startInteractiveState,
+        finishLevel,
 
         $setup,
         $reset,

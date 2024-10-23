@@ -431,7 +431,17 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
      * Вспомогательный метод, сигнализирует о том, что достигнут максимальный уровень в упражнении.
      */
     const isTimeToFinishTest = () => {
-        return finishedLevelsAmount.value >= levelsAmount.value;
+        return finishedLevelsAmount.value >= levelsAmount.value && isInGameMode();
+
+        // todo: прочие сторы
+        // return finishedLevelsAmount.value >= levelsAmount.value;
+    };
+
+    /**
+     * Вспомогательный метод, сигнализирует о том, что завершены все разминочные уровни.
+     */
+    const isTimeToSwitchMode = () => {
+        return finishedLevelsAmount.value >= levelsAmount.value && isInWarmUpMode();
     };
 
     const setTotalTime = (timeToSet: number) => {
@@ -487,6 +497,7 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         setLevelsAmount,
 
         isTimeToFinishTest,
+        isTimeToSwitchMode,
         finishLevel,
 
         // Паузы

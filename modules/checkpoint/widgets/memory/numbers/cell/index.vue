@@ -49,7 +49,7 @@ const numberClasses = computed(() => {
     return [
         'cell__number',
         {
-            cell__number_visible: checkpoint.isInContemplationState(),
+            cell__number_visible: checkpoint.isLevelPreparingState() || checkpoint.isInContemplationState(),
         },
     ];
 });
