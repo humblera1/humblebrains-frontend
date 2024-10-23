@@ -1,5 +1,5 @@
 <template>
-    <div class="variant" draggable="true" @dragstart="onDragStart" @dragend="onDragEnd">
+    <div class="variant" :draggable="numbers.isDraggableMode" @dragstart="onDragStart" @dragend="onDragEnd" @click="onClick">
         {{ number }}
     </div>
 </template>
@@ -19,6 +19,10 @@ const onDragStart = () => {
 const onDragEnd = () => {
     numbers.handleDragEnd();
 };
+
+const onClick = () => {
+    numbers.handleClickOnVariant(index);
+};
 </script>
 
 <style scoped lang="scss">
@@ -33,6 +37,8 @@ const onDragEnd = () => {
     border-radius: 12px;
     background-color: var(--badge-bg);
     user-select: none;
+    //mix-blend-mode: multiply;
+    isolation: revert;
 
     opacity: 1;
     transform: scale(1);
@@ -43,6 +49,19 @@ const onDragEnd = () => {
 
     &:hover {
         color: var(--primary-subtitle-hovered);
+    }
+
+    @include tablet {
+        @include boxShadow(-10, 10, 30, 0, var(--main-shadow));
+    }
+
+    @include mobile {
+        min-width: 36px;
+        width: 36px;
+        border-radius: 8px;
+        font-size: 14px;
+
+        @include mainShadowMobile();
     }
 }
 </style>

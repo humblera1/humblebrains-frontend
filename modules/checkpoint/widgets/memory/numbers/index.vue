@@ -66,18 +66,31 @@ onUnmounted(() => {
         grid-template-columns: repeat(4, 1fr);
         gap: 4px;
         width: fit-content;
+
+        @include tablet {
+            gap: 6px;
+        }
     }
 
     &__variants {
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
+        flex-direction: row-reverse;
         gap: 4px;
         border-radius: 12px;
         padding: 16px 8px;
         border: 2px dashed transparent;
 
         transition: all 250ms ease;
+
+        @include tablet {
+            gap: 6px;
+        }
+
+        @include mobile {
+            gap: 8px;
+        }
 
         &_drag-entered {
             border: 2px dashed var(--primary-subtitle);

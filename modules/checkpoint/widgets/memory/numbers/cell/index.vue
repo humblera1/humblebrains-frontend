@@ -1,12 +1,10 @@
 <template>
-    <div class="cell" :class="cellClasses" @dragover.prevent @drop="onDrop" @dragenter="onDragEnter" @dragleave="onDragLeave">
+    <div :class="cellClasses" @dragover.prevent @drop="onDrop" @dragenter="onDragEnter" @dragleave="onDragLeave" @click="onClick">
         <div :class="numberClasses">
             {{ number }}
         </div>
-        <div :class="answerClasses" draggable="true" @dragstart="onDragStart" @dragend="onDragEnd">
-<!--            <p>-->
-                {{ numbers.getAnsweredNumber(index) }}
-<!--            </p>-->
+        <div ref="child" :class="answerClasses" :draggable="numbers.isDraggableMode" @dragstart="onDragStart" @dragend="onDragEnd">
+            {{ numbers.getAnsweredNumber(index) }}
         </div>
     </div>
 </template>
@@ -23,6 +21,8 @@ const checkpoint = useCheckpointStore();
 
 const isDragEntered = ref<boolean>(false);
 
+const child = ref(null);
+
 const onDragStart = () => {
     numbers.handleNumberDragStart(index);
 };
@@ -31,10 +31,18 @@ const onDragEnd = () => {
     numbers.handleNumberDragEnd();
 };
 
+const onClick = () => {
+    numbers.handleClickOnCell(index);
+};
+
 const cellClasses = computed(() => {
-    return {
-        'cell_drag-entered': isDragEntered.value,
-    };
+    return [
+        'cell',
+        {
+            cell_entered: isDragEntered.value,
+            cell_active: numbers.isCellActive(index),
+        },
+    ];
 });
 
 const numberClasses = computed(() => {
@@ -64,8 +72,10 @@ const onDragEnter = () => {
     isDragEntered.value = true;
 };
 
-const onDragLeave = () => {
-    isDragEntered.value = false;
+const onDragLeave = (event: DragEvent) => {
+    if (child.value !== event.relatedTarget) {
+        isDragEntered.value = false;
+    }
 };
 </script>
 
@@ -86,7 +96,19 @@ const onDragLeave = () => {
 
     @include mainFont(500, 20, var(--primary-subtitle));
 
-    &_drag-entered {
+    @include mobile {
+        min-width: 46px;
+        width: 46px;
+        border-radius: 12px;
+
+        font-size: 18px;
+    }
+
+    &_entered {
+        border: 2px solid var(--primary-subtitle);
+    }
+
+    &_active {
         border: 2px solid var(--primary-subtitle);
     }
 
@@ -118,6 +140,10 @@ const onDragLeave = () => {
         opacity: 0;
         transition: all 250ms ease;
         //border: 2px solid transparent;
+
+        @include mobile {
+            border-radius: 10px;
+        }
 
         &_visible {
             width: 100%;

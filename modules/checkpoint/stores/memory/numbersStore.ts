@@ -13,6 +13,8 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
      */
     const NUMBER_SHOWING_TIME = 250;
 
+    const device = useDevice();
+
     const checkpoint = useCheckpointStore();
 
     /**
@@ -47,6 +49,12 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
      * Номер из ячейки, переносимый обратно в варианты.
      */
     const draggedNumber = ref<DraggedItem | undefined>();
+
+    /**
+     * Активная ячейка. В данную ячейку может быть записан ответ.
+     * Переменная используется в режиме, альтернативном drag-n-drop.
+     */
+    const activeCell = ref<number>();
 
     /**
      * Массив, хранящий процент правильно выбранных чисел за каждый уровень.
@@ -181,6 +189,10 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
      * @param variantValue
      */
     const handleDragStart = (variantIndex: number, variantValue: number) => {
+        if (!isDraggableMode.value) {
+            return;
+        }
+
         draggedVariant.value = {
             index: variantIndex,
             value: variantValue,
@@ -188,6 +200,10 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
     };
 
     const handleNumberDragStart = (numberIndex: number) => {
+        if (!isDraggableMode.value) {
+            return;
+        }
+
         draggedNumber.value = {
             index: numberIndex,
             value: getAnsweredNumber(numberIndex),
@@ -217,6 +233,29 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
     });
 
     /**
+     * Проверяет наличие активной ячейки.
+     */
+    const isActiveCellExists = computed((): boolean => {
+        return activeCell.value !== undefined;
+    });
+
+    /**
+     * Режим игры по умолчанию.
+     * Заполнение ячеек происходит переносом вариантов в ячейки.
+     */
+    const isDraggableMode = computed((): boolean => {
+        return !device.isMobileOrTablet;
+    });
+
+    /**
+     * Режим игры для мобильных устройств и планшетов.
+     * Заполнение ячеек происходит последовательным выбором ячейки и варианта, который заполнит ячейку.
+     */
+    const isClickableMode = computed((): boolean => {
+        return device.isMobileOrTablet;
+    });
+
+    /**
      * Обрабатывает сброс на ячейку.
      *
      * @param newCellIndex Индекс ячейки, в которую будет осуществлён перенос.
@@ -226,28 +265,28 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
             return;
         }
 
-        const previousNumber = answeredNumbers.value.at(newCellIndex);
+        const answerInCell = answeredNumbers.value.at(newCellIndex);
 
         if (draggedVariant.value !== undefined) {
-            // Если ячейка уже содержала число, возвращаем его в массив вариантов
-            if (previousNumber !== undefined) {
-                variants.value.push(previousNumber);
-            }
-
             // Удаляем перенесённый элемент из массива вариантов
             variants.value.splice(draggedVariant.value.index, 1);
             answeredNumbers.value[newCellIndex] = draggedVariant.value.value;
+
+            // Если ячейка уже содержала число, возвращаем его в массив вариантов
+            if (answerInCell !== undefined) {
+                variants.value.unshift(answerInCell);
+            }
         }
 
         if (draggedNumber.value !== undefined) {
-            // Если ячейка уже содержала число, возвращаем его в массив вариантов
-            if (previousNumber !== undefined && previousNumber !== draggedNumber.value.value) {
-                variants.value.push(previousNumber);
-            }
-
             // Удаляем перенесённый элемент из предыдущей ячейки и перемещаем на новую
             answeredNumbers.value[draggedNumber.value.index] = undefined;
             answeredNumbers.value[newCellIndex] = draggedNumber.value.value;
+
+            // Если ячейка уже содержала число, возвращаем его в массив вариантов
+            if (answerInCell !== undefined && answerInCell !== draggedNumber.value.value) {
+                variants.value.unshift(answerInCell);
+            }
         }
     };
 
@@ -271,6 +310,86 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
 
         // await checkpoint.startCountdown();
         await showNumbersSequentially();
+
+        if (isClickableMode.value) {
+            findActiveCell(); // Выбираем первую ячейку, которую пользователь будет заполнять.
+        }
+    };
+
+    /**
+     * Выбирает ячейку, которую сделает активной для заполнения - это первая незаполненная ячейка.
+     */
+    const findActiveCell = () => {
+        console.log('выбор активной ячейки...');
+        const n = answeredNumbers.value.length;
+
+        for (let i = 0; i < n; i++) {
+            if (answeredNumbers.value.at(i) === undefined) {
+                markCellAsActive(i);
+                break;
+            }
+
+            removeActiveCell();
+        }
+    };
+
+    /**
+     * Помечает ячейку как активную.
+     */
+    const markCellAsActive = (cellIndex: number) => {
+        activeCell.value = cellIndex;
+    };
+
+    const removeActiveCell = () => {
+        activeCell.value = undefined;
+    };
+
+    /**
+     * Сигнализирует о том, что ячейка активна для заполнения.
+     * @param cellIndex
+     */
+    const isCellActive = (cellIndex: number): boolean => {
+        return activeCell.value === cellIndex;
+    };
+
+    /**
+     * Обрабатывает нажатие на ячейку.
+     */
+    const handleClickOnCell = (cellIndex: number) => {
+        if (isClickableMode.value) {
+            markCellAsActive(cellIndex);
+        }
+    };
+
+    /**
+     * Обрабатывает нажатие на вариант: значение варианта записывается в текущую активную ячейку,
+     * после чего выбирается незаполненная ячейка и делается активной.
+     *
+     * Выбранный вариант удаляется из массива вариантов.
+     *
+     * Если в текущей активной ячейки было значение, оно возвращается в массив вариантов.
+     */
+    const handleClickOnVariant = (variantIndex: number) => {
+        if (isClickableMode.value && isActiveCellExists.value) {
+            // @ts-ignore: we already check that activeCell exists
+            const activeCellIndex = activeCell.value as number;
+            const variantValue = variants.value.at(variantIndex) as number;
+            const answerInCell = answeredNumbers.value.at(activeCellIndex);
+
+            // Записываем в ячейку новое значение
+            answeredNumbers.value[activeCellIndex] = variantValue;
+
+            // Удаляем записанный вариант из массива вариантов
+            variants.value.splice(variantIndex, 1);
+
+            // Вставляем в массив вариантов предыдущий ответ из ячейки
+            if (answerInCell !== undefined) {
+                variants.value.unshift(answerInCell);
+            }
+
+            // Находим новую ячейку, чтобы сделать её активной
+            findActiveCell();
+        }
     };
 
     const isCellAnswered = (cellIndex: number): boolean => {
@@ -307,6 +426,7 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
         // drag-n-drop
         isVariantDragged,
         isNumberDragged,
+        isDraggableMode,
         handleDrop,
         handleDragStart,
         handleDragEnd,
@@ -314,6 +434,11 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
         handleNumberDrop,
         handleNumberDragStart,
         handleNumberDragEnd,
+
+        // clicks
+        isCellActive,
+        handleClickOnCell,
+        handleClickOnVariant,
 
         // isDragged,
 
