@@ -37,8 +37,14 @@ export default defineI18nConfig(() => ({
             step: 'Шаг',
             warmUpPrompt: 'Вам будет представлено несколько разминочных раундов',
             gameStartPrompt: 'Теперь играем серьезно',
+            warmUpCompleted: 'Разминка завершена!',
+            remembered: 'Запомнил!',
 
             'thorndike:findNumbers': 'Найдите следующие числа:',
+
+            'numbers:rememberNumbers': 'Запомните показанные числа',
+            'numbers:fillCell': 'Какое число находилось в ячейке?',
+            'numbers:fillAllCells': 'Расставьте числа по их ячейкам',
 
             // Categories
             memory: 'Память',
@@ -80,8 +86,13 @@ export default defineI18nConfig(() => ({
             step: 'Step',
             warmUpPrompt: '',
             gameStartPrompt: '',
+            warmUpCompleted: 'Warm-up completed!',
+            remembered: 'Remembered!',
 
             'thorndike:findNumbers': 'Find the following numbers:',
+            'numbers:rememberNumbers': 'Remember these numbers',
+            'numbers:fillCell': 'What number was in the cell?',
+            'numbers:fillAllCells': 'Place numbers in cells',
 
             // Categories
             memory: 'Memory',

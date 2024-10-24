@@ -23,14 +23,6 @@ const isDragEntered = ref<boolean>(false);
 
 const child = ref(null);
 
-const onDragStart = () => {
-    numbers.handleNumberDragStart(index);
-};
-
-const onDragEnd = () => {
-    numbers.handleNumberDragEnd();
-};
-
 const onClick = () => {
     numbers.handleClickOnCell(index);
 };
@@ -63,9 +55,17 @@ const answerClasses = computed(() => {
     ];
 });
 
+const onDragStart = () => {
+    numbers.handleNumberDragStart(index);
+};
+
+const onDragEnd = () => {
+    numbers.handleNumberDragEnd();
+};
+
 const onDrop = () => {
     isDragEntered.value = false;
-    numbers.handleDrop(index);
+    numbers.handleVariantDrop(index);
 };
 
 const onDragEnter = () => {
@@ -79,78 +79,4 @@ const onDragLeave = (event: DragEvent) => {
 };
 </script>
 
-<style scoped lang="scss">
-.cell {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-width: 60px;
-    width: 60px;
-    aspect-ratio: 1;
-    border-radius: 16px;
-    background-color: var(--matrix-cell);
-    border: 2px solid transparent;
-
-    transition: all 250ms ease;
-
-    @include mainFont(500, 20, var(--primary-subtitle));
-
-    @include mobile {
-        min-width: 46px;
-        width: 46px;
-        border-radius: 12px;
-
-        font-size: 18px;
-    }
-
-    &_entered {
-        border: 2px solid var(--primary-subtitle);
-    }
-
-    &_active {
-        border: 2px solid var(--primary-subtitle);
-    }
-
-    &__number {
-        position: absolute;
-        z-index: 1;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 250ms ease;
-
-        &_visible {
-            opacity: 1;
-            visibility: visible;
-        }
-    }
-
-    &__answer {
-        cursor: grab;
-        position: absolute;
-        z-index: 2;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 0;
-        height: 0;
-        background-color: var(--badge-bg);
-        border-radius: 14px;
-        visibility: hidden;
-        opacity: 0;
-        transition: all 250ms ease;
-        //border: 2px solid transparent;
-
-        @include mobile {
-            border-radius: 10px;
-        }
-
-        &_visible {
-            width: 100%;
-            height: 100%;
-            visibility: visible;
-            opacity: 1;
-        }
-    }
-}
-</style>
+<style scoped lang="scss" src="./numbers-cell.styles.scss" />

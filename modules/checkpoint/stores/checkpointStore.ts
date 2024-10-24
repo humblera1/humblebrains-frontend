@@ -127,6 +127,10 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         }
     };
 
+    const destroyPrompt = () => {
+        promptResolver = undefined;
+    };
+
     const setPause = () => {
         setPauseState();
         pausePromise = new Promise((resolve) => {
@@ -184,7 +188,7 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
                     resetCountdown();
                 }
 
-                if (countdown.value < 1) {
+                if (countdown.value < 1000) {
                     clearMessage();
                     resetCountdown();
 
@@ -219,7 +223,7 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
      * Уменьшает значение переменной countdown на единицу
      */
     const decreaseCountdown = () => {
-        countdown.value--;
+        countdown.value -= 1000;
     };
 
     /**
@@ -444,6 +448,22 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         return finishedLevelsAmount.value >= levelsAmount.value && isInWarmUpMode();
     };
 
+    /**
+     * Совершает смену игрового режима.
+     * @param newLevelsAmount
+     */
+    const handleModeSwitching = async (newLevelsAmount: number) => {
+        setMessage('warmUpCompleted');
+        await showPrompt('gameStartPrompt');
+
+        setLevelPreparingState();
+        clearMessage();
+
+        setGameMode();
+        setLevelsAmount(newLevelsAmount);
+        resetProgress();
+    };
+
     const setTotalTime = (timeToSet: number) => {
         time.value = timeToSet;
         totalTime.value = timeToSet;
@@ -470,6 +490,9 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         resetProgress();
         setGameMode();
         clearMessage();
+        destroyPrompt();
+
+        setTestPreparingState();
         // ...
     };
 
@@ -495,6 +518,7 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
 
         promoteLevel,
         setLevelsAmount,
+        handleModeSwitching,
 
         isTimeToFinishTest,
         isTimeToSwitchMode,
