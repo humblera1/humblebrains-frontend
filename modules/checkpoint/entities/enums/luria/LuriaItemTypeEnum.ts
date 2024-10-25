@@ -1,4 +1,4 @@
 export enum LuriaItemTypeEnum {
-    icon,
-    word,
+    icon = 'icon',
+    word = 'word',
 }

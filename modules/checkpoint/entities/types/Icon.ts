@@ -1,4 +1,4 @@
 export type Icon = {
     name: string;
-    path: string;
+    src: string;
 };

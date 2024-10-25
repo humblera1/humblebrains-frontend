@@ -1,6 +1,8 @@
 <template>
     <div class="luria">
-        <WidgetCheckpointMemoryLuriaItem v-for="(item, idx) in luria.testSequence" :key="idx" :item="item" />
+        <Transition name="scale" mode="out-in">
+            <WidgetCheckpointMemoryLuriaItem v-if="luria.currentItem" :key="luria.currentItem.id" :item="luria.currentItem" />
+        </Transition>
     </div>
 </template>
 
@@ -18,4 +20,21 @@ onUnmounted(() => {
 });
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.luria {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.scale-enter-active,
+.scale-leave-active {
+    transition: transform 250ms;
+}
+.scale-enter-from,
+.scale-leave-to {
+    transform: scale(0);
+}
+</style>
