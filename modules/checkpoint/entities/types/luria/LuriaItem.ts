@@ -5,5 +5,5 @@ export type LuriaItem = {
     id: number;
     type: LuriaItemTypeEnum;
     content: string | Icon;
-    // color: string;
+    color: string;
 };

@@ -11,7 +11,7 @@ export const useLuriaStore = defineStore('luriaStorage', () => {
     /**
      * Интервал, с которым новые элементы появляются на поле (ms).
      */
-    const ITEM_SHOWING_TIME = 2000;
+    const ITEM_SHOWING_TIME = 3000;
 
     const checkpoint = useCheckpointStore();
 
@@ -33,7 +33,7 @@ export const useLuriaStore = defineStore('luriaStorage', () => {
     /**
      * Набор цветов для упражнения.
      */
-    // const colorPool: string[] = ['pink', 'green', 'cyan', 'violet', 'purple', 'ocher', 'iris', 'blue'];
+    const colorPool: string[] = ['pink', 'green', 'cyan', 'violet', 'purple', 'ocher', 'iris'];
 
     /**
      * Набор элементов, доступных для использования на данном уровне.
@@ -54,9 +54,9 @@ export const useLuriaStore = defineStore('luriaStorage', () => {
     const itemsToGuess: LuriaItem[] = [];
 
     /**
-     * Массив загруженных иконок.
+     * Массив загруженных иконок, где ключ - имя иконки, а значение - svg-контент.
      */
-    const imageCache = new Map<string, HTMLImageElement>();
+    const rawIcons = new Map<string, string>();
 
     /**
      * Идентификатор таймера, ответственного за последовательный показ ячеек на поле с интервалом в NUMBER_SHOWING_TIME.
@@ -70,7 +70,7 @@ export const useLuriaStore = defineStore('luriaStorage', () => {
      */
     const levelsToWarmUp: ITestLevels<LuriaLevel> = {
         1: {
-            totalItemsToRemember: 3,
+            totalItemsToRemember: 10,
             totalItemsToGuess: 5,
         },
     };
@@ -111,8 +111,7 @@ export const useLuriaStore = defineStore('luriaStorage', () => {
      */
     const startLevel = async () => {
         await setLevelData();
-
-        preloadImages();
+        await preloadImages();
 
         await showItemsToRememberSequentially();
 
@@ -227,6 +226,7 @@ export const useLuriaStore = defineStore('luriaStorage', () => {
             id: generateItemId(),
             type: LuriaItemTypeEnum.icon,
             content: icon,
+            color: generateItemColor(),
         });
     };
 
@@ -235,11 +235,16 @@ export const useLuriaStore = defineStore('luriaStorage', () => {
             id: generateItemId(),
             type: LuriaItemTypeEnum.word,
             content: word,
+            color: generateItemColor(),
         });
     };
 
     const generateItemId = (): number => {
         return availableItems.length + 1;
+    };
+
+    const generateItemColor = (): string => {
+        return useSample(colorPool) as string;
     };
 
     const setIconsAndWords = async (): Promise<void> => {
@@ -265,13 +270,13 @@ export const useLuriaStore = defineStore('luriaStorage', () => {
     /**
      * Очищаем массив с элементами для воспроизведения.
      */
-    const flushPreloadedImages = () => {
-        imageCache.clear();
+    const flushRawIcons = () => {
+        rawIcons.clear();
     };
 
     const flushAllData = () => {
         flushLevelData();
-        flushPreloadedImages();
+        flushRawIcons();
     };
 
     const fetchIconsAndWords = async (): Promise<[Icon[], string[]]> => {
@@ -283,15 +288,19 @@ export const useLuriaStore = defineStore('luriaStorage', () => {
     /**
      * Загружает изображения с сервера во внутреннее хранилище.
      */
-    const preloadImages = () => {
-        iconPool.forEach((icon) => {
-            if (!imageCache.has(icon.name)) {
-                const img = new Image();
-                img.src = icon.src;
-
-                imageCache.set(icon.name, img);
+    const preloadImages = async (): Promise<void> => {
+        const promises = iconPool.map(async (icon) => {
+            if (!rawIcons.has(icon.name)) {
+                const rawSvgContent = await service.fetchRawSvgContent(icon.src);
+                rawIcons.set(icon.name, rawSvgContent);
             }
         });
+
+        await Promise.all(promises);
+    };
+
+    const getIconRawSvg = (iconName: string): string => {
+        return rawIcons.has(iconName) ? (rawIcons.get(iconName) as string) : '';
     };
 
     /**
@@ -316,8 +325,13 @@ export const useLuriaStore = defineStore('luriaStorage', () => {
 
     return {
         currentItem,
+        getIconRawSvg,
 
         $setup,
         $reset,
+
+        // debugging
+        // imageCache,
+        showItemsToRememberSequentially,
     };
 });

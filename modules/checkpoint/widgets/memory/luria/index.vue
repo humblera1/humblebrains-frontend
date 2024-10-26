@@ -1,8 +1,13 @@
 <template>
     <div class="luria">
-        <Transition name="scale" mode="out-in">
-            <WidgetCheckpointMemoryLuriaItem v-if="luria.currentItem" :key="luria.currentItem.id" :item="luria.currentItem" />
-        </Transition>
+        <UiButton @click="luria.showItemsToRememberSequentially">show</UiButton>
+        <div class="luria__field">
+            <Transition name="scale" mode="out-in">
+                <WidgetCheckpointMemoryLuriaItem v-if="luria.currentItem" :key="luria.currentItem.id" :item="luria.currentItem" />
+            </Transition>
+        </div>
+
+        <div class="luria__controls"></div>
     </div>
 </template>
 
@@ -25,8 +30,20 @@ onUnmounted(() => {
     width: 100%;
     height: 100%;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+
+    &__field {
+        height: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    &__controls {
+        height: 50%;
+    }
 }
 
 .scale-enter-active,

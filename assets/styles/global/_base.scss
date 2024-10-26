@@ -18,6 +18,34 @@ ul {
     -ms-user-select: none; /* Internet Explorer/Edge */
 }
 
+.pink {
+    color: var(--pink);
+}
+
+.green {
+    color: var(--green);
+}
+
+.cyan {
+    color: var(--cyan);
+}
+
+.violet {
+    color: var(--violet);
+}
+
+.purple {
+    color: var(--purple);
+}
+
+.ocher {
+    color: var(--ocher);
+}
+
+.iris {
+    color: var(--iris);
+}
+
 .no-transition .sidebar-item {
     transition: none !important;
 }

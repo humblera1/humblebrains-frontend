@@ -1,6 +1,5 @@
 import { RequestMethodEnum } from '~/entities/enums/RequestMethodEnum';
 import type { CognitiveCategoryEnum } from '~/entities/enums/cognitiveCategoryEnum';
-import type { User } from '~/modules/user/entities/interfaces/User';
 import type { Icon } from '~/modules/checkpoint/entities/types/Icon';
 
 export const useCheckpointService = () => {
@@ -35,5 +34,11 @@ export const useCheckpointService = () => {
         });
     };
 
-    return { sendStageResults, fetchIcons, fetchWords };
+    const fetchRawSvgContent = async (src: string): Promise<string> => {
+        const blob = await $api<Blob>(src);
+
+        return await blob.text();
+    };
+
+    return { sendStageResults, fetchIcons, fetchWords, fetchRawSvgContent };
 };
