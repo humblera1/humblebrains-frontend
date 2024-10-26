@@ -16,14 +16,25 @@ import { useCheckpointStore } from '~/modules/checkpoint/stores/checkpointStore'
 const checkpoint = useCheckpointStore();
 
 const formattedTime = computed((): string => {
-    const minutes = Math.floor(checkpoint.time / 60);
-    const seconds = checkpoint.time % 60;
+    const totalSeconds = checkpoint.time / 1000;
+
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
 
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 });
 
-const lineStyle = computed(() => {
-    return `width: ${(checkpoint.time / checkpoint.totalTime) * 100}%`;
+const lineStyle = computed((): string => {
+    // Используем разную скорость анимации в зависимости от того, идёт увеличение или уменьшение таймера
+    const transitionDuration = checkpoint.time < checkpoint.totalTime ? 1000 : 100;
+
+    // рассчитываем ширину полоски таймера
+    const percentWidth = checkpoint.time !== 0 ? (checkpoint.time / checkpoint.totalTime) * 100 : 100;
+
+    const transition = `transition: background-color 500ms linear, width ${transitionDuration}ms linear`;
+    const width = `width: ${percentWidth}%`;
+
+    return transition + ';' + width;
 });
 </script>
 

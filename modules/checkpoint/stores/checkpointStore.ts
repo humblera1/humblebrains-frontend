@@ -188,7 +188,7 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
                     resetCountdown();
                 }
 
-                if (countdown.value < 1000) {
+                if (countdown.value < 1) {
                     clearMessage();
                     resetCountdown();
 
@@ -223,7 +223,7 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
      * Уменьшает значение переменной countdown на единицу
      */
     const decreaseCountdown = () => {
-        countdown.value -= 1000;
+        countdown.value -= 1;
     };
 
     /**
@@ -299,7 +299,7 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
      * Уменьшает значение переменной time на единицу
      */
     const decreaseTime = () => {
-        time.value--;
+        time.value -= 1000;
     };
 
     /** ****************************************************************************************************** Работа с состояниями теста */

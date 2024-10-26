@@ -6,6 +6,8 @@ export default defineI18nConfig(() => ({
             signUp: 'Регистрация',
             signIn: 'Вход',
             pause: 'Пауза',
+            yes: 'Да',
+            no: 'Нет',
 
             // Sidebar:
             home: 'Главная',
@@ -46,6 +48,10 @@ export default defineI18nConfig(() => ({
             'numbers:fillCell': 'Какое число находилось в ячейке?',
             'numbers:fillAllCells': 'Расставьте числа по их ячейкам',
 
+            'luria:timeToReproduce': 'Теперь вам предстоит воспроизвести слова и символы из продемонстрированного набора.',
+            'luria:wasSymbolInTheSet?': 'Символ был в предыдущем наборе?',
+            'luria:wasWordInTheSet?': 'Слово было в предыдущем наборе?',
+
             // Categories
             memory: 'Память',
             logic: 'Логика',
@@ -55,6 +61,8 @@ export default defineI18nConfig(() => ({
             signUp: 'Sign Up',
             signIn: 'Sign In',
             pause: 'Pause',
+            yes: 'Yes',
+            no: 'No',
 
             // Sidebar:
             home: 'Home',
@@ -93,6 +101,10 @@ export default defineI18nConfig(() => ({
             'numbers:rememberNumbers': 'Remember these numbers',
             'numbers:fillCell': 'What number was in the cell?',
             'numbers:fillAllCells': 'Place numbers in cells',
+
+            'luria:timeToReproduce': 'Now you have to reproduce the words and symbols from the demonstrated set.',
+            'luria:wasSymbolInTheSet?': 'Was this symbol in the previous set?',
+            'luria:wasWordInTheSet?': 'Was this word in the previous set?',
 
             // Categories
             memory: 'Memory',

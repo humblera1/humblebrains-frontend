@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { useCheckpointStore } from '~/modules/checkpoint/stores/checkpointStore';
-// import { useCheckpointPageStore } from '~/modules/checkpoint/stores/checkpointPageStore';
+import { useCheckpointPageStore } from '~/modules/checkpoint/stores/checkpointPageStore';
 import type { Icon } from '~/modules/checkpoint/entities/types/Icon';
 import type { LuriaItem } from '~/modules/checkpoint/entities/types/luria/LuriaItem';
 import { LuriaItemTypeEnum } from '~/modules/checkpoint/entities/enums/luria/LuriaItemTypeEnum';
@@ -9,13 +9,18 @@ import type { LuriaLevel } from '~/modules/checkpoint/entities/types/luria/Luria
 
 export const useLuriaStore = defineStore('luriaStorage', () => {
     /**
+     * Время, отведённое на ответ в (ms).
+     */
+    const TOTAL_ANSWER_TIME = 10000;
+
+    /**
      * Интервал, с которым новые элементы появляются на поле (ms).
      */
-    const ITEM_SHOWING_TIME = 3000;
+    const ITEM_SHOWING_TIME = 2000;
 
     const checkpoint = useCheckpointStore();
 
-    // const page = useCheckpointPageStore();
+    const page = useCheckpointPageStore();
 
     const service = useCheckpointService();
 
@@ -65,12 +70,27 @@ export const useLuriaStore = defineStore('luriaStorage', () => {
 
     const currentItem = ref<LuriaItem>();
 
+    let rightAnswers: number = 0;
+
+    /**
+     * Массив, хранящий процент правильно выбранных чисел за каждый уровень.
+     * По окончанию игры рассчитывается среднее на основании всех элементов массива.
+     */
+    const subtotals: number[] = [];
+
+    /**
+     * Переменная, хранящая функцию для разрешения промиса, который ответственен за состояние паузы.
+     * При переходе в состоянии паузы создаётся промис, а его resolve-функция записывается в данную переменную.
+     * По выходу из режима паузы должен происходить вызов функции в переменной: это приведёт к разрешению промиса.
+     */
+    let guessPromiseResolver: (() => void) | undefined;
+
     /**
      * Массив уровней, которые будут использованы для разминки.
      */
     const levelsToWarmUp: ITestLevels<LuriaLevel> = {
         1: {
-            totalItemsToRemember: 10,
+            totalItemsToRemember: 2,
             totalItemsToGuess: 5,
         },
     };
@@ -106,41 +126,134 @@ export const useLuriaStore = defineStore('luriaStorage', () => {
         return 0;
     });
 
+    const preloadData = async (): Promise<void> => {
+        await setLevelData();
+        await preloadImages();
+    };
+
     /**
      *
      */
     const startLevel = async () => {
-        await setLevelData();
-        await preloadImages();
+        checkpoint.setLevelPreparingState();
+
+        await checkpoint.startCountdown();
+        checkpoint.setContemplationState();
 
         await showItemsToRememberSequentially();
 
-        console.log('done!');
+        await checkpoint.showPrompt('luria:timeToReproduce');
+        checkpoint.setLevelPreparingState();
+
+        await checkpoint.startCountdown();
+        checkpoint.setInteractiveState();
+        await showItemsToGuess();
+
+        await finishLevel();
+    };
+
+    const finishLevel = async () => {
+        checkpoint.setFailedLevelFinishingState();
+        saveSubtotal();
+        flushLevelData();
+
+        checkpoint.promoteLevel();
+
+        if (checkpoint.isTimeToFinishTest()) {
+            finishTest();
+
+            return;
+        }
+
+        if (checkpoint.isTimeToSwitchMode()) {
+            await checkpoint.handleModeSwitching(Object.keys(levels).length);
+        }
+
+        await preloadData();
+        await startLevel();
+    };
+
+    const finishTest = () => {
+        saveTotal();
+        checkpoint.setTestFinishingState();
+        checkpoint.setMessage('Отлично! Готовим следующий этап...');
+
+        page.moveChain();
+    };
+
+    /**
+     * Сохраняет итоговый результат.
+     */
+    const saveTotal = () => {
+        checkpoint.saveTestContribution(subtotals);
+    };
+
+    const showItemsToGuess = async (): Promise<void> => {
+        for (const item of itemsToGuess) {
+            currentItem.value = item;
+            checkpoint.startTimer();
+
+            await new Promise<void>((resolve) => {
+                guessPromiseResolver = resolve;
+            });
+
+            checkpoint.resetTimer();
+        }
+
+        return Promise.resolve();
+    };
+
+    const makeAnswer = (seenBefore: boolean) => {
+        if (checkpoint.isInInteractiveState()) {
+            handleAnswering(seenBefore);
+
+            if (guessPromiseResolver) {
+                guessPromiseResolver();
+            }
+        }
+    };
+
+    const handleAnswering = (seenBefore: boolean) => {
+        if (currentItem.value) {
+            const reallyWasBefore = itemsToRemember.some((item) => item.id === currentItem.value?.id);
+
+            if (seenBefore === reallyWasBefore) {
+                rightAnswers++;
+            }
+        }
+    };
+
+    const saveSubtotal = () => {
+        if (checkpoint.isInGameMode()) {
+            const allAnswers = itemsToGuess.length;
+
+            const percent = (rightAnswers / allAnswers) * 100;
+
+            subtotals.push(percent);
+        }
     };
 
     const showItemsToRememberSequentially = (): Promise<void> => {
         return new Promise((resolve) => {
-            let index = 1;
-            currentItem.value = itemsToRemember[0];
+            let index = 0;
+            // currentItem.value = itemsToRemember[0];
 
             const showItem = async () => {
                 if (checkpoint.isInPauseState()) {
                     await checkpoint.getPausePromise();
                 }
 
-                if (index > itemsToRemember.length) {
-                    resolve();
-
-                    return;
-                }
-
                 currentItem.value = itemsToRemember[index];
                 index++;
 
-                itemToRememberShowingTimerId = setTimeout(showItem, ITEM_SHOWING_TIME);
+                if (index <= itemsToRemember.length) {
+                    itemToRememberShowingTimerId = setTimeout(showItem, ITEM_SHOWING_TIME);
+                } else {
+                    resolve();
+                }
             };
 
-            itemToRememberShowingTimerId = setTimeout(showItem, ITEM_SHOWING_TIME);
+            itemToRememberShowingTimerId = setTimeout(showItem);
         });
     };
 
@@ -156,9 +269,14 @@ export const useLuriaStore = defineStore('luriaStorage', () => {
         flushIconPool();
         flushWordPool();
 
+        flushCurrentItem();
         flushAvailableItems();
         flushItemsToRemember();
         flushItemsToGuess();
+    };
+
+    const flushCurrentItem = () => {
+        currentItem.value = undefined;
     };
 
     /**
@@ -202,9 +320,6 @@ export const useLuriaStore = defineStore('luriaStorage', () => {
     };
 
     const setAvailableItems = () => {
-        // todo: отдельный метод
-        availableItems.length = 0;
-
         for (const icon of iconPool) {
             addIconItem(icon);
         }
@@ -286,7 +401,7 @@ export const useLuriaStore = defineStore('luriaStorage', () => {
     };
 
     /**
-     * Загружает изображения с сервера во внутреннее хранилище.
+     * Получает иконки с сервера в виде Blob-объектов и загружает сырой xml во внутреннее хранилище.
      */
     const preloadImages = async (): Promise<void> => {
         const promises = iconPool.map(async (icon) => {
@@ -299,8 +414,24 @@ export const useLuriaStore = defineStore('luriaStorage', () => {
         await Promise.all(promises);
     };
 
-    const getIconRawSvg = (iconName: string): string => {
-        return rawIcons.has(iconName) ? (rawIcons.get(iconName) as string) : '';
+    const isCurrentItemIcon = computed((): boolean => {
+        return currentItem.value?.type === LuriaItemTypeEnum.icon;
+    });
+
+    const isCurrentItemWord = computed((): boolean => {
+        return currentItem.value?.type === LuriaItemTypeEnum.word;
+    });
+
+    const getCurrentIconRawSvg = (): string => {
+        if (isCurrentItemIcon.value) {
+            const iconItem = currentItem.value?.content as Icon;
+
+            if (rawIcons.has(iconItem.name)) {
+                return rawIcons.get(iconItem.name) as string;
+            }
+        }
+
+        return '';
     };
 
     /**
@@ -310,8 +441,12 @@ export const useLuriaStore = defineStore('luriaStorage', () => {
         checkpoint.setTestPreparingState();
         checkpoint.setWarmUpMode();
 
-        await checkpoint.showPrompt('warmUpPrompt');
+        checkpoint.setTotalTime(TOTAL_ANSWER_TIME);
+        checkpoint.setLevelsAmount(Object.keys(levelsToWarmUp).length);
 
+        await preloadData();
+
+        await checkpoint.showPrompt('warmUpPrompt');
         await startLevel();
     };
 
@@ -325,7 +460,10 @@ export const useLuriaStore = defineStore('luriaStorage', () => {
 
     return {
         currentItem,
-        getIconRawSvg,
+        isCurrentItemWord,
+        isCurrentItemIcon,
+        getCurrentIconRawSvg,
+        makeAnswer,
 
         $setup,
         $reset,
