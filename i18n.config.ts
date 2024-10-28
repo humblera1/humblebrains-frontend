@@ -44,6 +44,10 @@ export default defineI18nConfig(() => ({
 
             'thorndike:findNumbers': 'Найдите следующие числа:',
 
+            'symbols:rememberSymbols': 'Запомните показанные символы',
+            'symbols:fillCell': 'Какой символ находился в ячейке?',
+            'symbols:fillAllCells': 'Расставьте символы по их ячейкам',
+
             'numbers:rememberNumbers': 'Запомните показанные числа',
             'numbers:fillCell': 'Какое число находилось в ячейке?',
             'numbers:fillAllCells': 'Расставьте числа по их ячейкам',
@@ -98,6 +102,11 @@ export default defineI18nConfig(() => ({
             remembered: 'Remembered!',
 
             'thorndike:findNumbers': 'Find the following numbers:',
+
+            'symbols:rememberSymbols': 'Remember these symbols',
+            'symbols:fillCell': 'What symbol was in the cell?',
+            'symbols:fillAllCells': 'Place symbols in cells',
+
             'numbers:rememberNumbers': 'Remember these numbers',
             'numbers:fillCell': 'What number was in the cell?',
             'numbers:fillAllCells': 'Place numbers in cells',

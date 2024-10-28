@@ -1,0 +1,52 @@
+.variant {
+    cursor: grab;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 40px;
+    width: 40px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background-color: var(--badge-bg);
+    user-select: none;
+    isolation: revert;
+    color: var(--primary-subtitle);
+
+    opacity: 1;
+    transform: scale(1);
+    transition: all 200ms ease;
+
+    &:hover {
+        color: var(--primary-subtitle-hovered);
+    }
+
+    @include tablet {
+        @include boxShadow(-10, 10, 30, 0, var(--main-shadow));
+    }
+
+    @include mobile {
+        min-width: 36px;
+        width: 36px;
+
+        @include mainShadowMobile();
+    }
+
+    &__icon {
+        width: 20px;
+        height: 20px;
+        max-width: 20px;
+        max-height: 20px;
+
+        @include mobile {
+            width: 18px;
+            height: 18px;
+            max-width: 18px;
+            max-height: 18px;
+        }
+
+        ::v-deep(svg) {
+            width: 100%;
+            height: 100%;
+        }
+    }
+}
