@@ -1,6 +1,9 @@
 .item {
     cursor: pointer;
     position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     background-color: var(--badge-bg);
     @include mainShadow();
 
@@ -10,16 +13,40 @@
         text-transform: uppercase;
 
         @include mainFont(500, 24);
+
+        @include mobile {
+            font-size: 20px;
+            padding: 18px 24px;
+            border-radius: 12px;
+        }
     }
 
     &_icon {
-        display: flex;
-        justify-content: center;
-        align-items: center;
         width: 85px;
         height: 85px;
         aspect-ratio: 1;
         border-radius: 50%;
+
+        @include mobile {
+            width: 75px;
+            height: 75px;
+        }
+    }
+
+    &__word {
+        // костыли для фикса скачков слова при отображении
+        // todo: разобраться со скачками иконок и слов при отображении (осталось заметно на мобилке)
+        span {
+            min-height: 27px;
+            max-height: 27px;
+        }
+
+        @include mobile {
+            span {
+                min-height: 22px;
+                max-height: 22px;
+            }
+        }
     }
 
     &__icon {
@@ -27,6 +54,13 @@
         height: 36px;
         max-width: 36px;
         max-height: 36px;
+
+        @include mobile {
+            width: 32px;
+            height: 32px;
+            max-width: 32px;
+            max-height: 32px;
+        }
 
         // Эти стили помогают избежать "скачков" svg-иконки при отрисовке
         margin-left: -1px;

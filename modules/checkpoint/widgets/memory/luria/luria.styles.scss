@@ -29,10 +29,23 @@
             opacity: 1;
             visibility: visible;
         }
+
+        @include tablet {
+            gap: 24px;
+        }
+
+        @include tablet {
+            gap: 16px;
+        }
     }
 
     &__message {
         @include mainFont(500, 18, var(--primary-title));
+        text-align: center;
+
+        @include mobile {
+            font-size: 16px;
+        }
     }
 
     &__buttons {

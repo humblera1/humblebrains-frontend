@@ -1,6 +1,10 @@
 <template>
     <div :class="itemClasses">
-        <span v-if="luria.isCurrentItemWord">{{ item.content }}</span>
+        <span v-if="luria.isCurrentItemWord" class="item__word">
+            <span>
+                {{ item.content }}
+            </span>
+        </span>
         <div v-else class="item__icon" v-html="luria.getCurrentIconRawSvg()" />
     </div>
 </template>
