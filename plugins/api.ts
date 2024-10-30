@@ -9,8 +9,11 @@ export default defineNuxtPlugin({
         const api = $fetch.create({
             baseURL: baseUrl,
             async onRequest({ options }) {
+                const headers = (options.headers);
+
+                headers.set('Accept', 'application/json');
+
                 if (options.method === RequestMethodEnum.post) {
-                    const headers = (options.headers ||= {});
                     const { setXsrfHeader } = useAuthService();
 
                     await setXsrfHeader(headers);
