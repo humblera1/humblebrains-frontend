@@ -1,0 +1,67 @@
+.total {
+    position: relative;
+    display: flex;
+    gap: 36px;
+    padding: 24px 60px 24px 36px;
+    width: fit-content;
+    max-width: 580px;
+
+    border-radius: 36px;
+    background-color: var(--blue);
+
+    &__container {
+        position: relative;
+    }
+
+    &__score {
+        position: absolute;
+        right: 0;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: fit-content;
+        height: fit-content;
+        margin: auto;
+
+        @include mainFont(500, 24, var(--text-accent-white));
+    }
+
+    &__chart {
+        width: 150px;
+        height: 150px;
+        aspect-ratio: 1;
+        opacity: 0;
+        visibility: hidden;
+
+        animation: all 1000ms ease;
+
+        &_visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        @include mobile {
+            width: 90%;
+        }
+    }
+
+    &__content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 16px;
+    }
+
+    &__info {
+        right: 32px;
+        top: 24px;
+    }
+
+    &__title {
+        @include mainFont(500, 24, var(--text-primary-white));
+    }
+
+    &__message {
+        @include mainFont(400, 16, var(--text-accent-white), 24);
+    }
+}

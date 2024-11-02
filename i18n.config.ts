@@ -41,6 +41,10 @@ export default defineI18nConfig(() => ({
             gameStartPrompt: 'Теперь играем серьезно',
             warmUpCompleted: 'Разминка завершена!',
             remembered: 'Запомнил!',
+            stageCompleted: 'Этап завершён!',
+            result: 'Результат',
+            restAndContinue: 'Дайте себе 5 минут отдыха прежде, чем приступать к следующему',
+            restAndCompleteCheckpoint: 'Все этапы завершены!\n' + 'Завершите контрольную точку и выберите новую программу',
 
             'thorndike:findNumbers': 'Найдите следующие числа:',
 
@@ -100,6 +104,10 @@ export default defineI18nConfig(() => ({
             gameStartPrompt: '',
             warmUpCompleted: 'Warm-up completed!',
             remembered: 'Remembered!',
+            stageCompleted: 'Stage completed!',
+            result: 'Result',
+            restAndContinue: 'Give yourself 5 minutes of rest before starting the next one',
+            restAndCompleteCheckpoint: 'All stages completed!\n' + 'Complete the checkpoint and select a new program',
 
             'thorndike:findNumbers': 'Find the following numbers:',
 
