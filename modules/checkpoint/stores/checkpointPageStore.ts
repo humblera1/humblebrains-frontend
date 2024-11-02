@@ -32,11 +32,13 @@ export const useCheckpointPageStore = defineStore('checkpointPageStorage', () =>
         if (++currentChainIndex.value >= getNumberOfSteps()) {
             const checkpointTab = useState('checkpoint');
 
-            await service.sendStageResults(currentCategory.value, checkpoint.getTotal());
+            if (currentCategory.value) {
+                await service.sendStageResults(currentCategory.value, checkpoint.getTotal());
 
-            checkpointTab.value = CheckpointTabEnum.conclusion;
+                checkpointTab.value = CheckpointTabEnum.conclusion;
 
-            checkpoint.$reset();
+                checkpoint.$reset();
+            }
         }
     };
 
