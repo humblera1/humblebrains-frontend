@@ -1,0 +1,120 @@
+.card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex: 1 1 280px;
+    width: 100%;
+    min-width: 280px;
+    max-width: 350px;
+    min-height: 460px;
+    padding: 36px 36px 32px 36px;
+    background-color: var(--badge-bg);
+    border-radius: 36px;
+
+    @include mainShadow();
+
+    &_completed {
+        background-color: transparent;
+        border: 1px solid var(--border-primary);
+        box-shadow: unset;
+    }
+
+    &__body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 42px;
+    }
+
+    &__footer {
+    }
+
+    &__image {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 150px;
+        height: 150px;
+
+        img {
+            object-fit: contain;
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    &__description {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    &__result {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &__message {
+        @include mainFont(400, 14, var(--primary-subtitle));
+    }
+
+    &__points {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    &__star {
+        width: 20px;
+        max-width: 20px;
+        aspect-ratio: 1;
+        color: var(--yellow);
+
+        svg {
+            object-fit: contain;
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    &__check {
+        position: absolute;
+        top: 36px;
+        right: 32px;
+        width: 24px;
+        max-width: 24px;
+        aspect-ratio: 1;
+        color: var(--green);
+
+        svg {
+            object-fit: contain;
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    &__score {
+        @include mainFont(500, 16, var(--primary-subtitle));
+
+        &_primary {
+            @include mainFont(600, 16, var(--primary-title));
+        }
+    }
+
+    &__controls {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    &__title {
+        text-align: center;
+        @include mainFont(500, 24, var(--primary-title));
+    }
+
+    &__text {
+        text-align: center;
+        @include mainFont(400, 16, var(--primary-subtitle), 21);
+    }
+}
