@@ -2,15 +2,34 @@
     position: relative;
     display: flex;
     gap: 36px;
-    padding: 24px 60px 24px 36px;
-    width: fit-content;
+    padding: 36px 60px 36px 36px;
+    width: auto;
     max-width: 580px;
 
     border-radius: 36px;
     background-color: var(--blue);
 
+    @include tablet {
+        padding: 42px 36px;
+        border-radius: 32px;
+        max-width: 480px;
+    }
+
+    @include mobile {
+        flex-direction: column;
+        gap: 24px;
+        border-radius: 24px;
+        width: 100%;
+        padding: 32px 42px;
+    }
+
     &__container {
         position: relative;
+
+        @include mobile {
+            display: flex;
+            justify-content: center;
+        }
     }
 
     &__score {
@@ -24,6 +43,14 @@
         margin: auto;
 
         @include mainFont(500, 24, var(--text-accent-white));
+
+        @include tablet {
+            font-size: 20px;
+        }
+
+        @include mobile {
+            font-size: 18px;
+        }
     }
 
     &__chart {
@@ -40,8 +67,9 @@
             visibility: visible;
         }
 
-        @include mobile {
-            width: 90%;
+        @include tablet {
+            width: 120px;
+            height: 120px;
         }
     }
 
@@ -50,6 +78,10 @@
         flex-direction: column;
         justify-content: center;
         gap: 16px;
+
+        @include mobile {
+            gap: 12px;
+        }
     }
 
     &__info {
@@ -59,9 +91,27 @@
 
     &__title {
         @include mainFont(500, 24, var(--text-primary-white));
+
+        @include tablet {
+            font-size: 20px;
+        }
+
+        @include mobile {
+            text-align: center;
+            font-size: 18px;
+        }
     }
 
     &__message {
         @include mainFont(400, 16, var(--text-accent-white), 24);
+
+        @include tablet {
+            font-size: 14px;
+        }
+
+        @include mobile {
+            text-align: center;
+            font-size: 14px;
+        }
     }
 }

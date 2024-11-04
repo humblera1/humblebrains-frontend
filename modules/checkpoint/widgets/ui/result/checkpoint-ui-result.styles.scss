@@ -5,14 +5,27 @@
     gap: 36px;
     padding-top: 32px;
 
+    @include tablet {
+        padding-top: unset;
+        gap: 32px;
+    }
+
     &__cards {
         display: flex;
         justify-content: center;
         flex-wrap: wrap;
         gap: 32px;
+
+        @include mobile {
+            gap: 16px;
+        }
     }
 
     &__title {
         @include mainFont(500, 28, var(--primary-title));
+
+        @include tablet {
+            font-size: 24px;
+        }
     }
 }
