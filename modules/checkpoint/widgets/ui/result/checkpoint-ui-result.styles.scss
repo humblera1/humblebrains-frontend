@@ -1,0 +1,18 @@
+.result {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 36px;
+    padding-top: 32px;
+
+    &__cards {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 32px;
+    }
+
+    &__title {
+        @include mainFont(500, 28, var(--primary-title));
+    }
+}
