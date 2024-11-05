@@ -1,0 +1,19 @@
+.tag {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    border-radius: 100px;
+    background-color: var(--blue-badge);
+
+    &_small {
+        @include mainFont(400, 12, var(--primary-subtitle));
+    }
+
+    &_medium {
+        @include mainFont(400, 14, var(--primary-subtitle));
+    }
+
+    &__text {
+        line-clamp: 1;
+    }
+}
