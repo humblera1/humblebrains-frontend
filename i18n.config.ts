@@ -33,6 +33,8 @@ export default defineI18nConfig(() => ({
             ok: 'Ок',
             start: 'Начать!',
             showTutorial: 'Показать обучение',
+            totalAchievements: 'Достижения',
+            startGettingTotalAchievements: 'Начните игру, чтобы заработать свои первые достижения!',
 
             // Matrix
             remember: 'Запомнил',
@@ -99,6 +101,8 @@ export default defineI18nConfig(() => ({
             ok: 'Ok',
             start: 'Start!',
             showTutorial: 'Show tutorial',
+            totalAchievements: 'Achievements',
+            startGettingTotalAchievements: 'Start the game to earn your first achievements!',
 
             // Matrix
             remember: 'Remember',
