@@ -1,0 +1,81 @@
+.progress {
+    display: flex;
+    align-items: center;
+
+    &_small {
+        gap: 8px;
+
+        .progress__container {
+            width: 70px;
+            height: 5px;
+        }
+
+        .progress__value {
+            @include mainFont(400, 12px, var(--primary-subtitle));
+        }
+    }
+
+    &_medium {
+        gap: 16px;
+
+        @include tablet {
+            gap: 12px;
+        }
+
+        @include mobile {
+            gap: 8px;
+        }
+
+        .progress__container {
+            width: 100px;
+            height: 8px;
+
+            @include tablet {
+                width: 75px;
+                height: 6px;
+            }
+
+            @include mobile {
+                width: 65px;
+                height: 5px;
+            }
+        }
+
+        .progress__value {
+            @include mainFont(400, 16px, var(--primary-subtitle));
+        }
+
+        @include tablet {
+            font-size: 14px;
+        }
+
+        @include mobile {
+            font-size: 12px;
+        }
+    }
+
+    &__container {
+        position: relative;
+    }
+
+    &__line,
+    &__progress {
+        position: absolute;
+        height: 100%;
+        border-radius: 10px;
+    }
+
+    &__line {
+        width: 100%;
+        background-color: var(--blue-badge);
+    }
+
+    &__progress {
+        background-color: var(--blue);
+    }
+
+    &__current {
+        font-weight: 500;
+        color: var(--primary-title);
+    }
+}
