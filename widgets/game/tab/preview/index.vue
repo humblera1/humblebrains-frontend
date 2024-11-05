@@ -1,6 +1,8 @@
 <template>
     <div v-if="page.game" class="preview">
-        <WidgetGameTabPreviewInfo />
+<!--        <WidgetGameTabPreviewInfo />-->
+<!--        <WidgetGameTabPreviewAchievements />-->
+        <WidgetGameTabPreviewStatistics />
     </div>
 </template>
 
