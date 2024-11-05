@@ -8,6 +8,7 @@ export default defineI18nConfig(() => ({
             pause: 'Пауза',
             yes: 'Да',
             no: 'Нет',
+            description: 'Описание',
 
             // Sidebar:
             home: 'Главная',
@@ -30,6 +31,8 @@ export default defineI18nConfig(() => ({
             continue: 'Продолжить',
             warmUp: 'Разминка',
             ok: 'Ок',
+            start: 'Начать!',
+            showTutorial: 'Показать обучение',
 
             // Matrix
             remember: 'Запомнил',
@@ -71,6 +74,7 @@ export default defineI18nConfig(() => ({
             pause: 'Pause',
             yes: 'Yes',
             no: 'No',
+            description: 'Description',
 
             // Sidebar:
             home: 'Home',
@@ -93,6 +97,8 @@ export default defineI18nConfig(() => ({
             continue: 'Continue',
             warmUp: 'Warming-Up',
             ok: 'Ok',
+            start: 'Start!',
+            showTutorial: 'Show tutorial',
 
             // Matrix
             remember: 'Remember',

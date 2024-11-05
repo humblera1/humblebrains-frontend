@@ -1,8 +1,6 @@
 <template>
-    <div v-if="page.game">
-        this is preview tab of game {{ page.game }}
-        <UiButton @click="page.selectFieldTab()"> field </UiButton>
-        <UiButton @click="page.selectConstructorTab()"> constructor </UiButton>
+    <div v-if="page.game" class="preview">
+        <WidgetGameTabPreviewInfo />
     </div>
 </template>
 
@@ -10,4 +8,4 @@
 const page = useGamePageStore();
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss" src="./game-preview.styles.scss" />

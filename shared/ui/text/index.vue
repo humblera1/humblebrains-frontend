@@ -18,42 +18,4 @@ import type { TextProps } from '~/shared/ui/text/text.types';
 defineProps<TextProps>();
 </script>
 
-<style scoped lang="scss">
-.text {
-    //todo: нужно ограничить высоту блока максимальной высотой содержимого
-    // сейчас она ограничивается внешним блоком и не зависит от количества текста
-    //height: 100%;
-    width: 100%;
-    padding: 32px 24px;
-    border-radius: 24px;
-    border: 1px solid var(--border-primary);
-
-    flex-shrink: 1;
-    flex-grow: 1;
-    //max-height: fit-content;
-
-    &__content {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        overflow-y: auto;
-        height: 100%;
-        padding-right: 16px;
-
-        scrollbar-width: thin;
-        scrollbar-color: var(--border-primary) inherit;
-    }
-
-    &__title {
-        @include mainFont(500, 18, var(--primary-title));
-    }
-
-    &__text {
-        @include mainFont(400, 16, var(--primary-subtitle), 24);
-        text-overflow: ellipsis;
-        display: -webkit-box;
-        -webkit-line-clamp: 5;
-        -webkit-box-orient: vertical;
-    }
-}
-</style>
+<style scoped lang="scss" src="./text.styles.scss" />
