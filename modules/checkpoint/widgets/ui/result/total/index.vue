@@ -110,14 +110,19 @@ const animateScore = () => {
     }, 100);
 };
 
-onMounted(() => {
-    window.addEventListener('resize', () => {
+const handleResize = () => {
+    if (scoreChart && !scoreChart.isDisposed()) {
         scoreChart.resize();
-    });
+    }
+};
+
+onMounted(() => {
+    window.addEventListener('resize', handleResize);
     showResults();
 });
 
 onUnmounted(() => {
+    window.removeEventListener('resize', handleResize);
     scoreChart?.dispose();
 });
 </script>

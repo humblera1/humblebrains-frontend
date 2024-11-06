@@ -102,14 +102,19 @@ watch(colorMode, () => {
     scoreChart.setOption(chartOptions);
 });
 
-onMounted(() => {
-    initChart();
-    window.addEventListener('resize', () => {
+const handleResize = () => {
+    if (scoreChart && !scoreChart.isDisposed()) {
         scoreChart.resize();
-    });
+    }
+};
+
+onMounted(() => {
+    window.addEventListener('resize', handleResize);
+    initChart();
 });
 
 onUnmounted(() => {
+    window.removeEventListener('resize', handleResize);
     scoreChart?.dispose();
 });
 </script>
