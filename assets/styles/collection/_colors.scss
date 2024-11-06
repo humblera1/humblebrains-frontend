@@ -1,6 +1,7 @@
 :root {
     --blue: #4149a0;
     --blue-secondary: #4149a0;
+    --blue-light: #4149a0;
     --white: #ffffff;
     //--white-to-black: #ffffff;
 
@@ -140,6 +141,7 @@
 .dark-mode {
     --blue: #282f87;
     --blue-secondary: #1e2249;
+    --blue-light: #BBBFD3;
     //--white-to-black: #06070f;
 
 
@@ -174,7 +176,7 @@
     --badge-bg: #2a2a3a;
 
     // Badges
-    --blue-badge: #2a2a3a;
+    --blue-badge: #3A3A52;
 
     // Типографика основного фона
     --primary-title: #bbbfd3;

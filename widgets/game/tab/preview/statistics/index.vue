@@ -3,15 +3,15 @@
         <div v-if="isSuccess && data && data.xAsis" class="statistics__data">
             <div class="statistics__header">
                 <div class="statistics__info">
-                    <p class="statistics__title">{{ $t('progress') }}</p>
+                    <p class="statistics__title">
+                        {{ $t('progress') }}
+                    </p>
                     <p class="statistics__subtitle">
                         <span>Период: </span>
-                        <span class="statistics__period">Все время</span>
+                        <span class="statistics__period">{{ $t(selectedPeriod) }}</span>
                     </p>
                 </div>
-                <div class="statistics__filter">
-                    <IconCalendar />
-                </div>
+                <WidgetGameUiCalendar v-model="selectedPeriod" />
             </div>
             <div class="statistics__body">
                 <div ref="chart" class="statistics__chart" />
@@ -38,19 +38,34 @@ import { type EChartsType } from 'echarts';
 import * as echarts from 'echarts';
 import type { BaseResponse } from '~/entities/interfaces/responses/BaseResponse';
 import type { IGameStatistics } from '~/entities/interfaces/games/IGameStatistics';
+import { PeriodEnum } from '~/entities/enums/PeriodEnum';
+
+const selectedPeriod = ref<PeriodEnum>(PeriodEnum.All);
 
 const page = useGamePageStore();
+
+const colorMode = useColorMode();
 
 const { $api } = useNuxtApp();
 
 const chart = ref<HTMLElement | null>(null);
 let statsChart: EChartsType;
 
-const { status, data } = await useLazyAsyncData('game-statistics', async () => {
-    const response = await $api<BaseResponse<IGameStatistics>>(`/v1/games/${page.game}/statistics?XDEBUG_SESSION=XDEBUG_ECLIPSE`);
+const { status, data } = await useLazyAsyncData(
+    'game-statistics',
+    async () => {
+        const response = await $api<BaseResponse<IGameStatistics>>(`/v1/games/${page.game}/statistics?XDEBUG_SESSION=XDEBUG_ECLIPSE`, {
+            params: {
+                period: selectedPeriod.value,
+            },
+        });
 
-    return response.data;
-});
+        return response.data;
+    },
+    {
+        watch: [selectedPeriod],
+    },
+);
 
 const isPending = computed((): boolean => status.value === 'pending');
 const isSuccess = computed((): boolean => status.value === 'success');
@@ -61,10 +76,9 @@ const chartOptions = {
         right: 0,
         top: 0,
         bottom: 0,
-        // containLabel: true,
     },
     xAxis: {
-        type: 'value',
+        type: 'category',
         data: data?.value?.xAsis ?? [],
         boundaryGap: false,
         show: false,
@@ -97,7 +111,7 @@ const chartOptions = {
                 color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
                     {
                         offset: 0,
-                        color: '#4149a0',
+                        color: colorMode.value === 'dark' ? '#282f87' : '#4149a0',
                     },
                     {
                         offset: 1,
@@ -117,6 +131,29 @@ const initChart = () => {
     }
 };
 
+const handleResize = () => {
+    if (statsChart) {
+        statsChart.resize();
+    }
+};
+
+watch(colorMode, () => {
+    const color = colorMode.value === 'dark' ? '#282f87' : '#4149a0';
+
+    chartOptions.series[0].areaStyle.color = new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+        {
+            offset: 0,
+            color,
+        },
+        {
+            offset: 1,
+            color: 'rgba(65, 73, 160, 0)',
+        },
+    ]);
+
+    statsChart.setOption(chartOptions);
+});
+
 watch(data, async () => {
     if (data) {
         await nextTick();
@@ -125,132 +162,13 @@ watch(data, async () => {
 });
 
 onMounted(() => {
-    window.addEventListener('resize', () => {
-        if (statsChart) {
-            statsChart.resize();
-        }
-    });
+    window.addEventListener('resize', handleResize);
 });
 
 onUnmounted(() => {
+    window.removeEventListener('resize', handleResize);
     statsChart?.dispose();
 });
 </script>
 
-<style scoped lang="scss">
-.statistics {
-    width: 100%;
-    height: 300px;
-    //border-radius: 36px;
-
-    &__data,
-    &__absence {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        gap: 32px;
-        height: 100%;
-        border-radius: 36px;
-
-        @include mobile {
-            border-radius: 24px;
-        }
-    }
-
-    &__data {
-        display: flex;
-        flex-direction: column;
-        gap: 36px;
-        overflow: hidden;
-        padding-top: 48px;
-        padding-bottom: 32px;
-        background-color: var(--badge-bg);
-
-        @include mainShadow();
-    }
-
-    &__absence {
-        border: 1px solid var(--border-primary);
-
-        @include mobile {
-            gap: 24px;
-        }
-    }
-
-    &__header {
-        display: flex;
-        justify-content: space-between;
-        width: 100%;
-        padding: 0 64px 0 36px;
-    }
-
-    &__info {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
-
-    &__period {
-        text-decoration: underline;
-    }
-
-    &__filter {
-        cursor: pointer;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 35px;
-        height: 35px;
-        border-radius: 8px;
-
-        background-color: var(--blue-badge);
-
-        svg {
-            color: var(--blue);
-            width: 14px;
-            height: 16px;
-        }
-    }
-
-    &__body {
-        position: relative;
-        width: 100%;
-        height: 100%;
-    }
-
-    &__chart {
-        width: 100%;
-        height: 100%;
-        padding: 0 24px;
-    }
-
-    &__icon {
-        width: 70px;
-        height: 70px;
-        color: var(--gray-absence);
-
-        @include mobile {
-            width: 60px;
-            height: 60px;
-        }
-
-        svg {
-            object-fit: contain;
-            width: 100%;
-            height: 100%;
-        }
-    }
-
-    &__message {
-        text-align: center;
-        margin-bottom: 36px;
-
-        @include mainFont(400, 16, var(--primary-subtitle));
-
-        @include mobile {
-            font-size: 14px;
-        }
-    }
-}
-</style>
+<style scoped lang="scss" src="./game-preview-statistics.styles.scss" />

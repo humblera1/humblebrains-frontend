@@ -25,6 +25,7 @@
 
     &__container {
         position: relative;
+        height: fit-content;
 
         @include mobile {
             display: flex;
