@@ -56,7 +56,8 @@ let statsChart: EChartsType;
 const { status, data } = await useLazyAsyncData(
     'game-statistics',
     async () => {
-        const response = await $api<BaseResponse<IGameStatistics>>(`/v1/games/${page.game}/statistics?XDEBUG_SESSION=XDEBUG_ECLIPSE`, {
+        const response = await $api<BaseResponse<IGameStatistics>>(`/v1/games/${page.game}/statistics`, {
+            credentials: 'include',
             params: {
                 period: selectedPeriod.value,
             },
@@ -134,26 +135,28 @@ const initChart = () => {
 };
 
 const handleResize = () => {
-    if (statsChart) {
+    if (statsChart && !statsChart.isDisposed()) {
         statsChart.resize();
     }
 };
 
 watch(colorMode, () => {
-    const color = colorMode.value === 'dark' ? '#282f87' : '#4149a0';
+    if (statsChart && !statsChart.isDisposed()) {
+        const color = colorMode.value === 'dark' ? '#282f87' : '#4149a0';
 
-    chartOptions.series[0].areaStyle.color = new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-        {
-            offset: 0,
-            color,
-        },
-        {
-            offset: 1,
-            color: 'rgba(65, 73, 160, 0)',
-        },
-    ]);
+        chartOptions.series[0].areaStyle.color = new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            {
+                offset: 0,
+                color,
+            },
+            {
+                offset: 1,
+                color: 'rgba(65, 73, 160, 0)',
+            },
+        ]);
 
-    statsChart.setOption(chartOptions);
+        statsChart.setOption(chartOptions);
+    }
 });
 
 watch(data, async () => {

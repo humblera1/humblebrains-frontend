@@ -41,7 +41,7 @@ const page = useGamePageStore();
 const { $api } = useNuxtApp();
 
 const { status, data } = await useLazyAsyncData('game-detail', async () => {
-    const response = await $api<BaseResponse<IGameDetails>>(`/v1/games/${page.game}?XDEBUG_SESSION=XDEBUG_ECLIPSE`);
+    const response = await $api<BaseResponse<IGameDetails>>(`/v1/games/${page.game}`);
 
     return response.data;
 });
