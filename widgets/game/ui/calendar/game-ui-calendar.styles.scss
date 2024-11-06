@@ -1,0 +1,84 @@
+.calendar {
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 35px;
+    height: 35px;
+    border-radius: 8px;
+
+    background-color: var(--blue-badge);
+
+    @include mobile {
+        width: 30px;
+        height: 30px;
+    }
+
+    svg {
+        color: var(--blue);
+        width: 14px;
+        height: 16px;
+
+        @include mobile {
+            width: 12px;
+            height: 14px;
+        }
+    }
+
+    &__filters {
+        z-index: 11;
+        position: absolute;
+        right: 0;
+        top: 100%;
+        margin-top: 8px;
+        border-radius: 12px;
+        padding: 16px 4px;
+        border: 1px solid var(--border-primary);
+
+        background-color: var(--badge-bg);
+
+        @include mobile {
+            margin-top: 4px;
+            padding: 8px 4px;
+        }
+    }
+
+    &__option {
+        display: flex;
+        justify-content: center;
+        padding: 8px 20px;
+        text-transform: uppercase;
+        border-radius: 8px;
+        white-space: nowrap;
+
+        transition: all 250ms ease;
+
+        @include mainFont(500, 14, var(--primary-subtitle));
+
+        @include mobile {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        &:hover {
+            background-color: var(--item-hovered-bg);
+            color: var(--primary-subtitle-hovered);
+        }
+
+        &_selected {
+            font-weight: 600;
+            color: var(--primary-title);
+        }
+    }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 500ms ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}

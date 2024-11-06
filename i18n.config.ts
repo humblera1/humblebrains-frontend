@@ -36,6 +36,10 @@ export default defineI18nConfig(() => ({
             totalAchievements: 'Достижения',
             startGettingTotalAchievements: 'Начните игру, чтобы заработать свои первые достижения!',
             thereWillBeStatistics: 'Здесь будет отображаться статистика ваших игр',
+            all: 'Всё время',
+            week: 'Неделя',
+            month: 'Месяц',
+            year: 'Год',
 
             // Matrix
             remember: 'Запомнил',
@@ -105,6 +109,10 @@ export default defineI18nConfig(() => ({
             totalAchievements: 'Achievements',
             startGettingTotalAchievements: 'Start the game to earn your first achievements!',
             thereWillBeStatistics: 'Your game statistics will be displayed here',
+            all: 'All Along',
+            week: 'Week',
+            month: 'Month',
+            year: 'Year',
 
             // Matrix
             remember: 'Remember',
