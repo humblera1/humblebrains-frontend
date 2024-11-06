@@ -32,6 +32,9 @@
 <script setup lang="ts">
 import type { BaseResponse } from '~/entities/interfaces/responses/BaseResponse';
 import type { IGameDetails } from '~/entities/interfaces/games/IGameDetails';
+import { WidgetModalTutorial } from '#components';
+
+const { openModal } = useHumbleModal();
 
 const page = useGamePageStore();
 
@@ -50,7 +53,7 @@ const gameImageUrl = computed((): string => {
 });
 
 const showTutorial = () => {
-    console.log('opening modal...');
+    openModal(WidgetModalTutorial);
 };
 </script>
 

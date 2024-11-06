@@ -40,6 +40,7 @@ export default defineI18nConfig(() => ({
             week: 'Неделя',
             month: 'Месяц',
             year: 'Год',
+            rules: 'Правила',
 
             // Matrix
             remember: 'Запомнил',
@@ -113,6 +114,7 @@ export default defineI18nConfig(() => ({
             week: 'Week',
             month: 'Month',
             year: 'Year',
+            rules: 'Rules',
 
             // Matrix
             remember: 'Remember',

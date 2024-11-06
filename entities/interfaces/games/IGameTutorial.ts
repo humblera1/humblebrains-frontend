@@ -1,4 +1,6 @@
+import type { ITutorial } from '~/entities/interfaces/games/ITutorial';
+
 export interface IGameTutorial {
-    id: number;
-    content: string;
+    game: string;
+    tutorial: ITutorial;
 }
