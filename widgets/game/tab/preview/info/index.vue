@@ -21,7 +21,12 @@
                             <IconGameGraduationCap />
                             <p>{{ $t('showTutorial') }}</p>
                         </div>
-                        <UiButton> {{ $t('start') }} </UiButton>
+                        <UiButton @click="page.selectFieldTab">
+                            {{ $t('play') }}
+                            <template #leading>
+                                <IconAchievementFinishingFlag class="info__finish-flag" />
+                            </template>
+                        </UiButton>
                     </template>
                 </div>
             </div>

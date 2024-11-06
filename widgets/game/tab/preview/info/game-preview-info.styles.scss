@@ -128,6 +128,16 @@
             }
         }
     }
+
+    &__finish-flag {
+        width: 14px;
+        height: 16px;
+
+        @include mobile {
+            width: 12px;
+            height: 14px;
+        }
+    }
 }
 
 @keyframes fade {

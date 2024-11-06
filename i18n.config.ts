@@ -41,6 +41,7 @@ export default defineI18nConfig(() => ({
             month: 'Месяц',
             year: 'Год',
             rules: 'Правила',
+            play: 'Играть!',
 
             // Matrix
             remember: 'Запомнил',
@@ -115,6 +116,7 @@ export default defineI18nConfig(() => ({
             month: 'Month',
             year: 'Year',
             rules: 'Rules',
+            play: 'Play!',
 
             // Matrix
             remember: 'Remember',

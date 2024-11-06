@@ -20,7 +20,7 @@
                     <p class="total-achievements__message">
                         {{ $t('startGettingTotalAchievements') }}
                     </p>
-                    <UiButton> {{ $t('start') }} </UiButton>
+                    <UiButton @click="page.selectFieldTab"> {{ $t('start') }} </UiButton>
                 </div>
             </template>
             <template v-else>
