@@ -2,14 +2,33 @@
     width: 100%;
     height: 100%;
     display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 36px;
+
+    &__info {
+        z-index: 11;
+        position: relative;
+        flex: 1 1 500px;
+        max-width: 720px;
+
+        @include mobile {
+            width: calc(100% + 32px);
+            margin: 0 -16px;
+        }
+    }
+
+    &__stats {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 350px;
+        max-width: 500px;
+        gap: 32px;
+
+    }
 
     @include tablet {
         flex-direction: column;
         align-items: center;
-    }
-
-    @include mobile {
-        width: calc(100% + 32px);
-        margin: 0 -16px;
     }
 }

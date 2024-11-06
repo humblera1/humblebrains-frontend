@@ -1,28 +1,31 @@
 <template>
     <div :class="['info', { info_pending: isPending }]">
-        <template v-if="status === 'success' && data">
-            <div class="info__body">
-                <div class="info__image">
-                    <NuxtImg :src="gameImageUrl" :alt="data.label" />
+        <Transition name="load">
+            <div v-if="status === 'success' && data" class="info__container">
+                <div class="info__body">
+                    <div class="info__image">
+                        <NuxtImg :src="gameImageUrl" :alt="data.label" />
+                    </div>
+                    <h1 class="info__title">
+                        {{ data.label }}
+                    </h1>
+                    <WidgetGameUiProgress :current="data.userLevel" :max="data.maxLevel" class="info__progress" />
+                    <UiText :title="$t('description')" :text="data.description" class="info__description" />
+                    <div class="info__tags">
+                        <WidgetGameUiTag v-for="tag in data.tags" :key="tag.id" :tag="tag" />
+                    </div>
                 </div>
-                <h1 class="info__title">
-                    {{ data.label }}
-                </h1>
-                <WidgetGameUiProgress :current="data.userLevel" :max="data.maxLevel" class="info__progress" />
-                <UiText :title="$t('description')" :text="data.description" class="info__description" />
-
-                <div class="info__tags">
-                    <WidgetGameUiTag v-for="tag in data.tags" :key="tag.id" :tag="tag" />
+                <div class="info__footer">
+                    <template v-if="status === 'success' && data">
+                        <div class="info__tutorial" @click="showTutorial">
+                            <IconGameGraduationCap />
+                            <p>{{ $t('showTutorial') }}</p>
+                        </div>
+                        <UiButton> {{ $t('start') }} </UiButton>
+                    </template>
                 </div>
             </div>
-            <div class="info__footer">
-                <div class="info__tutorial" @click="showTutorial">
-                    <IconGameGraduationCap />
-                    <p>{{ $t('showTutorial') }}</p>
-                </div>
-                <UiButton> {{ $t('start') }} </UiButton>
-            </div>
-        </template>
+        </Transition>
     </div>
 </template>
 

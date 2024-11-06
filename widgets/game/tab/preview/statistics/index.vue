@@ -1,35 +1,37 @@
 <template>
     <div class="statistics">
-        <div v-if="isSuccess && data && data.xAsis" class="statistics__data">
-            <div class="statistics__header">
-                <div class="statistics__info">
-                    <p class="statistics__title">
-                        {{ $t('progress') }}
-                    </p>
-                    <p class="statistics__subtitle">
-                        <span>Период: </span>
-                        <span class="statistics__period">{{ $t(selectedPeriod) }}</span>
-                    </p>
+        <Transition name="load">
+            <div v-if="isSuccess && data && data.xAsis" class="statistics__data">
+                <div class="statistics__header">
+                    <div class="statistics__info">
+                        <p class="statistics__title">
+                            {{ $t('progress') }}
+                        </p>
+                        <p class="statistics__subtitle">
+                            <span>Период: </span>
+                            <span class="statistics__period">{{ $t(selectedPeriod) }}</span>
+                        </p>
+                    </div>
+                    <WidgetGameUiCalendar v-model="selectedPeriod" />
                 </div>
-                <WidgetGameUiCalendar v-model="selectedPeriod" />
-            </div>
-            <div class="statistics__body">
-                <div ref="chart" class="statistics__chart" />
-            </div>
-        </div>
-        <div v-else class="statistics__absence">
-            <template v-if="isPending">
-                <UiPreloader />
-            </template>
-            <template v-else>
-                <div class="statistics__icon">
-                    <IconGameChart />
+                <div class="statistics__body">
+                    <div ref="chart" class="statistics__chart" />
                 </div>
-                <p class="statistics__message">
-                    {{ $t('thereWillBeStatistics') }}
-                </p>
-            </template>
-        </div>
+            </div>
+            <div v-else class="statistics__absence">
+                <template v-if="isPending">
+                    <UiPreloader />
+                </template>
+                <template v-else>
+                    <div class="statistics__icon">
+                        <IconGameChart />
+                    </div>
+                    <p class="statistics__message">
+                        {{ $t('thereWillBeStatistics') }}
+                    </p>
+                </template>
+            </div>
+        </Transition>
     </div>
 </template>
 

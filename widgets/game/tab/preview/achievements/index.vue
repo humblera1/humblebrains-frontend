@@ -3,28 +3,30 @@
         <h2 class="total-achievements__title">
             {{ $t('totalAchievements') }}
         </h2>
-        <template v-if="isSuccess && data">
-            <div v-if="data.length" class="total-achievements__container">
-                <WidgetGameUiTotalAchievement
-                    v-for="achievement in data"
-                    :key="achievement.type"
-                    :type="achievement.type"
-                    :text="achievement.content"
-                />
-            </div>
-            <div v-else class="total-achievements__void">
-                <div class="total-achievements__icon">
-                    <IconGameReward />
+        <Transition name="load" mode="out-in">
+            <template v-if="isSuccess && data">
+                <div v-if="data.length" class="total-achievements__container">
+                    <WidgetGameUiTotalAchievement
+                        v-for="achievement in data"
+                        :key="achievement.type"
+                        :type="achievement.type"
+                        :text="achievement.content"
+                    />
                 </div>
-                <p class="total-achievements__message">
-                    {{ $t('startGettingTotalAchievements') }}
-                </p>
-                <UiButton> {{ $t('start') }} </UiButton>
-            </div>
-        </template>
-        <template v-else>
-            <UiPreloader />
-        </template>
+                <div v-else class="total-achievements__void">
+                    <div class="total-achievements__icon">
+                        <IconGameReward />
+                    </div>
+                    <p class="total-achievements__message">
+                        {{ $t('startGettingTotalAchievements') }}
+                    </p>
+                    <UiButton> {{ $t('start') }} </UiButton>
+                </div>
+            </template>
+            <template v-else>
+                <UiPreloader />
+            </template>
+        </Transition>
     </div>
 </template>
 
