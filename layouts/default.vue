@@ -43,7 +43,7 @@
         @include mainShadow();
 
         @include tablet {
-            padding: 15px;
+            padding: 16px;
             border-radius: 0;
         }
     }
@@ -70,6 +70,14 @@
         display: flex;
         gap: 60px;
         height: 100%;
+
+        @include tablet {
+            padding: 0 16px;
+        }
+
+        @include mobile {
+            padding: 0;
+        }
     }
 
     &__sidebar {

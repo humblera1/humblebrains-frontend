@@ -17,7 +17,7 @@ import type { GameUiProgressProps } from '~/widgets/game/ui/progress/game-ui-pro
 const { current, max, size = 'medium' } = defineProps<GameUiProgressProps>();
 
 const progressStyle = computed((): string => {
-    return `width:${(15 / max) * 100}%`;
+    return `width:${(current / max) * 100}%`;
 });
 </script>
 

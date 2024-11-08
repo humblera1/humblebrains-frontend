@@ -8,10 +8,19 @@
         .progress__container {
             width: 70px;
             height: 5px;
+
+            @include tablet {
+                width: 60px;
+            }
+
+            @include mobile {
+                width: 50px;
+                height: 4px;
+            }
         }
 
         .progress__value {
-            @include mainFont(400, 12px, var(--primary-subtitle));
+            @include mainFont(400, 14, var(--primary-subtitle));
         }
     }
 
@@ -42,7 +51,7 @@
         }
 
         .progress__value {
-            @include mainFont(400, 16px, var(--primary-subtitle));
+            @include mainFont(400, 16, var(--primary-subtitle));
         }
 
         @include tablet {
