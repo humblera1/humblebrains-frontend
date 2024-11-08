@@ -9,6 +9,7 @@ export default defineI18nConfig(() => ({
             yes: 'Да',
             no: 'Нет',
             description: 'Описание',
+            filters: 'Фильтры',
 
             // Sidebar:
             home: 'Главная',
@@ -84,6 +85,7 @@ export default defineI18nConfig(() => ({
             yes: 'Yes',
             no: 'No',
             description: 'Description',
+            filters: 'Filters',
 
             // Sidebar:
             home: 'Home',

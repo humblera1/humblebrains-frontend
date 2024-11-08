@@ -1,4 +1,5 @@
 @use "../collection/_mixins.scss" as mixins;
+@use "../collection/_medias.scss" as medias;
 
 body {
     background-color: var(--secondary-bg);
@@ -82,6 +83,18 @@ ul {
     animation: light 1s ease-in-out;
 }
 
+.title {
+    @include mixins.mainFont(500, 24, var(--primary-title));
+
+    @include medias.tablet {
+        @include mixins.mainFont(500, 20, var(--primary-title))
+    }
+
+    @include medias.mobile {
+        @include mixins.mainFont(500, 18, var(--primary-title))
+    }
+}
+
 @keyframes light {
     0% {
         background-color: transparent;
@@ -111,4 +124,15 @@ ul {
 .load-enter-from,
 .load-leave-to {
     opacity: 0;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+    transition: visibility 250ms ease, opacity 250ms ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+    visibility: hidden;
 }

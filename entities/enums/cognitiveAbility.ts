@@ -1,5 +1,5 @@
 export enum CognitiveAbility {
-    Memory,
-    Logics,
-    Concentration,
+    Memory = 'memory',
+    Logic = 'logic',
+    Attention = 'attention',
 }
