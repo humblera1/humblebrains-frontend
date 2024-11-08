@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <Transition name="slide-fade">
-            <component :is="currentTabComponent" key="gameTab"></component>
+            <component :is="currentTabComponent" key="gameTab" />
         </Transition>
     </div>
 </template>

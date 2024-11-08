@@ -10,6 +10,7 @@
         z-index: 11;
         position: relative;
         flex: 1 1 500px;
+        width: 100%;
         max-width: 720px;
 
         @include mobile {
