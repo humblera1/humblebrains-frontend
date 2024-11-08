@@ -1,39 +1,51 @@
 <template>
     <div class="game-filters">
-        <div class="game-filters__container"></div>
-        <div class="game-filters__controls" @click="toggleList">
+        <div class="game-filters__container">
+            <TransitionGroup name="scale">
+                <WidgetGameFiltersCategory
+                    v-for="category in selectedCategories"
+                    :id="category.id"
+                    :key="category.id"
+                    :label="category.label"
+                    :icon="getCategoryIcon(category.name)"
+                    @unselect="unselectCategory"
+                />
+            </TransitionGroup>
+        </div>
+        <div ref="control" class="game-filters__controls" @click="toggleList">
             <IconFunnel class="game-filters__funnel" />
+            <span v-show="hasActiveFilters" class="game-filters__marker"></span>
             <p class="game-filters__title">
                 {{ $t('filters') }}
             </p>
         </div>
-        <Transition name="fade">
-            <div v-show="isListOpened" class="game-filters__list">
-                <ul v-if="isSuccess" class="game-filters__select">
-                    <li
-                        v-for="category in categories"
-                        :key="category.id"
-                        :class="['game-filters__option', { 'game-filters__option_active': model?.includes(category.id) }]"
-                        @click="selectCategory(category.id)"
-                    >
-                        <input :id="category.name" v-model="model" type="checkbox" :value="category.id" class="game-filters__input" />
-                        <span class="game-filters__item">
-                            <span class="game-filters__icon">
-                                <component :is="getCategoryIcon(category.name)" :key="category.name" />
-                            </span>
-                            <span class="game-filters__label">{{ category.label }}</span>
-                        </span>
-                        <span class="game-filters__check">
-                            <Transition name="fade">
-                                <IconGameCheck v-show="model?.includes(category.id)" />
-                            </Transition>
-                        </span>
-                    </li>
-                </ul>
-                <UiPreloader v-else />
-            </div>
-        </Transition>
     </div>
+    <Transition name="fade">
+        <div v-show="isListOpened" ref="list" class="game-filters__list">
+            <ul v-if="isSuccess">
+                <li
+                    v-for="category in categories"
+                    :key="category.id"
+                    :class="['game-filters__option', { 'game-filters__option_active': model?.includes(category.id) }]"
+                    @click="toggleCategory(category)"
+                >
+                    <input :id="category.name" v-model="model" type="checkbox" :value="category.id" class="game-filters__input" />
+                    <span class="game-filters__item">
+                        <span class="game-filters__icon">
+                            <component :is="getCategoryIcon(category.name)" :key="category.name" />
+                        </span>
+                        <span class="game-filters__label">{{ category.label }}</span>
+                    </span>
+                    <span class="game-filters__check">
+                        <Transition name="fade">
+                            <IconGameCheck v-show="model?.includes(category.id)" />
+                        </Transition>
+                    </span>
+                </li>
+            </ul>
+            <UiPreloader v-else />
+        </div>
+    </Transition>
 </template>
 
 <script setup lang="ts">
@@ -47,6 +59,10 @@ const { $api } = useNuxtApp();
 const isListOpened = ref<boolean>(false);
 
 const model = defineModel<number[]>();
+const selectedCategories = ref<IGameCategory[]>([]);
+
+const list = ref<HTMLElement | null>(null);
+const control = ref<HTMLElement | null>(null);
 
 const { status, data: categories } = await useLazyAsyncData('categories', async () => {
     const response = await $api<BaseResponse<IGameCategory[]>>('/v1/categories');
@@ -54,15 +70,36 @@ const { status, data: categories } = await useLazyAsyncData('categories', async 
     return response.data;
 });
 
+const hasActiveFilters = computed((): boolean => {
+    return selectedCategories.value.length > 0;
+});
+
 const toggleList = () => {
     isListOpened.value = !isListOpened.value;
 };
 
-const selectCategory = (categoryId: number) => {
+const toggleCategory = (category: IGameCategory) => {
+    if (model.value) {
+        const index = model.value.indexOf(category.id);
+
+        if (index === -1) {
+            model.value.push(category.id);
+            selectedCategories.value.push(category);
+
+            return;
+        }
+
+        model.value.splice(index, 1);
+        selectedCategories.value.splice(index, 1);
+    }
+};
+
+const unselectCategory = (categoryId: number) => {
     if (model.value) {
         const index = model.value.indexOf(categoryId);
 
-        index === -1 ? model.value.push(categoryId) : model.value.splice(index, 1);
+        model.value.splice(index, 1);
+        selectedCategories.value.splice(index, 1);
     }
 };
 
@@ -79,126 +116,22 @@ const getCategoryIcon = (name: string): Component => {
     }
 };
 
+const handleClickOutside = (event: MouseEvent) => {
+    const target = event.target as Node;
+    if (isListOpened.value && list.value && control.value && !list.value.contains(target) && !control.value.contains(target)) {
+        isListOpened.value = false;
+    }
+};
+
 const isSuccess = computed((): boolean => status.value === 'success');
+
+onMounted(() => {
+    document.addEventListener('click', handleClickOutside);
+});
+
+onBeforeUnmount(() => {
+    document.removeEventListener('click', handleClickOutside);
+});
 </script>
 
-<style scoped lang="scss">
-.game-filters {
-    position: relative;
-    display: flex;
-    width: 100%;
-
-    &__container {
-        display: flex;
-        justify-content: flex-end;
-        width: 100%;
-    }
-
-    &__controls {
-        cursor: pointer;
-        display: flex;
-        gap: 8px;
-        align-items: center;
-
-        &:hover {
-            .game-filters__title {
-                color: var(--primary-subtitle-hovered);
-            }
-        }
-    }
-
-    &__title {
-        transition: color 500ms ease;
-        @include mainFont(500, 16, var(--primary-subtitle));
-
-        @include mobile {
-            @include mainFont(400, 14, var(--primary-subtitle));
-        }
-    }
-
-    &__funnel {
-        transition: color 500ms ease;
-        color: var(--primary-subtitle);
-        width: 18px;
-        height: 16px;
-    }
-
-    &__list {
-        position: absolute;
-        top: 100%;
-        margin-top: 8px;
-        right: 0;
-        border-radius: 12px;
-        padding: 18px 12px;
-        background-color: var(--badge-bg);
-
-        @include mainShadow();
-    }
-
-    &__option {
-        position: relative;
-        display: flex;
-        justify-content: space-between;
-        gap: 12px;
-        align-items: center;
-        padding: 10px 20px;
-        border-radius: 12px;
-        transition: all 0.25s ease;
-        color: var(--primary-subtitle);
-
-        @include mainFont(600, 16, var(--primary-subtitle));
-
-        &:hover {
-            background-color: var(--blue-badge);
-            color: var(--primary-subtitle-hovered);
-        }
-
-        &_active {
-            color: var(--primary-subtitle-hovered);
-            //background-color: var(--secondary-bg);
-            //color: var(--text-primary-80);
-        }
-    }
-
-    &__item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    &__icon {
-        width: 14px;
-        height: 14px;
-
-        svg {
-            object-fit: contain;
-            width: 100%;
-            height: 100%;
-        }
-    }
-
-    &__label {
-    }
-
-    &__check {
-        display: flex;
-        width: 10px;
-        height: 10px;
-        color: var(--primary-subtitle-hovered);
-
-        svg {
-            object-fit: contain;
-            width: 100%;
-            height: 100%;
-        }
-    }
-
-    &__input {
-        cursor: pointer;
-        position: absolute;
-        opacity: 0;
-        width: 100%;
-        height: 100%;
-    }
-}
-</style>
+<style scoped lang="scss" src="./game-filters.styles.scss" />
