@@ -115,7 +115,7 @@ export const useGameStore = defineStore('gameStorage', () => {
 
     let endReactionTime: number;
 
-    let accumulatedReactionTime: number;
+    let accumulatedReactionTime: number = 0;
 
     /**
      * Хранит интервалы времени, затраченные пользователем на завершение каждого из сыгранных раундов.
@@ -333,18 +333,6 @@ export const useGameStore = defineStore('gameStorage', () => {
     /** *********************************************************************************************************************** Состояния */
 
     const setState = (state: GameStateEnum): void => {
-        // Записываем время перехода в данный режим
-        if (state === GameStateEnum.contemplation) {
-            startReactionTimer();
-        }
-
-        // Записываем время, потраченное на раунд (показатель времени реакции пользователя)
-        if (state === GameStateEnum.failedRoundFinishing || state === GameStateEnum.successfulRoundFinishing) {
-            storeAndResetReactionTime();
-        }
-
-        // todo: обработка режима паузы
-
         previousState.value = gameState.value;
         gameState.value = state;
     };
@@ -562,7 +550,20 @@ export const useGameStore = defineStore('gameStorage', () => {
     //     setSuccessfulRoundFinishingState();
     // };
 
+    const calculateMeanReactionTime = () => {
+        const meanSec = useMean(reactionTimes) / 1000;
+
+        return meanSec.toFixed(2);
+    };
+
+    const calculateAccuracy = () => {
+        const accuracy = ((totalAnswersAmount - totalIncorrectAnswersAmount) / totalAnswersAmount) * 100;
+
+        return Math.round(accuracy);
+    };
+
     const handleRoundFinishing = () => {
+        storeAndResetReactionTime(); // Записываем время, затраченное пользователем на раунд
         stopRoundTimer(); // Останавливаем уменьшение времени roundTime
 
         if (isRoundFailed) {
