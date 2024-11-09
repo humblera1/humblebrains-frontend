@@ -1,8 +1,13 @@
 <template>
     <div class="game-time">
         <div class="game-time__info">
-            <p class="game-time__title">Время:</p>
-            <p class="game-time__time">{{ formattedTime }}</p>
+            <template v-if="!game.isGameTimeOver">
+                <p class="game-time__title">Время:</p>
+                <p class="game-time__time">{{ formattedTime }}</p>
+            </template>
+            <template v-else>
+                <p class="game-time__title">{{ $t('lastRound') }}</p>
+            </template>
         </div>
         <div class="game-time__container" :class="containerClass">
             <div class="game-time__line" :class="lineClass" :style="lineStyle" />

@@ -14,6 +14,8 @@ export const useGamePageStore = defineStore('gamePageStorage', () => {
      */
     const DEFAULT_TAB: GameTabEnum = GameTabEnum.preview;
 
+    const gameStore = useGameStore();
+
     /**
      * Коллекция, хранящая вкладки в виде 'игра-вкладка'.
      * Такой подход используется, чтобы предоставить возможность перехода на произвольную вкладку определённой игры.
@@ -133,7 +135,11 @@ export const useGamePageStore = defineStore('gamePageStorage', () => {
 
         try {
             const componentPath = `../widgets/games/${game.value}/index.vue`;
-            const component = await import(componentPath);
+
+            /* @vite-ignore */
+            const component = await import(/* @vite-ignore */ componentPath /* @vite-ignore */);
+
+            await gameStore.$setup();
 
             resolvedComponent.value = component.default;
         } catch (error) {

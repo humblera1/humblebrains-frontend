@@ -29,6 +29,11 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     const TIME_TO_COLORIZE_CELL = 250;
 
     /**
+     * Вспомогательный стор для навигации по вкладках на странице игры
+     */
+    const page = useGamePageStore();
+
+    /**
      * Базовый стор, работает с логикой, общей для всех игр
      */
     const game = useGameStore();
@@ -164,7 +169,11 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * @param cellNumber
      */
     const isCellHidden = (cellNumber: number): boolean => {
-        return (game.isInLevelFinishingState() || game.isInLevelPreparingState()) && destroyedCells.value.includes(cellNumber);
+        // todo: логика работы с состоянием gameFinishing
+        return (
+            (game.isInLevelFinishingState() || game.isInLevelPreparingState() || game.isInGameFinishingState()) &&
+            destroyedCells.value.includes(cellNumber)
+        );
     };
 
     /**
@@ -507,6 +516,12 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         clearColorizedCells();
         clearOrderedCells();
 
+        if (game.isGameTimeOver) {
+            finishGame();
+
+            return;
+        }
+
         if (game.isTimeToChangeLevel()) {
             await changeLevel();
         }
@@ -553,6 +568,16 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         return currentLevel.value.squareSide;
     });
 
+    /**
+     * Вызывается для завершения игры
+     */
+    const finishGame = () => {
+        game.setGameFinishingState();
+        destroyField().then(() => {
+            page.selectResultTab();
+        });
+    };
+
     const $setup = async () => {
         setupLevelColors();
         setupRoundColor();
@@ -564,6 +589,27 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     const $reset = () => {
         game.$reset();
     };
+
+    /**
+     * Обработка события окончания времени запоминания.
+     */
+    useListenGameEvent('game:contemplationTimeIsOver', async () => {
+        if (currentLevel.value.rotationIterations !== 0) {
+            await rotateField();
+
+            setDefaultState();
+        }
+
+        game.handleInteractive();
+    });
+
+    /**
+     * Обработка события окончания времени на ответ.
+     */
+    useListenGameEvent('game:answeringTimeIsOver', async () => {
+        game.markRoundAsFailed();
+        await finishRound();
+    });
 
     return {
         isCellOpened,

@@ -4,6 +4,7 @@ import type { IGameLevels } from '~/entities/interfaces/games/IGameLevels';
 import type { BaseResponse } from '~/entities/interfaces/responses/BaseResponse';
 import type { IGameLevel } from '~/entities/interfaces/games/IGameLevel';
 import type { IBaseGameLevel } from '~/entities/interfaces/games/IBaseGameLevel';
+import { useEmitGameEvent } from '~/composables/useGameEventBus';
 
 // Базовый стор, отвечающий за действия, характерные всем играм
 export const useGameStore = defineStore('gameStorage', () => {
@@ -121,6 +122,10 @@ export const useGameStore = defineStore('gameStorage', () => {
      */
     const reactionTimes: number[] = [];
 
+    const isGameTimeOver = computed((): boolean => {
+        return totalTime.value <= 0;
+    });
+
     /**
      * Метод для начала измерения времени.
      */
@@ -152,31 +157,33 @@ export const useGameStore = defineStore('gameStorage', () => {
      * Инициирует уменьшение переменной totalTime (на единицу каждую секунду)
      */
     const startTotalTimer = () => {
-        // check if timer is already started
+        // check that totalTimerId is not null (means the timer has already started)
         if (isTotalTimerStarted()) {
             return;
         }
 
-        totalTimerId = setTimeout(function tick() {
-            if (totalTime.value <= 0) {
-                // @ts-ignore
-                clearTimeout(totalTimerId);
-                // todo:
-                console.log('Вышло время на игру');
-
-                return;
+        const tick = () => {
+            if (isGameTimeOver.value) {
+                useEmitGameEvent('game:timeIsOver');
+                stopTotalTimer();
+            } else {
+                decreaseTotalTime();
+                totalTimerId = setTimeout(tick, 1000);
             }
-            decreaseTotalTime();
-            totalTimerId = setTimeout(tick, 1000);
-        });
+        };
+
+        totalTimerId = setTimeout(tick, 1000);
     };
 
     /**
      * Останавливает уменьшение переменной totalTime
      */
     const stopTotalTimer = () => {
-        // @ts-ignore
-        clearTimeout(totalTimerId);
+        if (isTotalTimerStarted()) {
+            // @ts-expect-error: we check totalTimerId is not null already
+            clearTimeout(totalTimerId);
+        }
+
         totalTimerId = null;
     };
 
@@ -224,8 +231,14 @@ export const useGameStore = defineStore('gameStorage', () => {
             if (roundTime.value <= 0) {
                 // @ts-ignore
                 clearTimeout(roundTimerId);
-                // todo:
-                console.log('Вышло время на запоминание');
+
+                if (isInInteractiveState()) {
+                    useEmitGameEvent('game:answeringTimeIsOver');
+                }
+
+                if (isInContemplationState()) {
+                    useEmitGameEvent('game:contemplationTimeIsOver');
+                }
 
                 return;
             }
@@ -414,6 +427,10 @@ export const useGameStore = defineStore('gameStorage', () => {
         setState(GameStateEnum.levelPromotion);
     };
 
+    const setGameFinishingState = (): void => {
+        setState(GameStateEnum.gameFinishing);
+    };
+
     const setPromptState = (): void => {
         setState(GameStateEnum.prompt);
     };
@@ -462,6 +479,10 @@ export const useGameStore = defineStore('gameStorage', () => {
 
     const isInLevelPromotionState = (): boolean => {
         return isState(GameStateEnum.levelPromotion);
+    };
+
+    const isInGameFinishingState = (): boolean => {
+        return isState(GameStateEnum.gameFinishing);
     };
 
     const isInPromptState = (): boolean => {
@@ -571,9 +592,11 @@ export const useGameStore = defineStore('gameStorage', () => {
 
     const handleIncorrectAnswering = () => {
         totalIncorrectAnswersAmount++;
+        markRoundAsFailed();
+    };
 
+    const markRoundAsFailed = () => {
         isRoundFailed = true;
-        // incorrectAnswersOnRound.value++;
         addReaction();
     };
 
@@ -596,6 +619,7 @@ export const useGameStore = defineStore('gameStorage', () => {
         setSuccessfulRoundFinishingState,
         setLevelDemotionState,
         setLevelPromotionState,
+        setGameFinishingState,
         setPromptState,
         gameState,
         isInLevelPreparingState,
@@ -609,6 +633,7 @@ export const useGameStore = defineStore('gameStorage', () => {
         isInLevelFinishingState,
         isInLevelDemotionState,
         isInLevelPromotionState,
+        isInGameFinishingState,
         isInPromptState,
 
         handleRoundPreparing,
@@ -621,6 +646,7 @@ export const useGameStore = defineStore('gameStorage', () => {
         handleIncorrectAnswering,
         handleGamePreparing,
 
+        isGameTimeOver,
         totalTime,
         startTotalTimer,
         stopTotalTimer,
@@ -638,6 +664,7 @@ export const useGameStore = defineStore('gameStorage', () => {
         isRoundFailed,
         incorrectAnswersOnRound,
         incorrectAnswerReactions,
+        markRoundAsFailed,
 
         currentLevel,
         currentUserLevel,
