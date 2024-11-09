@@ -5,6 +5,7 @@ import type { BaseResponse } from '~/entities/interfaces/responses/BaseResponse'
 import type { IGameLevel } from '~/entities/interfaces/games/IGameLevel';
 import type { IBaseGameLevel } from '~/entities/interfaces/games/IBaseGameLevel';
 import { useEmitGameEvent } from '~/composables/useGameEventBus';
+import type { IGameResult } from '~/entities/interfaces/games/IGameResult';
 
 // Базовый стор, отвечающий за действия, характерные всем играм
 export const useGameStore = defineStore('gameStorage', () => {
@@ -16,6 +17,7 @@ export const useGameStore = defineStore('gameStorage', () => {
 
     /**
      * Время на игру в секундах, скорее сего, будет приходить с бэка
+     * todo: implement logic to get game duration from backend
      */
     const totalTime = ref<number>(90);
 
@@ -547,16 +549,38 @@ export const useGameStore = defineStore('gameStorage', () => {
         setLevelDemotionState();
     };
 
-    const calculateMeanReactionTime = () => {
+    const calculateMeanReactionTime = (): number => {
         const meanSec = useMean(reactionTimes) / 1000;
 
-        return meanSec.toFixed(2);
+        return Number(meanSec.toFixed(2));
     };
 
-    const calculateAccuracy = () => {
+    const calculateAccuracy = (): number => {
         const accuracy = ((totalAnswersAmount - totalIncorrectAnswersAmount) / totalAnswersAmount) * 100;
 
-        return Math.round(accuracy);
+        return Number(accuracy.toFixed(1));
+    };
+
+    const getResults = (): IGameResult => {
+        // todo
+        const gamePage = useGamePageStore();
+
+        return {
+            game: gamePage.game as string,
+            finishedAtTheLevel: currentUserLevel.value,
+            maxUnlockedLevel: maxUserLevel.value,
+            meanReactionTime: calculateMeanReactionTime(),
+            accuracy: calculateAccuracy(),
+            withinSession: false, // todo: implement withinSession logic
+        };
+    };
+
+    const handleGameFinishingState = async () => {
+        const gamePage = useGamePageStore();
+
+        await service.saveResults(getResults());
+
+        gamePage.selectResultTab();
     };
 
     const handleRoundFinishing = () => {
@@ -643,6 +667,7 @@ export const useGameStore = defineStore('gameStorage', () => {
         handleAnswering,
         handleIncorrectAnswering,
         handleGamePreparing,
+        handleGameFinishingState,
 
         isGameTimeOver,
         totalTime,

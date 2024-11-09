@@ -571,11 +571,9 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     /**
      * Вызывается для завершения игры
      */
-    const finishGame = () => {
-        game.setGameFinishingState();
-        destroyField().then(() => {
-            page.selectResultTab();
-        });
+    const finishGame = async () => {
+        await destroyField();
+        await game.handleGameFinishingState();
     };
 
     const $setup = async () => {
@@ -587,7 +585,8 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     };
 
     const $reset = () => {
-        game.$reset();
+        // game.$reset();
+        console.log('reset matrix store');
     };
 
     /**
