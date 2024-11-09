@@ -27,6 +27,13 @@ export const useGamePageStore = defineStore('gamePageStorage', () => {
     const game = ref<GameEnum>();
 
     /**
+     * Состояние загрузки компонента.
+     */
+    const isLoading = ref<boolean>(false);
+
+    const resolvedComponent = shallowRef<null | object>(null);
+
+    /**
      * Текущая вкладка: значение из коллекции tabs под ключом игры или вкладка по умолчанию, если ключ отсутствует.
      */
     const currentTab = computed((): GameTabEnum => {
@@ -116,8 +123,33 @@ export const useGamePageStore = defineStore('gamePageStorage', () => {
         navigateTo(`/games/${game}`);
     };
 
+    const resolveComponent = async () => {
+        if (!game.value) {
+            console.error('Game is not defined');
+            return;
+        }
+
+        isLoading.value = true;
+
+        try {
+            const componentPath = `../widgets/games/${game.value}/index.vue`;
+            const component = await import(componentPath);
+
+            resolvedComponent.value = component.default;
+        } catch (error) {
+            console.error('Error loading component:', error);
+            return null;
+        } finally {
+            isLoading.value = false;
+        }
+    };
+
     return {
         game,
+        isLoading,
+        resolvedComponent,
+
+        resolveComponent,
 
         selectPreviewTab,
         selectFieldTab,

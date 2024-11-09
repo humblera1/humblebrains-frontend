@@ -1,11 +1,19 @@
 import { defineStore } from 'pinia';
 import { GameStateEnum } from '~/entities/enums/games/GameStateEnum';
+import type { IGameLevels } from '~/entities/interfaces/games/IGameLevels';
+import type { BaseResponse } from '~/entities/interfaces/responses/BaseResponse';
+import type { IGameLevel } from '~/entities/interfaces/games/IGameLevel';
+import type { IBaseGameLevel } from '~/entities/interfaces/games/IBaseGameLevel';
+import type { IMatrixLevel } from '~/entities/interfaces/games/matrix/IMatrixLevel';
+import { TestStateEnum } from '~/modules/checkpoint/entities/enums/TestStateEnum';
 
 // Базовый стор, отвечающий за действия, характерные всем играм
 export const useGameStore = defineStore('gameStorage', () => {
     const COUNTDOWN_INITIAL_VALUE: number = 3;
 
     const TIME_TO_SHOW_INCORRECT_ANSWER_REACTION = 1000;
+
+    const service = useGameService();
 
     /**
      * Время на игру в секундах, скорее сего, будет приходить с бэка
@@ -43,7 +51,18 @@ export const useGameStore = defineStore('gameStorage', () => {
     let roundTimerId: ReturnType<typeof setTimeout> | null = null;
 
     /**
+     * Количество раундов, в которых был дан правильный ответ, идущих подряд.
+     */
+    let successfulRoundsStreak: number = 0;
+
+    /**
+     * Количество раундов, в которых был дан неправильный ответ, идущих подряд.
+     */
+    let unsuccessfulRoundsStreak: number = 0;
+
+    /**
      * Сигнализирует о том, что в текущем раунде была допущена ошибка при ответе.
+     * todo: deprecated
      */
     const incorrectAnswersOnRound = ref<number>(0);
 
@@ -54,7 +73,90 @@ export const useGameStore = defineStore('gameStorage', () => {
      */
     const incorrectAnswerReactions = ref<{ id: number }[]>([]);
 
+    /**
+     * Номер максимально открытого пользователем уровня в текущей игре.
+     */
+    const maxUserLevel = ref<number>(0);
+
+    /**
+     * Номер текущего уровня пользователя.
+     */
+    const currentUserLevel = ref<number>(0);
+
+    /**
+     * Номер текущего уровня пользователя
+     */
+    // const currentLevelNumber = ref<number>(1);
+
+    /**
+     * Набор уровней той или иной игры.
+     */
+    // let levels: IGameLevel<any> = {};
+
+    const levels = ref<IGameLevel<IBaseGameLevel>>({});
+
+    /**
+     * Предыдущее состояние игры.
+     */
+    const previousState = ref<GameStateEnum>();
+
     const gameState = ref<GameStateEnum>();
+
+    /**
+     * Полное число ответов, данных пользователем за всю игру. Используется для подсчёта точности.
+     */
+    let totalAnswersAmount: number = 0;
+
+    /**
+     * Полное число неверных ответов, данных пользователем за всю игру. Используется для подсчёта точности.
+     */
+    let totalIncorrectAnswersAmount: number = 0;
+
+    let isRoundFailed: boolean;
+
+    /**
+     * Возвращает текущий уровень.
+     */
+    const currentLevel = computed((): IBaseGameLevel => {
+        return levels.value[currentUserLevel.value];
+    });
+
+    /** ******************************************************************************************************************* Время реакции */
+    let startReactionTime: number;
+
+    let endReactionTime: number;
+
+    let accumulatedReactionTime: number;
+
+    /**
+     * Хранит интервалы времени, затраченные пользователем на завершение каждого из сыгранных раундов.
+     */
+    const reactionTimes: number[] = [];
+
+    /**
+     * Метод для начала измерения времени.
+     */
+    function startReactionTimer() {
+        startReactionTime = Date.now();
+    }
+
+    /**
+     * Метод для остановки таймера и накопления времени.
+     */
+    function stopReactionTimer() {
+        const endReactionTime = Date.now();
+        accumulatedReactionTime += endReactionTime - startReactionTime;
+    }
+
+    const storeAndResetReactionTime = () => {
+        stopReactionTimer();
+
+        reactionTimes.push(accumulatedReactionTime);
+
+        startReactionTime = 0;
+        endReactionTime = 0;
+        accumulatedReactionTime = 0;
+    };
 
     /** **************************************************************************************************************** Таймер totalTime */
 
@@ -219,7 +321,7 @@ export const useGameStore = defineStore('gameStorage', () => {
      * что был дан неверный ответ.
      */
     const addReaction = () => {
-        const reactionId = incorrectAnswersOnRound.value;
+        const reactionId = Date.now();
         incorrectAnswerReactions.value.push({ id: reactionId });
 
         setTimeout(() => {
@@ -229,23 +331,41 @@ export const useGameStore = defineStore('gameStorage', () => {
 
     /**
      * Помечает раунд как проигранный.
+     * todo: deprecated
      */
-    const markRoundAsFailed = (): void => {
-        incorrectAnswersOnRound.value++;
-        addReaction();
-    };
+    // const markRoundAsFailed = (): void => {
+    //     incorrectAnswersOnRound.value++;
+    //     addReaction();
+    // };
 
+    /**
+     * Помечает раунд как проигранный.
+     * todo: deprecated
+     */
     const clearIncorrectAnswers = () => {
         incorrectAnswersOnRound.value = 0;
     };
 
-    const isRoundFailed = computed((): boolean => {
-        return incorrectAnswersOnRound.value !== 0;
-    });
+    // const isRoundFailed = computed((): boolean => {
+    //     return incorrectAnswersOnRound.value !== 0;
+    // });
 
     /** *********************************************************************************************************************** Состояния */
 
     const setState = (state: GameStateEnum): void => {
+        // Записываем время перехода в данный режим
+        if (state === GameStateEnum.contemplation) {
+            startReactionTimer();
+        }
+
+        // Записываем время, потраченное на раунд (показатель времени реакции пользователя)
+        if (state === GameStateEnum.failedRoundFinishing || state === GameStateEnum.successfulRoundFinishing) {
+            storeAndResetReactionTime();
+        }
+
+        // todo: обработка режима паузы
+
+        previousState.value = gameState.value;
         gameState.value = state;
     };
 
@@ -257,6 +377,13 @@ export const useGameStore = defineStore('gameStorage', () => {
         setState(GameStateEnum.levelPreparing);
     };
 
+    const handleLevelPreparing = () => {
+        successfulRoundsStreak = 0;
+        unsuccessfulRoundsStreak = 0;
+
+        setLevelPreparingState();
+    };
+
     const setGamePreparingState = (): void => {
         setState(GameStateEnum.gamePreparing);
     };
@@ -265,8 +392,19 @@ export const useGameStore = defineStore('gameStorage', () => {
         setState(GameStateEnum.roundPreparing);
     };
 
+    const handleRoundPreparing = (): void => {
+        // clearIncorrectAnswers();
+        isRoundFailed = false;
+        setRoundPreparingState();
+    };
+
     const setContemplationState = (): void => {
         setState(GameStateEnum.contemplation);
+    };
+
+    const handleContemplation = (): void => {
+        startReactionTimer();
+        setContemplationState();
     };
 
     const setInteractiveState = (): void => {
@@ -343,6 +481,122 @@ export const useGameStore = defineStore('gameStorage', () => {
         return isState(GameStateEnum.prompt);
     };
 
+    const setupLevels = async () => {
+        const response: BaseResponse<IGameLevels<any>> = await service.fetchLevels();
+
+        maxUserLevel.value = response.data.maxLevel;
+        currentUserLevel.value = response.data.userLevel;
+        levels.value = response.data.levels;
+    };
+
+    const resetLevels = () => {
+        maxUserLevel.value = 0;
+        currentUserLevel.value = 0;
+        levels.value = {};
+    };
+
+    /**
+     * Определяет, является ли текущий уровень максимальным уровнем в игре.
+     */
+    const isFinalLevel = (): boolean => {
+        return currentUserLevel.value === Number(Object.keys(levels.value).at(-1));
+    };
+
+    /**
+     * Определяет, является ли текущий уровень минимальным уровнем в игре.
+     */
+    const isFirstLevel = (): boolean => {
+        return currentUserLevel.value === Number(Object.keys(levels.value).at(0));
+    };
+
+    /**
+     * Определяет, следует ли повышать уровень игры.
+     */
+    const isTimeToPromoteLevel = (): boolean => {
+        return !isFinalLevel() && successfulRoundsStreak >= currentLevel.value.correctAnswersBeforePromotion;
+    };
+
+    /**
+     * Определяет, следует ли понижать уровень игры.
+     */
+    const isTimeToDemoteLevel = (): boolean => {
+        return !isFirstLevel() && unsuccessfulRoundsStreak >= currentLevel.value.incorrectAnswersBeforeDemotion;
+    };
+
+    const isTimeToChangeLevel = (): boolean => {
+        return isTimeToDemoteLevel() || isTimeToDemoteLevel();
+    };
+
+    const handleLevelChanging = (): void => {
+        switch (true) {
+            case isTimeToPromoteLevel():
+                return handleLevelPromotion();
+            case isTimeToDemoteLevel():
+                return handleLevelDemotion();
+        }
+    };
+
+    const handleLevelPromotion = () => {
+        currentUserLevel.value++;
+        setLevelPromotionState();
+    };
+
+    const handleLevelDemotion = () => {
+        currentUserLevel.value--;
+        setLevelDemotionState();
+    };
+
+    // const finishRoundWithFailure = () => {
+    //     setFailedRoundFinishingState();
+    // };
+    //
+    // const finishRoundWithSuccess = () => {
+    //     setSuccessfulRoundFinishingState();
+    // };
+
+    const handleRoundFinishing = () => {
+        if (isRoundFailed) {
+            handleSuccessfulRoundFinishing();
+        } else {
+            handleFailedRoundFinishing();
+        }
+    };
+
+    const handleSuccessfulRoundFinishing = () => {
+        unsuccessfulRoundsStreak = 0;
+        successfulRoundsStreak++;
+
+        setSuccessfulRoundFinishingState();
+    };
+
+    const handleFailedRoundFinishing = () => {
+        successfulRoundsStreak = 0;
+        unsuccessfulRoundsStreak++;
+
+        setFailedRoundFinishingState();
+    };
+
+    const handleAnswering = () => {
+        totalAnswersAmount++;
+    };
+
+    const handleIncorrectAnswering = () => {
+        totalIncorrectAnswersAmount++;
+
+        isRoundFailed = true;
+        // incorrectAnswersOnRound.value++;
+        addReaction();
+    };
+
+    const $setup = async () => {
+        setGamePreparingState();
+        await setupLevels();
+    };
+
+    const $reset = () => {
+        resetLevels();
+    };
+
     return {
         setLevelPreparingState,
         setGamePreparingState,
@@ -368,6 +622,14 @@ export const useGameStore = defineStore('gameStorage', () => {
         isInLevelPromotionState,
         isInPromptState,
 
+        handleRoundPreparing,
+        handleContemplation,
+        handleLevelPreparing,
+        handleLevelChanging,
+        handleRoundFinishing,
+        handleAnswering,
+        handleIncorrectAnswering,
+
         totalTime,
         startTotalTimer,
         stopTotalTimer,
@@ -387,5 +649,24 @@ export const useGameStore = defineStore('gameStorage', () => {
         incorrectAnswerReactions,
         markRoundAsFailed,
         clearIncorrectAnswers,
+
+        // fetchLevels,
+        currentLevel,
+        currentUserLevel,
+        maxUserLevel,
+        levels,
+
+        finishRoundWithFailure,
+        finishRoundWithSuccess,
+
+        isTimeToPromoteLevel,
+        isTimeToDemoteLevel,
+        isTimeToChangeLevel,
+
+        isFinalLevel,
+        isFirstLevel,
+
+        $setup,
+        $reset,
     };
 });

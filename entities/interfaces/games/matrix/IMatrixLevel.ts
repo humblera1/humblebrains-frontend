@@ -1,6 +1,6 @@
-import type { IGameLevel } from '~/entities/interfaces/games/IGameLevel';
+import type { IBaseGameLevel } from '~/entities/interfaces/games/IBaseGameLevel';
 
-export interface IMatrixLevel extends IGameLevel {
+export interface IMatrixLevel extends IBaseGameLevel {
     /**
      * Сторона квадрата.
      */

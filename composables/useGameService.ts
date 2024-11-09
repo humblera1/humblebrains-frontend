@@ -1,15 +1,15 @@
-import type { GameEnum } from '~/entities/enums/games/GameEnum';
+import type { IGameLevels } from '~/entities/interfaces/games/IGameLevels';
+import type { BaseResponse } from '~/entities/interfaces/responses/BaseResponse';
 
 export const useGameService = () => {
     const { $api } = useNuxtApp();
 
-    const getLevels = async (game: GameEnum) => {
-        return await $api('/v1/game/levels', {
-            params: {
-                game,
-            },
-        });
+    const gamePage = useGamePageStore();
+
+    // todo: обработка ошибок
+    const fetchLevels = async (): Promise<BaseResponse<IGameLevels<any>>> => {
+        return await $api<BaseResponse<IGameLevels<any>>>(`/v1/games/${gamePage.game}/levels`);
     };
 
-    return { getLevels };
+    return { fetchLevels };
 };
