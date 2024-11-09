@@ -369,7 +369,6 @@ export const useGameStore = defineStore('gameStorage', () => {
     };
 
     const handleRoundPreparing = (): void => {
-        // todo: обновляем значение времени на ответ перед началом нового раунда.
         setRoundTime(currentLevel.value.timeToContemplate);
 
         isRoundFailed = false;
@@ -534,6 +533,12 @@ export const useGameStore = defineStore('gameStorage', () => {
 
     const handleLevelPromotion = () => {
         currentUserLevel.value++;
+
+        // Сохраняем открытый пользователем уровень
+        if (currentUserLevel.value > maxUserLevel.value) {
+            maxUserLevel.value = currentUserLevel.value;
+        }
+
         setLevelPromotionState();
     };
 
@@ -541,14 +546,6 @@ export const useGameStore = defineStore('gameStorage', () => {
         currentUserLevel.value--;
         setLevelDemotionState();
     };
-
-    // const finishRoundWithFailure = () => {
-    //     setFailedRoundFinishingState();
-    // };
-    //
-    // const finishRoundWithSuccess = () => {
-    //     setSuccessfulRoundFinishingState();
-    // };
 
     const calculateMeanReactionTime = () => {
         const meanSec = useMean(reactionTimes) / 1000;
