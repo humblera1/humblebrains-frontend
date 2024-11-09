@@ -4,8 +4,6 @@ import type { IGameLevels } from '~/entities/interfaces/games/IGameLevels';
 import type { BaseResponse } from '~/entities/interfaces/responses/BaseResponse';
 import type { IGameLevel } from '~/entities/interfaces/games/IGameLevel';
 import type { IBaseGameLevel } from '~/entities/interfaces/games/IBaseGameLevel';
-import type { IMatrixLevel } from '~/entities/interfaces/games/matrix/IMatrixLevel';
-import { TestStateEnum } from '~/modules/checkpoint/entities/enums/TestStateEnum';
 
 // Базовый стор, отвечающий за действия, характерные всем играм
 export const useGameStore = defineStore('gameStorage', () => {
@@ -83,16 +81,6 @@ export const useGameStore = defineStore('gameStorage', () => {
      */
     const currentUserLevel = ref<number>(0);
 
-    /**
-     * Номер текущего уровня пользователя
-     */
-    // const currentLevelNumber = ref<number>(1);
-
-    /**
-     * Набор уровней той или иной игры.
-     */
-    // let levels: IGameLevel<any> = {};
-
     const levels = ref<IGameLevel<IBaseGameLevel>>({});
 
     /**
@@ -112,7 +100,7 @@ export const useGameStore = defineStore('gameStorage', () => {
      */
     let totalIncorrectAnswersAmount: number = 0;
 
-    let isRoundFailed: boolean;
+    let isRoundFailed: boolean = false;
 
     /**
      * Возвращает текущий уровень.
@@ -219,7 +207,7 @@ export const useGameStore = defineStore('gameStorage', () => {
     };
 
     const showRoundTimeLine = computed((): boolean => {
-        return roundTime.value !== 0;
+        return isInContemplationState() || isInInteractiveState();
     });
 
     /**
@@ -329,27 +317,6 @@ export const useGameStore = defineStore('gameStorage', () => {
         }, TIME_TO_SHOW_INCORRECT_ANSWER_REACTION);
     };
 
-    /**
-     * Помечает раунд как проигранный.
-     * todo: deprecated
-     */
-    // const markRoundAsFailed = (): void => {
-    //     incorrectAnswersOnRound.value++;
-    //     addReaction();
-    // };
-
-    /**
-     * Помечает раунд как проигранный.
-     * todo: deprecated
-     */
-    const clearIncorrectAnswers = () => {
-        incorrectAnswersOnRound.value = 0;
-    };
-
-    // const isRoundFailed = computed((): boolean => {
-    //     return incorrectAnswersOnRound.value !== 0;
-    // });
-
     /** *********************************************************************************************************************** Состояния */
 
     const setState = (state: GameStateEnum): void => {
@@ -384,6 +351,14 @@ export const useGameStore = defineStore('gameStorage', () => {
         setLevelPreparingState();
     };
 
+    const handleGamePreparing = async () => {
+        handleLevelPreparing();
+
+        await startCountdown();
+
+        startTotalTimer();
+    };
+
     const setGamePreparingState = (): void => {
         setState(GameStateEnum.gamePreparing);
     };
@@ -393,7 +368,9 @@ export const useGameStore = defineStore('gameStorage', () => {
     };
 
     const handleRoundPreparing = (): void => {
-        // clearIncorrectAnswers();
+        // todo: обновляем значение времени на ответ перед началом нового раунда.
+        setRoundTime(currentLevel.value.timeToContemplate);
+
         isRoundFailed = false;
         setRoundPreparingState();
     };
@@ -402,7 +379,17 @@ export const useGameStore = defineStore('gameStorage', () => {
         setState(GameStateEnum.contemplation);
     };
 
+    const handleInteractive = () => {
+        stopRoundTimer();
+
+        setRoundTime(currentLevel.value.timeToAnswer);
+        startRoundTimer();
+
+        setInteractiveState();
+    };
+
     const handleContemplation = (): void => {
+        startRoundTimer();
         startReactionTimer();
         setContemplationState();
     };
@@ -524,7 +511,7 @@ export const useGameStore = defineStore('gameStorage', () => {
     };
 
     const isTimeToChangeLevel = (): boolean => {
-        return isTimeToDemoteLevel() || isTimeToDemoteLevel();
+        return isTimeToPromoteLevel() || isTimeToDemoteLevel();
     };
 
     const handleLevelChanging = (): void => {
@@ -555,10 +542,12 @@ export const useGameStore = defineStore('gameStorage', () => {
     // };
 
     const handleRoundFinishing = () => {
+        stopRoundTimer(); // Останавливаем уменьшение времени roundTime
+
         if (isRoundFailed) {
-            handleSuccessfulRoundFinishing();
-        } else {
             handleFailedRoundFinishing();
+        } else {
+            handleSuccessfulRoundFinishing();
         }
     };
 
@@ -624,11 +613,13 @@ export const useGameStore = defineStore('gameStorage', () => {
 
         handleRoundPreparing,
         handleContemplation,
+        handleInteractive,
         handleLevelPreparing,
         handleLevelChanging,
         handleRoundFinishing,
         handleAnswering,
         handleIncorrectAnswering,
+        handleGamePreparing,
 
         totalTime,
         startTotalTimer,
@@ -647,17 +638,11 @@ export const useGameStore = defineStore('gameStorage', () => {
         isRoundFailed,
         incorrectAnswersOnRound,
         incorrectAnswerReactions,
-        markRoundAsFailed,
-        clearIncorrectAnswers,
 
-        // fetchLevels,
         currentLevel,
         currentUserLevel,
         maxUserLevel,
         levels,
-
-        finishRoundWithFailure,
-        finishRoundWithSuccess,
 
         isTimeToPromoteLevel,
         isTimeToDemoteLevel,

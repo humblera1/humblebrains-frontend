@@ -1,8 +1,6 @@
 import { defineStore } from 'pinia';
 import { MatrixStateEnum } from '~/entities/enums/games/matrix/MatrixStateEnum';
 import type { IMatrixLevel } from '~/entities/interfaces/games/matrix/IMatrixLevel';
-import type { IGameLevels } from '~/entities/interfaces/games/IGameLevels';
-import type { LuriaLevel } from '~/modules/checkpoint/entities/types/luria/LuriaLevel';
 
 export const useMatrixStore = defineStore('matrixStorage', () => {
     /**
@@ -39,18 +37,6 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * Состояние текущего стора.
      */
     const state = ref<MatrixStateEnum>(MatrixStateEnum.default);
-
-    /**
-     * Количество раундов, в которых был дан правильный ответ, идущих подряд.
-     * todo: deprecated
-     */
-    // let successfulRoundsStreak: number = 0;
-
-    /**
-     * Количество раундов, в которых был дан неправильный ответ, идущих подряд.
-     * todo: deprecated
-     */
-    // let unsuccessfulRoundsStreak: number = 0;
 
     /**
      * Активный цвет раунда: ячейки данного цвета пользователю необходимо запоминать в текущем раунде.
@@ -100,33 +86,6 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * todo:
      */
     const availableColors: string[] = ['#59AF8E', '#E9CA6D', '#EE8670', '#C38AC1', '#9BC4F8', '#6878DE'];
-
-    /**
-     * Номер текущего уровня пользователя
-     * todo: deprecated
-     */
-    // const currentLevelNumber = ref<number>(1);
-
-    /**
-     * Текущий уровень игры.
-     * todo: deprecated
-     */
-    // const currentLevel = ref<IMatrixLevel>({
-    //     squareSide: 0,
-    //     cellsAmountToReproduce: 0,
-    //     colorsAmount: 0,
-    //     correctAnswersBeforePromotion: 0,
-    //     incorrectAnswersBeforeDemotion: 0,
-    //     pointsForAnswer: 0,
-    //     rotationIterations: 0,
-    //     hasDirection: false,
-    // });
-
-    /**
-     * Набор всех возможных уровней в игре.
-     * todo: deprecated
-     */
-    // let levels: IGameLevels<IMatrixLevel> = {};
 
     /**
      * Возвращает текущий уровень. Прокси, сужающий тип.
@@ -245,38 +204,6 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         return correctlyOpenedCells.value.size === currentLevel.value.cellsAmountToReproduce;
     };
 
-    /**
-     * Определяет, является ли текущий уровень максимальным уровнем в игре.
-     * todo: deprecated
-     */
-    // const isFinalLevel = (): boolean => {
-    //     return currentLevelNumber.value === Number(Object.keys(levels).at(-1));
-    // };
-
-    /**
-     * Определяет, является ли текущий уровень минимальным уровнем в игре.
-     * todo: deprecated
-     */
-    // const isFirstLevel = (): boolean => {
-    //     return currentLevelNumber.value === Number(Object.keys(levels).at(0));
-    // };
-
-    /**
-     * Определяет, следует ли повышать уровень игры.
-     * todo: вынести в базовый стор
-     */
-    // const isTimeToPromoteLevel = (): boolean => {
-    //     return !game.isFinalLevel() && successfulRoundsStreak >= currentLevel.value.correctAnswersBeforePromotion;
-    // };
-
-    /**
-     * Определяет, следует ли понижать уровень игры.
-     * todo: вынести в базовый стор
-     */
-    // const isTimeToDemoteLevel = (): boolean => {
-    //     return !game.isFirstLevel() && unsuccessfulRoundsStreak >= currentLevel.value.incorrectAnswersBeforeDemotion;
-    // };
-
     /** ********************************************************************************************************** Вспомогательные методы */
 
     /**
@@ -315,8 +242,6 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      */
     const setupRoundColor = (): void => {
         activeRoundColor.value = useSample(availableLevelColors) as string;
-        // todo:
-        // activeRoundColor.value = availableLevelColors[Math.floor(Math.random() * availableLevelColors.length)];
     };
 
     /**
@@ -362,22 +287,6 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     const clearOrderedCells = (): void => {
         orderedCells.value = [];
     };
-
-    /**
-     * Устанавливает определённый уровень игры.
-     * todo: deprecated
-     */
-    // const setupLevel = (): void => {
-    //     currentLevel.value = levels[currentLevelNumber.value];
-    // };
-
-    /**
-     * Получает набор уровней с сервера и устанавливает значение переменной levels.
-     * todo: реализовать массив levels в базовом сторе.
-     */
-    // const setupLevels = async (): Promise<void> => {
-    //     levels = (await game.fetchLevels()) as IGameLevels<IMatrixLevel>;
-    // };
 
     /**
      * Добавляет номера ячеек в массив destroyedCells с интервалом TIME_TO_DESTROY_CELL.
@@ -541,25 +450,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
             rotateField().then(() => setDefaultState());
         }
 
-        game.setInteractiveState();
-    };
-
-    /**
-     * Первоначальная установка стора.
-     */
-    const setupStore = () => {
-        // game.setGamePreparingState();
-        //
-        // setupLevels().then(() => {
-        //     console.log(levels);
-        //     setupLevel();
-        //     setupLevelColors();
-        //     setupRoundColor();
-        //
-        //     game.setLevelPreparingState();
-        //
-        //     game.startCountdown().then(() => startNewRound());
-        // });
+        game.handleInteractive();
     };
 
     /** ******************************************************************************************************** Обработка открытия ячеек */
@@ -568,12 +459,12 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * Инициирует открытие ячейки, если это возможно
      * @param cellNumber
      */
-    const handleCellOpening = (cellNumber: number): void => {
+    const handleCellOpening = async (cellNumber: number): Promise<void> => {
         if (canTheCellBeOpened(cellNumber)) {
             game.handleAnswering();
 
             if (isCellCorrect(cellNumber)) {
-                handleCorrectCellOpening(cellNumber);
+                await handleCorrectCellOpening(cellNumber);
             } else {
                 handleIncorrectCellOpening(cellNumber);
             }
@@ -605,30 +496,6 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     };
 
     /** ****************************************************************************************************** Обработка изменений раунда */
-
-    /**
-     * Проверяет корректность ответов в текущем раунде и определяет алгоритм его завершения.
-     */
-    const handleRoundFinishing = async () => {
-        game.handleRoundFinishing();
-        await finishRound();
-    };
-
-    /**
-     * Завершает раунд, увеличивая серию проигранных раундов.
-     */
-    const finishRoundWithFailure = () => {
-        game.finishRoundWithFailure();
-        finishRound();
-    };
-
-    /**
-     * Завершает раунд, увеличивая серию успешных раундов.
-     */
-    const finishRoundWithSuccess = () => {
-        game.finishRoundWithSuccess();
-        finishRound();
-    };
 
     /**
      * Завершает раунд: устанавливает состояние roundFinishing, проверяет необходимость изменения уровня, начинает новый раунд.
@@ -687,17 +554,11 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     });
 
     const $setup = async () => {
-        await game.$setup();
-
-        console.log(currentLevel.value);
-
         setupLevelColors();
         setupRoundColor();
 
-        game.setLevelPreparingState();
-
-        await game.startCountdown();
-        startNewRound();
+        await game.handleGamePreparing();
+        await startNewRound();
     };
 
     const $reset = () => {
@@ -713,7 +574,6 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
 
         handleCellOpening,
         getCellColor,
-        setupStore,
         ready,
 
         rotationDegree,
