@@ -1,8 +1,14 @@
 <template>
     <div class="game-level">
         <div class="game-level__info">
-            <p class="game-level__title">Уровень:</p>
-            <p class="game-level__level">{{ level }}</p>
+            <template v-if="game.isInWarmUpMode()">
+                <p class="game-level__title">{{ $t('warmUp') }}:</p>
+                <p class="game-level__level">{{ warmUp }}</p>
+            </template>
+            <template v-else>
+                <p class="game-level__title">{{ $t('level') }}:</p>
+                <p class="game-level__level">{{ level }}</p>
+            </template>
         </div>
         <div class="game-level__container">
             <template v-if="isProgressBarSeparated">
@@ -47,6 +53,10 @@ const successfulRoundsStreak = ref<number>(3);
 
 const level = computed((): string => {
     return `${game.currentUserLevel}/${game.maxLevelNumber}`;
+});
+
+const warmUp = computed((): string => {
+    return `${game.playedWarmUpLevelsAmount}/${game.warmUpLevelsAmount}`;
 });
 
 const isBarActive = (barIndex: number): boolean => {

@@ -6,12 +6,24 @@ import type { IGameLevel } from '~/entities/interfaces/games/IGameLevel';
 import type { IBaseGameLevel } from '~/entities/interfaces/games/IBaseGameLevel';
 import { useEmitGameEvent } from '~/composables/useGameEventBus';
 import type { IGameResult } from '~/entities/interfaces/games/IGameResult';
+import { GameModeEnum } from '~/entities/enums/games/GameModeEnum';
+import { GameRegimeEnum } from '~/entities/enums/games/GameRegimeEnum';
 
 // Базовый стор, отвечающий за действия, характерные всем играм
 export const useGameStore = defineStore('gameStorage', () => {
     const COUNTDOWN_INITIAL_VALUE: number = 3;
 
     const TIME_TO_SHOW_INCORRECT_ANSWER_REACTION = 1000;
+
+    /**
+     * Текущий мод игры.
+     */
+    const mode = ref<GameModeEnum>(GameModeEnum.warmUp);
+
+    /**
+     * Текущий режим игры.
+     */
+    const regime = ref<GameRegimeEnum>(GameRegimeEnum.default);
 
     const service = useGameService();
 
@@ -86,12 +98,30 @@ export const useGameStore = defineStore('gameStorage', () => {
 
     const levels = ref<IGameLevel<IBaseGameLevel>>({});
 
+    /**
+     * Максимальное допустимое количество разминочных раундов, доступное для выбора пользователем.
+     */
     const maxWarmUpLevelsAmount: number = 3;
 
+    /**
+     * Количество разминочных раундов, которое установил пользователь.
+     */
     const warmUpLevelsAmount = ref<number>(1);
 
+    /**
+     * Количество разминочных раундов, уже сыгранных пользователем.
+     * Используется для отслеживания момента, когда необходимо переключить разминочный мод.
+     */
+    const playedWarmUpLevelsAmount = ref<number>(0);
+
+    /**
+     * Сигнализирует о том, что игра будет сыграна в рамках сессии.
+     */
     const withinSession = ref<boolean>(false);
 
+    /**
+     * Сигнализирует о том, что выбран режим бесконечной игры.
+     */
     const infinityGame = ref<boolean>(false);
 
     /**
@@ -342,6 +372,74 @@ export const useGameStore = defineStore('gameStorage', () => {
         setTimeout(() => {
             incorrectAnswerReactions.value = incorrectAnswerReactions.value.filter((reaction) => reaction.id !== reactionId);
         }, TIME_TO_SHOW_INCORRECT_ANSWER_REACTION);
+    };
+
+    /** ************************************************************************************************************************** Режимы */
+
+    /**
+     * Устанавливает переданный режим.
+     * @param regimeToSet
+     */
+    const setRegime = (regimeToSet: GameRegimeEnum): void => {
+        regime.value = regimeToSet;
+    };
+
+    /**
+     * Проверяет соответствие переданного режима текущему.
+     * @param regimeToCheck
+     */
+    const isRegime = (regimeToCheck: GameRegimeEnum): boolean => {
+        return regime.value === regimeToCheck;
+    };
+
+    const setInfiniteRegime = () => {
+        setRegime(GameRegimeEnum.infinite);
+    };
+
+    const setDefaultRegime = () => {
+        setRegime(GameRegimeEnum.default);
+    };
+
+    const isInInfiniteRegime = (): boolean => {
+        return isRegime(GameRegimeEnum.infinite);
+    };
+
+    const isInDefaultRegime = (): boolean => {
+        return isRegime(GameRegimeEnum.default);
+    };
+
+    /** **************************************************************************************************************************** Моды */
+
+    /**
+     * Устанавливает переданный мод.
+     * @param modeToSet
+     */
+    const setMode = (modeToSet: GameModeEnum): void => {
+        mode.value = modeToSet;
+    };
+
+    /**
+     * Проверяет соответствие переданного мода текущему.
+     * @param modeToCheck
+     */
+    const isMode = (modeToCheck: GameModeEnum): boolean => {
+        return mode.value === modeToCheck;
+    };
+
+    const setWarmUpMode = () => {
+        setMode(GameModeEnum.warmUp);
+    };
+
+    const setGameMode = () => {
+        setMode(GameModeEnum.game);
+    };
+
+    const isInWarmUpMode = (): boolean => {
+        return isMode(GameModeEnum.warmUp);
+    };
+
+    const isInGameMode = (): boolean => {
+        return isMode(GameModeEnum.game);
     };
 
     /** *********************************************************************************************************************** Состояния */
@@ -645,6 +743,32 @@ export const useGameStore = defineStore('gameStorage', () => {
         resetLevels();
     };
 
+    /**
+     * Установка мода игры в зависимости от выбора количества разминочных раундов.
+     */
+    watch(warmUpLevelsAmount, (newVal) => {
+        if (isInGamePreparingState()) {
+            if (newVal === 0) {
+                setGameMode();
+            } else {
+                setWarmUpMode();
+            }
+        }
+    });
+
+    /**
+     * Установка режима игры.
+     */
+    watch(infinityGame, (newVal) => {
+        if (isInGamePreparingState()) {
+            if (newVal) {
+                setInfiniteRegime();
+            } else {
+                setDefaultRegime();
+            }
+        }
+    });
+
     return {
         setLevelPreparingState,
         setGamePreparingState,
@@ -683,6 +807,16 @@ export const useGameStore = defineStore('gameStorage', () => {
         handleGamePreparing,
         handleGameFinishingState,
 
+        // Работа с модами
+        setWarmUpMode,
+        setGameMode,
+        isInWarmUpMode,
+        isInGameMode,
+
+        // Работа с режимами
+        isInInfiniteRegime,
+        isInDefaultRegime,
+
         isGameTimeOver,
         totalTime,
         startTotalTimer,
@@ -699,7 +833,7 @@ export const useGameStore = defineStore('gameStorage', () => {
         startCountdown,
 
         isRoundFailed,
-        incorrectAnswersOnRound,
+        // incorrectAnswersOnRound,
         incorrectAnswerReactions,
         markRoundAsFailed,
 
@@ -718,6 +852,7 @@ export const useGameStore = defineStore('gameStorage', () => {
 
         maxWarmUpLevelsAmount,
         warmUpLevelsAmount,
+        playedWarmUpLevelsAmount,
         withinSession,
         infinityGame,
 

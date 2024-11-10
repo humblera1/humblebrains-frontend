@@ -137,3 +137,24 @@ ul {
 .scale-leave-to {
     transform: scale(0);
 }
+
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+    transition: transform 250ms ease, opacity 150ms ease;
+}
+
+.slide-fade-enter-from {
+    transform: translateY(-100%);
+    opacity: 0;
+}
+
+.slide-fade-enter-to,
+.slide-fade-leave-from {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.slide-fade-leave-to {
+    transform: translateY(100%);
+    opacity: 0;
+}

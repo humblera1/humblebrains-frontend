@@ -1,5 +1,5 @@
 <template>
-    <div class="game-timeline">
+    <div class="game-timeline" :class="{ 'game-timeline_hidden': game.isInInfiniteRegime() }">
         <div class="game-timeline__container">
             <div class="game-timeline__line" :style="timelineStyle" />
             <div
