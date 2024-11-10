@@ -25,6 +25,7 @@ export default defineI18nConfig(() => ({
             password: 'Пароль',
 
             // Games
+            level: 'Уровень',
             levelDown: 'Уровень понижен',
             levelUp: 'Новый уровень!',
             showRules: 'Показать обучение',
@@ -43,6 +44,9 @@ export default defineI18nConfig(() => ({
             year: 'Год',
             rules: 'Правила',
             play: 'Играть!',
+            infinityMode: 'Бесконечный режим',
+            withinSession: 'Игра в рамках сессии',
+            letsGo: 'Поехали!',
 
             // Matrix
             remember: 'Запомнил',
@@ -101,6 +105,7 @@ export default defineI18nConfig(() => ({
             password: 'Password',
 
             // Games
+            level: 'Level',
             levelDown: 'Your level is down',
             levelUp: 'Level Up!',
             showRules: 'Show rules',
@@ -119,6 +124,9 @@ export default defineI18nConfig(() => ({
             year: 'Year',
             rules: 'Rules',
             play: 'Play!',
+            infinityMode: 'Infinity mode',
+            withinSession: 'Game within a session',
+            letsGo: 'Let\'s go!',
 
             // Matrix
             remember: 'Remember',
