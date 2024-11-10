@@ -1,23 +1,42 @@
 <template>
-    <div>
-        <WidgetGameUiLayout>
-            <component :is="gameComponent" key="gameComponent" />
-        </WidgetGameUiLayout>
-    </div>
+    <WidgetGameUiLayout>
+        <template v-if="page.isLoading">
+            <UiPreloader />
+        </template>
+        <template v-else>
+            <component :is="page.resolvedComponent" v-if="isUserReady" key="gameComponent" />
+            <div v-else class="field__controls">
+                <WidgetGameControls />
+                <div class="field__buttons">
+                    <div class="field__tutorial" @click="showTutorial">
+                        <IconGameGraduationCap />
+                        <p>{{ $t('showTutorial') }}</p>
+                    </div>
+                    <UiButton @click="startGame"> {{ $t('letsGo') }} </UiButton>
+                </div>
+            </div>
+        </template>
+    </WidgetGameUiLayout>
 </template>
 
 <script setup lang="ts">
-import { GameEnum } from '~/entities/enums/games/GameEnum';
-import { GameMatrix } from '#components';
+import { WidgetModalTutorial } from '#components';
+
+const { openModal } = useHumbleModal();
 
 const page = useGamePageStore();
 
-const gameComponent = computed(() => {
-    switch (true) {
-        case page.game === GameEnum.matrix:
-            return GameMatrix;
-    }
-});
+const isUserReady = ref<boolean>(false);
+
+page.resolveComponent();
+
+const showTutorial = () => {
+    openModal(WidgetModalTutorial);
+};
+
+const startGame = () => {
+    isUserReady.value = true;
+};
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss" src="./game-field.styles.scss" />

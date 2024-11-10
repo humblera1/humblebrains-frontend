@@ -1,0 +1,41 @@
+.field {
+    &__controls {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 32px;
+    }
+
+    &__buttons {
+        display: flex;
+        gap: 32px;
+        align-items: center;
+
+        @include mobile {
+            flex-direction: column-reverse;
+            gap: 16px;
+        }
+    }
+
+    &__tutorial {
+        cursor: pointer;
+        display: flex;
+        gap: 10px;
+        text-decoration: underline;
+        color: var(--primary-subtitle);
+
+        @include mainFont(400, 16, var(--primary-subtitle));
+
+        @include mobile {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+
+            svg {
+                width: 16px;
+                height: 14px;
+            }
+        }
+    }
+}
