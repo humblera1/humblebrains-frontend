@@ -1,0 +1,45 @@
+.toggle {
+    width: 28px;
+    height: 16px;
+    border-radius: 15px;
+    position: relative;
+    cursor: pointer;
+    border: 2px solid var(--primary-subtitle);
+
+    transition: all 150ms ease;
+
+    @include mobile {
+        height: 14px;
+    }
+
+    &_on {
+        border-color: var(--blue);
+        background-color: var(--blue);
+
+        .toggle__switch {
+            left: 12px;
+            background-color: var(--accent-white);
+
+            @include mobile {
+                left: 10px;
+            }
+        }
+    }
+
+    &__switch {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        position: absolute;
+        top: 1px;
+        left: 2px;
+        transition: left 200ms ease;
+
+        background-color: var(--primary-subtitle);
+
+        @include mobile {
+            width: 8px;
+            height: 8px;
+        }
+    }
+}
