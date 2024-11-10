@@ -3,9 +3,15 @@
 </template>
 
 <script setup lang="ts">
-const { setupStore } = useMatrixStore();
+const { $setup, $reset } = useMatrixStore();
 
-onMounted(() => setupStore());
+onMounted(() => {
+    $setup();
+});
+
+onUnmounted(() => {
+    $reset();
+});
 </script>
 
 <style scoped lang="scss"></style>

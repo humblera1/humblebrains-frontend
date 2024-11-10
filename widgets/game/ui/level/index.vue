@@ -42,14 +42,11 @@ const MAX_SEPARATE_BARS_AMOUNT = 5;
 
 const game = useGameStore();
 
-const maxLevel = ref<number>(45);
-const currentLevel = ref<number>(2);
-
 const correctAnswersBeforePromotion = ref<number>(6);
 const successfulRoundsStreak = ref<number>(3);
 
 const level = computed((): string => {
-    return `${currentLevel.value}/${maxLevel.value}`;
+    return `${game.currentUserLevel}/${game.maxLevelNumber}`;
 });
 
 const isBarActive = (barIndex: number): boolean => {

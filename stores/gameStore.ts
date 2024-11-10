@@ -86,6 +86,14 @@ export const useGameStore = defineStore('gameStorage', () => {
 
     const levels = ref<IGameLevel<IBaseGameLevel>>({});
 
+    const maxWarmUpLevelsAmount: number = 3;
+
+    const warmUpLevelsAmount = ref<number>(1);
+
+    const withinSession = ref<boolean>(false);
+
+    const infinityGame = ref<boolean>(false);
+
     /**
      * Предыдущее состояние игры.
      */
@@ -126,6 +134,10 @@ export const useGameStore = defineStore('gameStorage', () => {
 
     const isGameTimeOver = computed((): boolean => {
         return totalTime.value <= 0;
+    });
+
+    const maxLevelNumber = computed((): number => {
+        return Number(Object.keys(levels.value).at(-1));
     });
 
     /**
@@ -625,6 +637,8 @@ export const useGameStore = defineStore('gameStorage', () => {
     const $setup = async () => {
         setGamePreparingState();
         await setupLevels();
+
+        console.log(levels.value);
     };
 
     const $reset = () => {
@@ -692,6 +706,7 @@ export const useGameStore = defineStore('gameStorage', () => {
         currentLevel,
         currentUserLevel,
         maxUserLevel,
+        maxLevelNumber,
         levels,
 
         isTimeToPromoteLevel,
@@ -700,6 +715,11 @@ export const useGameStore = defineStore('gameStorage', () => {
 
         isFinalLevel,
         isFirstLevel,
+
+        maxWarmUpLevelsAmount,
+        warmUpLevelsAmount,
+        withinSession,
+        infinityGame,
 
         $setup,
         $reset,
