@@ -13,6 +13,10 @@
         transform: translateY(-50%);
         border-radius: 50px;
         background: var(--blue-badge);
+
+        @include mobile {
+            height: 4px;
+        }
     }
 
     &__line {
@@ -24,6 +28,10 @@
         transform: translateY(-50%);
         border-radius: 50px;
         background: var(--blue);
+
+        @include mobile {
+            height: 4px;
+        }
     }
 
     &__thumb {
@@ -35,6 +43,11 @@
         transform: translate(-50%, -50%);
         cursor: pointer;
         background: var(--blue);
+
+        @include mobile {
+            width: 12px;
+            height: 12px;
+        }
     }
 
     &__icon {
@@ -46,6 +59,11 @@
         svg {
             width: 15px;
             height: 18px;
+
+            @include mobile {
+                width: 13px;
+                height: 16px;
+            }
         }
     }
 }

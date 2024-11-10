@@ -12,13 +12,13 @@
 <script setup lang="ts">
 import type { GameUiSliderTypes } from '~/widgets/game/ui/slider/game-ui-slider.types';
 
-const { max, maxAvailable } = defineProps<GameUiSliderTypes>();
+const { min, max, maxAvailable } = defineProps<GameUiSliderTypes>();
 
 const slider = ref<HTMLDivElement | null>(null);
 
 const current = defineModel<number>();
 
-const min = ref(1);
+const minValue = ref(min);
 const maxValue = ref(max);
 const maxAvailableValue = ref(maxAvailable);
 
@@ -26,14 +26,14 @@ const isDragging = ref(false);
 
 const thumbPosition = computed(() => {
     if (current.value) {
-        return ((current.value - min.value) / (maxValue.value - min.value)) * 100;
+        return ((current.value - minValue.value) / (maxValue.value - minValue.value)) * 100;
     }
 
     return 0;
 });
 
 const lockPosition = computed(() => {
-    return ((maxAvailableValue.value - min.value) / (maxValue.value - min.value)) * 100;
+    return ((maxAvailableValue.value - minValue.value) / (maxValue.value - minValue.value)) * 100;
 });
 
 const showLockIcon = computed(() => {
@@ -41,8 +41,8 @@ const showLockIcon = computed(() => {
 });
 
 const updateValueFromPosition = (position: number) => {
-    const range = maxValue.value - min.value;
-    const newValue = Math.round(min.value + (position / 100) * range);
+    const range = maxValue.value - minValue.value;
+    const newValue = Math.round(minValue.value + (position / 100) * range);
     current.value = Math.min(newValue, maxAvailableValue.value);
 };
 
