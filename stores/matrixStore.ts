@@ -516,8 +516,10 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         clearColorizedCells();
         clearOrderedCells();
 
+        await game.checkMode();
+
         if (game.isGameTimeOver) {
-            finishGame();
+            await finishGame();
 
             return;
         }

@@ -8,6 +8,8 @@ import { useEmitGameEvent } from '~/composables/useGameEventBus';
 import type { IGameResult } from '~/entities/interfaces/games/IGameResult';
 import { GameModeEnum } from '~/entities/enums/games/GameModeEnum';
 import { GameRegimeEnum } from '~/entities/enums/games/GameRegimeEnum';
+import type { GameMessage } from '~/entities/types/GameMessage';
+import type { GamePrompt } from '~/entities/types/GamePrompt';
 
 // Базовый стор, отвечающий за действия, характерные всем играм
 export const useGameStore = defineStore('gameStorage', () => {
@@ -132,6 +134,21 @@ export const useGameStore = defineStore('gameStorage', () => {
     const gameState = ref<GameStateEnum>();
 
     /**
+     *
+     */
+    const message = ref<GameMessage>({ text: '', translatable: false });
+
+    /**
+     * Содержимое подсказки
+     */
+    const prompt = ref<GamePrompt>({ content: '', translatable: false });
+
+    /**
+     * Переменная, хранящая функцию для разрешения промиса, который ответственен за показ подсказки пользователю во время теста.
+     */
+    let promptResolver: (() => void) | undefined;
+
+    /**
      * Полное число ответов, данных пользователем за всю игру. Используется для подсчёта точности.
      */
     let totalAnswersAmount: number = 0;
@@ -162,6 +179,18 @@ export const useGameStore = defineStore('gameStorage', () => {
      */
     const reactionTimes: number[] = [];
 
+    /**
+     * Переменная, хранящая функцию для разрешения промиса, который ответственен за состояние паузы.
+     * При переходе в состоянии паузы создаётся промис, а его resolve-функция записывается в данную переменную.
+     * По выходу из режима паузы должен происходить вызов функции в переменной: это приведёт к разрешению промиса.
+     */
+    let pauseResolver: (() => void) | undefined;
+
+    /**
+     * Промис, создаваемый при переходе в режим паузы. Его разрешение означает выход из режима.
+     */
+    let pausePromise: Promise<void>;
+
     const isGameTimeOver = computed((): boolean => {
         return totalTime.value <= 0;
     });
@@ -169,6 +198,28 @@ export const useGameStore = defineStore('gameStorage', () => {
     const maxLevelNumber = computed((): number => {
         return Number(Object.keys(levels.value).at(-1));
     });
+
+    const setMessage = (value: string | number): void => {
+        message.value = {
+            text: value,
+            translatable: false,
+        };
+    };
+
+    const setTranslatableMessage = (value: string): void => {
+        message.value = {
+            text: value,
+            translatable: true,
+        };
+    };
+
+    const clearMessage = (): void => {
+        message.value = { text: '', translatable: false };
+    };
+
+    const isMessageSet = () => {
+        return message.value.text !== '';
+    };
 
     /**
      * Метод для начала измерения времени.
@@ -206,7 +257,11 @@ export const useGameStore = defineStore('gameStorage', () => {
             return;
         }
 
-        const tick = () => {
+        const tick = async () => {
+            if (isInPauseState()) {
+                await pausePromise;
+            }
+
             if (isGameTimeOver.value) {
                 useEmitGameEvent('game:timeIsOver');
                 stopTotalTimer();
@@ -271,7 +326,12 @@ export const useGameStore = defineStore('gameStorage', () => {
         }
 
         totalRoundTime.value = roundTime.value;
-        roundTimerId = setTimeout(function tick() {
+
+        const tick = async () => {
+            if (isInPauseState()) {
+                await pausePromise;
+            }
+
             if (roundTime.value <= 0) {
                 // @ts-ignore
                 clearTimeout(roundTimerId);
@@ -283,12 +343,13 @@ export const useGameStore = defineStore('gameStorage', () => {
                 if (isInContemplationState()) {
                     useEmitGameEvent('game:contemplationTimeIsOver');
                 }
-
-                return;
+            } else {
+                decreaseRoundTime();
+                roundTimerId = setTimeout(tick, 1000);
             }
-            decreaseRoundTime();
-            roundTimerId = setTimeout(tick, 1000);
-        });
+        };
+
+        roundTimerId = setTimeout(tick, 1000);
     };
 
     /**
@@ -469,7 +530,9 @@ export const useGameStore = defineStore('gameStorage', () => {
 
         await startCountdown();
 
-        startTotalTimer();
+        if (isInDefaultRegime() && isInGameMode()) {
+            startTotalTimer();
+        }
     };
 
     const setGamePreparingState = (): void => {
@@ -534,6 +597,10 @@ export const useGameStore = defineStore('gameStorage', () => {
         setState(GameStateEnum.prompt);
     };
 
+    const setPauseState = (): void => {
+        setState(GameStateEnum.pause);
+    };
+
     /** ************************************************************************************************************************ Проверки */
 
     const isInLevelPreparingState = (): boolean => {
@@ -588,6 +655,10 @@ export const useGameStore = defineStore('gameStorage', () => {
         return isState(GameStateEnum.prompt);
     };
 
+    const isInPauseState = (): boolean => {
+        return isState(GameStateEnum.pause);
+    };
+
     const setupLevels = async () => {
         const response: BaseResponse<IGameLevels<any>> = await service.fetchLevels();
 
@@ -631,6 +702,11 @@ export const useGameStore = defineStore('gameStorage', () => {
     };
 
     const isTimeToChangeLevel = (): boolean => {
+        // todo: isInConstructorRegime() check
+        if (isInWarmUpMode()) {
+            return false;
+        }
+
         return isTimeToPromoteLevel() || isTimeToDemoteLevel();
     };
 
@@ -685,17 +761,97 @@ export const useGameStore = defineStore('gameStorage', () => {
         };
     };
 
+    const isTimeToSwitchMode = computed((): boolean => {
+        return playedWarmUpLevelsAmount.value >= warmUpLevelsAmount.value && isInWarmUpMode();
+    });
+
+    const setPause = () => {
+        setPauseState();
+        pausePromise = new Promise((resolve) => {
+            pauseResolver = resolve;
+        });
+    };
+
+    const endPause = () => {
+        if (previousState.value !== undefined) {
+            setState(previousState.value);
+        }
+
+        if (pauseResolver) {
+            pauseResolver();
+        }
+    };
+
+    const getPausePromise = () => {
+        return pausePromise;
+    };
+
+    /**
+     * todo: //
+     */
+    const setPrompt = (content: string, translatable: boolean = false): Promise<void> => {
+        closePrompt();
+
+        prompt.value = {
+            content,
+            translatable,
+        };
+
+        setPromptState();
+
+        return new Promise((resolve) => {
+            promptResolver = resolve;
+        });
+    };
+
+    const closePrompt = () => {
+        if (promptResolver) {
+            promptResolver();
+        }
+    };
+
+    const destroyPrompt = () => {
+        promptResolver = undefined;
+    };
+
+    const handleModeSwitching = async () => {
+        setGameMode();
+        setTranslatableMessage('warmUpCompleted');
+        await setPrompt('gameStartPrompt');
+
+        clearMessage();
+
+        if (isInDefaultRegime()) {
+            startTotalTimer();
+        }
+    };
+
     const handleGameFinishingState = async () => {
         const gamePage = useGamePageStore();
 
-        await service.saveResults(getResults());
+        if (isInDefaultRegime()) {
+            await service.saveResults(getResults());
+        }
 
         gamePage.selectResultTab();
     };
 
+    const checkMode = async () => {
+        if (isInWarmUpMode() && isTimeToSwitchMode.value) {
+            await handleModeSwitching();
+        }
+    };
+
     const handleRoundFinishing = () => {
-        storeAndResetReactionTime(); // Записываем время, затраченное пользователем на раунд
+        if (isInGameMode() && isInDefaultRegime()) {
+            storeAndResetReactionTime(); // Записываем время, затраченное пользователем на раунд
+        }
+
         stopRoundTimer(); // Останавливаем уменьшение времени roundTime
+
+        if (isInWarmUpMode()) {
+            playedWarmUpLevelsAmount.value++;
+        }
 
         if (isRoundFailed) {
             handleFailedRoundFinishing();
@@ -705,25 +861,34 @@ export const useGameStore = defineStore('gameStorage', () => {
     };
 
     const handleSuccessfulRoundFinishing = () => {
-        unsuccessfulRoundsStreak = 0;
-        successfulRoundsStreak++;
+        if (isInGameMode()) {
+            unsuccessfulRoundsStreak = 0;
+            successfulRoundsStreak++;
+        }
 
         setSuccessfulRoundFinishingState();
     };
 
     const handleFailedRoundFinishing = () => {
-        successfulRoundsStreak = 0;
-        unsuccessfulRoundsStreak++;
+        if (isInGameMode()) {
+            successfulRoundsStreak = 0;
+            unsuccessfulRoundsStreak++;
+        }
 
         setFailedRoundFinishingState();
     };
 
     const handleAnswering = () => {
-        totalAnswersAmount++;
+        if (isInGameMode() && isInDefaultRegime()) {
+            totalAnswersAmount++;
+        }
     };
 
     const handleIncorrectAnswering = () => {
-        totalIncorrectAnswersAmount++;
+        if (isInGameMode() && isInDefaultRegime()) {
+            totalIncorrectAnswersAmount++;
+        }
+
         markRoundAsFailed();
     };
 
@@ -735,8 +900,6 @@ export const useGameStore = defineStore('gameStorage', () => {
     const $setup = async () => {
         setGamePreparingState();
         await setupLevels();
-
-        console.log(levels.value);
     };
 
     const $reset = () => {
@@ -796,26 +959,46 @@ export const useGameStore = defineStore('gameStorage', () => {
         isInGameFinishingState,
         isInPromptState,
 
+        handleGamePreparing,
+        handleLevelPreparing,
         handleRoundPreparing,
         handleContemplation,
         handleInteractive,
-        handleLevelPreparing,
-        handleLevelChanging,
         handleRoundFinishing,
+        handleLevelChanging,
+        handleGameFinishingState,
         handleAnswering,
         handleIncorrectAnswering,
-        handleGamePreparing,
-        handleGameFinishingState,
 
         // Работа с модами
+        isTimeToSwitchMode,
+        checkMode,
         setWarmUpMode,
         setGameMode,
         isInWarmUpMode,
         isInGameMode,
+        // handleModeSwitching,
 
         // Работа с режимами
         isInInfiniteRegime,
         isInDefaultRegime,
+
+        // Работа с сообщениями
+        message,
+        setMessage,
+        setTranslatableMessage,
+        clearMessage,
+        isMessageSet,
+
+        // Работа с промптами
+        prompt,
+        setPrompt,
+        closePrompt,
+
+        // Работа с паузами
+        getPausePromise,
+        setPause,
+        endPause,
 
         isGameTimeOver,
         totalTime,

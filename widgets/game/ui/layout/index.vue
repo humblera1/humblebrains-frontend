@@ -17,7 +17,9 @@
             <section class="game-layout__field">
                 <slot />
             </section>
+            <WidgetGameUiPrompt />
         </div>
+        <WidgetGameUiPause />
         <WidgetGameUiCountdown />
     </div>
 </template>

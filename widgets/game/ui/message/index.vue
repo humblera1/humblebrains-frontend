@@ -1,6 +1,6 @@
 <template>
     <div :class="messageClasses">
-        <p class="game-message__text">{{ $t(message) }}</p>
+        <p class="game-message__text">{{ game.message.translatable ? $t(game.message.text) : game.message.text }}</p>
     </div>
 </template>
 
@@ -11,13 +11,9 @@ const messageClasses = computed(() => {
     return [
         'game-message',
         {
-            'game-message_visible': game.isInLevelFinishingState(),
+            'game-message_visible': game.isMessageSet(),
         },
     ];
-});
-
-const message = computed((): string => {
-    return game.isInLevelPromotionState() ? 'levelUp' : 'levelDown';
 });
 </script>
 
