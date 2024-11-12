@@ -377,49 +377,68 @@ export const useGameStore = defineStore('gameStorage', () => {
 
     /** ***************************************************************************************************************** Обратный отсчёт */
 
+    /**
+     * Запускает обратный отсчёт.
+     */
     const startCountdown = (): Promise<void> => {
         return new Promise((resolve, reject) => {
-            // check if timer is already started
             if (isCountdownStarted()) {
                 return reject(new Error('Countdown already started'));
             }
 
-            setTimeout(() => {
-                // todo: restarting behavior
-                const tick = () => {
-                    if (countdown.value <= 1) {
-                        // @ts-ignore
-                        clearTimeout(countdownTimerId);
-                        countdownTimerId = null;
+            const tick = async () => {
+                if (isInPauseState()) {
+                    await pausePromise;
+                    resetCountdown();
+                }
 
-                        resolve(); // Resolve the promise when countdown finishes
-
-                        countdown.value = COUNTDOWN_INITIAL_VALUE;
-                        return;
-                    }
-
+                if (countdown.value <= 1) {
+                    resetCountdown();
+                    resolve();
+                } else {
                     decreaseCountdown();
                     countdownTimerId = setTimeout(tick, 1000);
-                };
+                }
+            };
 
-                countdownTimerId = setTimeout(tick, 1000);
-            }, 250);
+            // возможно, следует добавить задержку перед началом отсчета
+            countdownTimerId = setTimeout(tick, 1000);
         });
     };
 
     /**
-     * Уменьшает значение переменной countdown на единицу
+     * Уменьшает значение переменной countdown на единицу.
      */
     const decreaseCountdown = () => {
         countdown.value--;
     };
 
     /**
-     * Проверяет, запущено ли уменьшение времени countdown
+     * Проверяет, запущен ли обратный отсчёт (уменьшение переменной countdown).
      */
     const isCountdownStarted = () => {
         return countdownTimerId !== null;
     };
+
+    /**
+     * Останавливает обратный отсчёт, очищая соответствующий timerId.
+     */
+    const clearCountdownTimer = () => {
+        if (countdownTimerId) {
+            clearTimeout(countdownTimerId);
+            countdownTimerId = null;
+        }
+    };
+
+    /**
+     * Останавливает обратный отсчёт и сбрасывает значение переменной countdown.
+     */
+    const resetCountdown = () => {
+        clearCountdownTimer();
+        countdown.value = COUNTDOWN_INITIAL_VALUE;
+    };
+
+    /** ************************************************************************************************************************** - */
 
     /**
      * Добавляет новый элемент в массив incorrectAnswerReactions.
@@ -903,6 +922,7 @@ export const useGameStore = defineStore('gameStorage', () => {
     };
 
     const $reset = () => {
+        resetCountdown();
         resetLevels();
     };
 
