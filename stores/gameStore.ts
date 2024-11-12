@@ -30,10 +30,14 @@ export const useGameStore = defineStore('gameStorage', () => {
     const service = useGameService();
 
     /**
-     * Время на игру в секундах, скорее сего, будет приходить с бэка
-     * todo: implement logic to get game duration from backend
+     * Время, отведённое на игру.
      */
     const totalTime = ref<number>(90);
+
+    /**
+     * Оставшееся игровое время.
+     */
+    const totalTimeLeft = ref<number>(90);
 
     /**
      * Идентификатор таймера, ответственного за уменьшение переменной totalTime
@@ -75,12 +79,6 @@ export const useGameStore = defineStore('gameStorage', () => {
      * Количество раундов, в которых был дан неправильный ответ, идущих подряд.
      */
     let unsuccessfulRoundsStreak: number = 0;
-
-    /**
-     * Сигнализирует о том, что в текущем раунде была допущена ошибка при ответе.
-     * todo: deprecated
-     */
-    const incorrectAnswersOnRound = ref<number>(0);
 
     /**
      * Вспомогательная переменная, отвечают за анимацию виджетов шаблона при неправильном ответе.
@@ -193,7 +191,7 @@ export const useGameStore = defineStore('gameStorage', () => {
     let pausePromise: Promise<void>;
 
     const isGameTimeOver = computed((): boolean => {
-        return totalTime.value <= 0;
+        return totalTimeLeft.value <= 0;
     });
 
     const maxLevelNumber = computed((): number => {
@@ -250,48 +248,52 @@ export const useGameStore = defineStore('gameStorage', () => {
     /** **************************************************************************************************************** Таймер totalTime */
 
     /**
-     * Инициирует уменьшение переменной totalTime (на единицу каждую секунду)
+     * Инициирует уменьшение переменной totalTimeLeft (на единицу каждую секунду)
      */
     const startTotalTimer = () => {
-        // check that totalTimerId is not null (means the timer has already started)
         if (isTotalTimerStarted()) {
             return;
         }
 
-        const tick = async () => {
-            if (isInPauseState()) {
-                await pausePromise;
-            }
+        totalTick();
+    };
 
-            if (isGameTimeOver.value) {
-                useEmitGameEvent('game:timeIsOver');
-                stopTotalTimer();
-            } else {
-                decreaseTotalTime();
-                totalTimerId = setTimeout(tick, 1000);
-            }
-        };
+    /**
+     * Уменьшает переменную totalTimeLeft на единицу каждую секунду.
+     */
+    const totalTick = async (): Promise<void> => {
+        if (isInPauseState()) {
+            await pausePromise;
+        }
 
-        totalTimerId = setTimeout(tick, 1000);
+        if (isGameTimeOver.value) {
+            stopTotalTimer();
+        } else {
+            decreaseTotalTime();
+            totalTimerId = setTimeout(() => totalTick(), 1000);
+        }
     };
 
     /**
      * Останавливает уменьшение переменной totalTime
      */
     const stopTotalTimer = () => {
-        if (isTotalTimerStarted()) {
-            // @ts-expect-error: we check totalTimerId is not null already
+        if (totalTimerId) {
             clearTimeout(totalTimerId);
+            totalTimerId = null;
         }
+    };
 
-        totalTimerId = null;
+    const resetTotalTimer = () => {
+        stopTotalTimer();
+        totalTimeLeft.value = totalTime.value;
     };
 
     /**
      * Уменьшает значение переменной totalTime на единицу
      */
     const decreaseTotalTime = () => {
-        totalTime.value--;
+        totalTimeLeft.value--;
     };
 
     /**
@@ -329,7 +331,6 @@ export const useGameStore = defineStore('gameStorage', () => {
             }
 
             roundTick(resolve);
-            // roundTimerId = setTimeout(() => roundTick(resolve), 1000);
         });
     };
 
@@ -938,11 +939,13 @@ export const useGameStore = defineStore('gameStorage', () => {
     const $setup = async () => {
         setGamePreparingState();
         await setupLevels();
+        totalTimeLeft.value = totalTime.value = 90; // implement logic to get game duration from backend
     };
 
     const $reset = () => {
         resetCountdown();
         resetRoundTimer();
+        resetTotalTimer();
         resetLevels();
     };
 
@@ -1040,10 +1043,10 @@ export const useGameStore = defineStore('gameStorage', () => {
         setPause,
         endPause,
 
+        // Работа с временем, отведенным на игру
         isGameTimeOver,
         totalTime,
-        startTotalTimer,
-        stopTotalTimer,
+        totalTimeLeft,
 
         // Работа с временем раунда
         roundTime,

@@ -34,8 +34,8 @@ const containerClass = computed(() => {
 });
 
 const formattedTime = computed((): string => {
-    const minutes = Math.floor(game.totalTime / 60);
-    const seconds = game.totalTime % 60;
+    const minutes = Math.floor(game.totalTimeLeft / 60);
+    const seconds = game.totalTimeLeft % 60;
 
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 });

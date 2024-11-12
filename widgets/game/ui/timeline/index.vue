@@ -15,10 +15,8 @@
 <script setup lang="ts">
 const game = useGameStore();
 
-const totalTime: number = game.totalTime;
-
 const timelineStyle = computed(() => {
-    return `width: ${(game.totalTime / totalTime) * 100}%`;
+    return `width: ${(game.totalTimeLeft / game.totalTime) * 100}%`;
 });
 </script>
 
