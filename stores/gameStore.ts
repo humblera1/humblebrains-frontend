@@ -10,11 +10,30 @@ import { GameRegimeEnum } from '~/entities/enums/games/GameRegimeEnum';
 import type { GameMessage } from '~/entities/types/GameMessage';
 import type { GamePrompt } from '~/entities/types/GamePrompt';
 
-// Базовый стор, отвечающий за действия, характерные всем играм
+/**
+ * Базовый стор, отвечающий за операции, свойственные всем играм: переключением модов и режимов, запуск таймеров, сбор статистик и сохранение результатов.
+ * Также предоставляет методы для работы с сообщениями и подсказками на игровом поле.
+ */
 export const useGameStore = defineStore('gameStorage', () => {
+    /**
+     * Количество чисел в обратном отсчёте.
+     */
     const COUNTDOWN_INITIAL_VALUE: number = 3;
 
+    /**
+     * Время, на которое показывается реакция игрового поля после неправильного ответа
+     */
     const TIME_TO_SHOW_INCORRECT_ANSWER_REACTION = 1000;
+
+    /**
+     * Сервис с вспомогательными методами (в основном, для запросов к серверу).
+     */
+    const service = useGameService();
+
+    /**
+     * Текущий режим игры.
+     */
+    const regime = ref<GameRegimeEnum>(GameRegimeEnum.default);
 
     /**
      * Текущий мод игры.
@@ -22,11 +41,19 @@ export const useGameStore = defineStore('gameStorage', () => {
     const mode = ref<GameModeEnum>(GameModeEnum.warmUp);
 
     /**
-     * Текущий режим игры.
+     * Текущее состояние игры.
      */
-    const regime = ref<GameRegimeEnum>(GameRegimeEnum.default);
+    const state = ref<GameStateEnum>();
 
-    const service = useGameService();
+    /**
+     * Предыдущее состояние игры.
+     */
+    const previousState = ref<GameStateEnum>();
+
+    /**
+     * Переменная, в которой хранятся уровни текущей игры.
+     */
+    const levels = ref<IGameLevel<IBaseGameLevel>>({});
 
     /**
      * Время, отведённое на игру.
@@ -39,7 +66,7 @@ export const useGameStore = defineStore('gameStorage', () => {
     const totalTimeLeft = ref<number>(90);
 
     /**
-     * Идентификатор таймера, ответственного за уменьшение переменной totalTime
+     * Идентификатор таймера, ответственного за уменьшение переменной totalTimeLeft.
      */
     let totalTimerId: ReturnType<typeof setTimeout> | null = null;
 
@@ -55,19 +82,19 @@ export const useGameStore = defineStore('gameStorage', () => {
     const roundTimeLeft = ref<number>(0);
 
     /**
-     *
+     * Идентификатор таймера, ответственного за уменьшение переменной roundTime
+     */
+    let roundTimerId: ReturnType<typeof setTimeout> | null = null;
+
+    /**
+     * Текущее значение обратного отсчёта.
      */
     const countdown = ref<number>(COUNTDOWN_INITIAL_VALUE);
 
     /**
-     *
+     * Идентификатор таймера, ответственного за обратный отсчёт.
      */
     let countdownTimerId: ReturnType<typeof setTimeout> | null = null;
-
-    /**
-     * Идентификатор таймера, ответственного за уменьшение переменной roundTime
-     */
-    let roundTimerId: ReturnType<typeof setTimeout> | null = null;
 
     /**
      * Количество раундов, в которых был дан правильный ответ, идущих подряд.
@@ -80,13 +107,6 @@ export const useGameStore = defineStore('gameStorage', () => {
     let unsuccessfulRoundsStreak: number = 0;
 
     /**
-     * Вспомогательная переменная, отвечают за анимацию виджетов шаблона при неправильном ответе.
-     * При каждом неправильном ответе, данная переменная увеличивается на определённое время, и на поле появляется
-     * новый элемент, сигнализирующий о неправильном ответе.
-     */
-    const incorrectAnswerReactions = ref<{ id: number }[]>([]);
-
-    /**
      * Номер максимально открытого пользователем уровня в текущей игре.
      */
     const maxUserLevel = ref<number>(0);
@@ -95,8 +115,6 @@ export const useGameStore = defineStore('gameStorage', () => {
      * Номер текущего уровня пользователя.
      */
     const currentUserLevel = ref<number>(0);
-
-    const levels = ref<IGameLevel<IBaseGameLevel>>({});
 
     /**
      * Максимальное допустимое количество разминочных раундов, доступное для выбора пользователем.
@@ -125,19 +143,12 @@ export const useGameStore = defineStore('gameStorage', () => {
     const infinityGame = ref<boolean>(false);
 
     /**
-     * Предыдущее состояние игры.
-     */
-    const previousState = ref<GameStateEnum>();
-
-    const gameState = ref<GameStateEnum>();
-
-    /**
-     *
+     * Переменная, используемая для вывода сообщения.
      */
     const message = ref<GameMessage>({ text: '', translatable: false });
 
     /**
-     * Содержимое подсказки
+     * Переменная, используемая для вывода подсказок.
      */
     const prompt = ref<GamePrompt>({ content: '', translatable: false });
 
@@ -145,37 +156,6 @@ export const useGameStore = defineStore('gameStorage', () => {
      * Переменная, хранящая функцию для разрешения промиса, который ответственен за показ подсказки пользователю во время теста.
      */
     let promptResolver: (() => void) | undefined;
-
-    /**
-     * Полное число ответов, данных пользователем за всю игру. Используется для подсчёта точности.
-     */
-    let totalAnswersAmount: number = 0;
-
-    /**
-     * Полное число неверных ответов, данных пользователем за всю игру. Используется для подсчёта точности.
-     */
-    let totalIncorrectAnswersAmount: number = 0;
-
-    let isRoundFailed: boolean = false;
-
-    /**
-     * Возвращает текущий уровень.
-     */
-    const currentLevel = computed((): IBaseGameLevel => {
-        return levels.value[currentUserLevel.value];
-    });
-
-    /** ******************************************************************************************************************* Время реакции */
-    let startReactionTime: number;
-
-    let endReactionTime: number;
-
-    let accumulatedReactionTime: number = 0;
-
-    /**
-     * Хранит интервалы времени, затраченные пользователем на завершение каждого из сыгранных раундов.
-     */
-    const reactionTimes: number[] = [];
 
     /**
      * Переменная, хранящая функцию для разрешения промиса, который ответственен за состояние паузы.
@@ -189,14 +169,128 @@ export const useGameStore = defineStore('gameStorage', () => {
      */
     let pausePromise: Promise<void>;
 
-    const isGameTimeOver = computed((): boolean => {
-        return totalTimeLeft.value <= 0;
+    /**
+     * Полное число ответов, данных пользователем за всю игру. Используется для подсчёта точности.
+     */
+    let totalAnswersAmount: number = 0;
+
+    /**
+     * Полное число неверных ответов, данных пользователем за всю игру. Используется для подсчёта точности.
+     */
+    let totalIncorrectAnswersAmount: number = 0;
+
+    /**
+     * Метка времени, в которое был осуществлен переход в состояние запоминания.
+     */
+    let startReactionTime: number;
+
+    /**
+     * Метка времени, в которое был осуществлен выход из состояния ответа.
+     */
+    let endReactionTime: number;
+
+    /**
+     * Суммарное время, затраченное на ответ, с учетом перерывов на паузы.
+     */
+    let accumulatedReactionTime: number = 0;
+
+    /**
+     * Хранит интервалы времени, затраченные пользователем на завершение каждого из сыгранных раундов.
+     */
+    const reactionTimes: number[] = [];
+
+    /**
+     * Переменная, сигнализирующая о том, что в текущем раунде была допущена ошибка.
+     */
+    let isRoundFailed: boolean = false;
+
+    /**
+     * Вспомогательная переменная, отвечают за анимацию виджетов шаблона при неправильном ответе.
+     * При каждом неправильном ответе, данная переменная увеличивается на определённое время, и на поле появляется
+     * новый элемент, сигнализирующий о неправильном ответе.
+     */
+    const incorrectAnswerReactions = ref<{ id: number }[]>([]);
+
+    /**
+     * Текущий уровень игры.
+     */
+    const currentLevel = computed((): IBaseGameLevel => {
+        return levels.value[currentUserLevel.value];
     });
 
+    /**
+     * Максимальный уровень в текущей игре.
+     */
     const maxLevelNumber = computed((): number => {
         return Number(Object.keys(levels.value).at(-1));
     });
 
+    /**
+     * Переменная, сигнализирующая об окончании игрового времени.
+     */
+    const isGameTimeOver = computed((): boolean => {
+        return totalTimeLeft.value <= 0;
+    });
+
+    /**
+     * Вспомогательная переменная для виджетов, связанных с временем, отведенным на раунд.
+     */
+    const showRoundTimeLine = computed((): boolean => {
+        return isInContemplationState() || isInInteractiveState();
+    });
+
+    /**
+     * Переменная, сигнализирующая о необходимости переключения мода игры.
+     */
+    const isTimeToSwitchMode = computed((): boolean => {
+        return playedWarmUpLevelsAmount.value >= warmUpLevelsAmount.value && isInWarmUpMode();
+    });
+
+    /**
+     * Определяет, является ли текущий уровень максимальным уровнем в игре.
+     */
+    const isFinalLevel = (): boolean => {
+        return currentUserLevel.value === Number(Object.keys(levels.value).at(-1));
+    };
+
+    /**
+     * Определяет, является ли текущий уровень минимальным уровнем в игре.
+     */
+    const isFirstLevel = (): boolean => {
+        return currentUserLevel.value === Number(Object.keys(levels.value).at(0));
+    };
+
+    /**
+     * Определяет, следует ли повышать уровень игры.
+     */
+    const isTimeToPromoteLevel = (): boolean => {
+        return !isFinalLevel() && successfulRoundsStreak >= currentLevel.value.correctAnswersBeforePromotion;
+    };
+
+    /**
+     * Определяет, следует ли понижать уровень игры.
+     */
+    const isTimeToDemoteLevel = (): boolean => {
+        return !isFirstLevel() && unsuccessfulRoundsStreak >= currentLevel.value.incorrectAnswersBeforeDemotion;
+    };
+
+    /**
+     * Определяет, следует ли менять уровень игры.
+     */
+    const isTimeToChangeLevel = (): boolean => {
+        if (isInWarmUpMode() || isInConstructorRegime()) {
+            return false;
+        }
+
+        return isTimeToPromoteLevel() || isTimeToDemoteLevel();
+    };
+
+    /** ************************************************************************************************************ Работа с сообщениями */
+
+    /**
+     * Устанавливает сообщение, которое не будет переводиться.
+     * @param value
+     */
     const setMessage = (value: string | number): void => {
         message.value = {
             text: value,
@@ -204,6 +298,10 @@ export const useGameStore = defineStore('gameStorage', () => {
         };
     };
 
+    /**
+     * Устанавливает сообщение, которое используется как ключ в конфигурационном файле i18n.
+     * @param value
+     */
     const setTranslatableMessage = (value: string): void => {
         message.value = {
             text: value,
@@ -211,13 +309,100 @@ export const useGameStore = defineStore('gameStorage', () => {
         };
     };
 
+    /**
+     * Очищает текущее сообщение.
+     */
     const clearMessage = (): void => {
         message.value = { text: '', translatable: false };
     };
 
+    /**
+     * Проверяет, установлено ли сообщение в текущий момент.
+     */
     const isMessageSet = () => {
         return message.value.text !== '';
     };
+
+    /** ************************************************************************************************************ Работа с подсказками */
+
+    /**
+     * Отображает подсказку на игровом поле.
+     */
+    const setPrompt = (content: string, translatable: boolean = false): Promise<void> => {
+        closePrompt();
+
+        prompt.value = {
+            content,
+            translatable,
+        };
+
+        setPromptState();
+
+        return new Promise((resolve) => {
+            promptResolver = resolve;
+        });
+    };
+
+    /**
+     * Закрывает подсказку.
+     */
+    const closePrompt = () => {
+        if (promptResolver) {
+            promptResolver();
+        }
+    };
+
+    /**
+     * Уничтожает функцию для разрешения промиса, связанного с отображением подсказки.
+     */
+    const destroyPrompt = () => {
+        promptResolver = undefined;
+    };
+
+    /** ***************************************************************************************************************** Работа с паузой */
+
+    /**
+     * Устанавливает состояние паузы.
+     */
+    const setPause = () => {
+        stopReactionTimer();
+        setPauseState();
+        pausePromise = new Promise((resolve) => {
+            pauseResolver = resolve;
+        });
+    };
+
+    /**
+     * Завершает паузу.
+     */
+    const endPause = () => {
+        startReactionTimer();
+
+        if (previousState.value !== undefined) {
+            setState(previousState.value);
+        }
+
+        if (pauseResolver) {
+            pauseResolver();
+        }
+    };
+
+    /**
+     * Возвращает промис, ответственный за режим паузы.
+     */
+    const getPausePromise = () => {
+        return pausePromise;
+    };
+
+    /**
+     * Завершает паузу и очищает промис.
+     */
+    const destroyPause = () => {
+        endPause();
+        pauseResolver = undefined;
+    };
+
+    /** ********************************************************************************************************** Запись времени реакции */
 
     /**
      * Метод для начала измерения времени.
@@ -234,6 +419,9 @@ export const useGameStore = defineStore('gameStorage', () => {
         accumulatedReactionTime += endReactionTime - startReactionTime;
     }
 
+    /**
+     * Метод для сохранения времени, потраченного на текущий раунд. Используется для среднего времени реакции в текущей игре.
+     */
     const storeAndResetReactionTime = () => {
         stopReactionTimer();
 
@@ -247,7 +435,15 @@ export const useGameStore = defineStore('gameStorage', () => {
     /** **************************************************************************************************************** Таймер totalTime */
 
     /**
-     * Инициирует уменьшение переменной totalTimeLeft (на единицу каждую секунду)
+     * Устанавливает количество времени на игру.
+     * @param seconds время в секундах
+     */
+    const setTotalTime = (seconds: number): void => {
+        totalTime.value = totalTimeLeft.value = seconds;
+    };
+
+    /**
+     * Запускает игровой таймер.
      */
     const startTotalTimer = () => {
         if (isTotalTimerStarted()) {
@@ -265,12 +461,23 @@ export const useGameStore = defineStore('gameStorage', () => {
             await pausePromise;
         }
 
+        if (isInPromptState()) {
+            return;
+        }
+
         if (isGameTimeOver.value) {
             stopTotalTimer();
         } else {
             decreaseTotalTime();
             totalTimerId = setTimeout(() => totalTick(), 1000);
         }
+    };
+
+    /**
+     * Уменьшает значение переменной totalTime на единицу
+     */
+    const decreaseTotalTime = () => {
+        totalTimeLeft.value--;
     };
 
     /**
@@ -283,16 +490,12 @@ export const useGameStore = defineStore('gameStorage', () => {
         }
     };
 
+    /**
+     * Сбрасывает игровой таймер.
+     */
     const resetTotalTimer = () => {
         stopTotalTimer();
         totalTimeLeft.value = totalTime.value;
-    };
-
-    /**
-     * Уменьшает значение переменной totalTime на единицу
-     */
-    const decreaseTotalTime = () => {
-        totalTimeLeft.value--;
     };
 
     /**
@@ -303,13 +506,6 @@ export const useGameStore = defineStore('gameStorage', () => {
     };
 
     /** **************************************************************************************************************** Таймер roundTime */
-
-    /**
-     * Вспомогательная переменная для виджетов, связанных с временем, отведенным на раунд.
-     */
-    const showRoundTimeLine = computed((): boolean => {
-        return isInContemplationState() || isInInteractiveState();
-    });
 
     /**
      * Устанавливает значение переменной roundTime (которая будет изменяться по ходу раунда)
@@ -340,6 +536,10 @@ export const useGameStore = defineStore('gameStorage', () => {
     const roundTick = async (resolve: (value: void | PromiseLike<void>) => void): Promise<void> => {
         if (isInPauseState()) {
             await pausePromise;
+        }
+
+        if (isInPromptState()) {
+            return;
         }
 
         if (roundTimeLeft.value <= 0) {
@@ -406,15 +606,11 @@ export const useGameStore = defineStore('gameStorage', () => {
         if (isInPauseState()) {
             await pausePromise;
             resetCountdown();
+            await startCountdown(); // todo: логика выхода из режима паузы
         }
 
         if (countdown.value <= 1) {
             resetCountdown();
-
-            if (isInGameMode() && isInDefaultRegime()) {
-                startTotalTimer();
-            }
-
             resolve();
         } else {
             decreaseCountdown();
@@ -427,13 +623,6 @@ export const useGameStore = defineStore('gameStorage', () => {
      */
     const decreaseCountdown = () => {
         countdown.value--;
-    };
-
-    /**
-     * Проверяет, запущен ли обратный отсчёт (уменьшение переменной countdown).
-     */
-    const isCountdownStarted = () => {
-        return countdownTimerId !== null;
     };
 
     /**
@@ -454,23 +643,14 @@ export const useGameStore = defineStore('gameStorage', () => {
         countdown.value = COUNTDOWN_INITIAL_VALUE;
     };
 
-    /** ************************************************************************************************************************** - */
-
     /**
-     * Добавляет новый элемент в массив incorrectAnswerReactions.
-     * Благодаря этому, в шаблоне рендерится новый анимированный элемент, сигнализирующий пользователю о том,
-     * что был дан неверный ответ.
+     * Проверяет, запущен ли обратный отсчёт (уменьшение переменной countdown).
      */
-    const addReaction = () => {
-        const reactionId = Date.now();
-        incorrectAnswerReactions.value.push({ id: reactionId });
-
-        setTimeout(() => {
-            incorrectAnswerReactions.value = incorrectAnswerReactions.value.filter((reaction) => reaction.id !== reactionId);
-        }, TIME_TO_SHOW_INCORRECT_ANSWER_REACTION);
+    const isCountdownStarted = () => {
+        return countdownTimerId !== null;
     };
 
-    /** ************************************************************************************************************************** Режимы */
+    /** *************************************************************************************************************** Установка режимов */
 
     /**
      * Устанавливает переданный режим.
@@ -478,14 +658,6 @@ export const useGameStore = defineStore('gameStorage', () => {
      */
     const setRegime = (regimeToSet: GameRegimeEnum): void => {
         regime.value = regimeToSet;
-    };
-
-    /**
-     * Проверяет соответствие переданного режима текущему.
-     * @param regimeToCheck
-     */
-    const isRegime = (regimeToCheck: GameRegimeEnum): boolean => {
-        return regime.value === regimeToCheck;
     };
 
     const setInfiniteRegime = () => {
@@ -496,6 +668,20 @@ export const useGameStore = defineStore('gameStorage', () => {
         setRegime(GameRegimeEnum.default);
     };
 
+    const setConstructorRegime = () => {
+        setRegime(GameRegimeEnum.constructor);
+    };
+
+    /** **************************************************************************************************************** Проверка режимов */
+
+    /**
+     * Проверяет соответствие переданного режима текущему.
+     * @param regimeToCheck
+     */
+    const isRegime = (regimeToCheck: GameRegimeEnum): boolean => {
+        return regime.value === regimeToCheck;
+    };
+
     const isInInfiniteRegime = (): boolean => {
         return isRegime(GameRegimeEnum.infinite);
     };
@@ -504,7 +690,11 @@ export const useGameStore = defineStore('gameStorage', () => {
         return isRegime(GameRegimeEnum.default);
     };
 
-    /** **************************************************************************************************************************** Моды */
+    const isInConstructorRegime = (): boolean => {
+        return isRegime(GameRegimeEnum.constructor);
+    };
+
+    /** ***************************************************************************************************************** Установка модов */
 
     /**
      * Устанавливает переданный мод.
@@ -512,14 +702,6 @@ export const useGameStore = defineStore('gameStorage', () => {
      */
     const setMode = (modeToSet: GameModeEnum): void => {
         mode.value = modeToSet;
-    };
-
-    /**
-     * Проверяет соответствие переданного мода текущему.
-     * @param modeToCheck
-     */
-    const isMode = (modeToCheck: GameModeEnum): boolean => {
-        return mode.value === modeToCheck;
     };
 
     const setWarmUpMode = () => {
@@ -530,6 +712,16 @@ export const useGameStore = defineStore('gameStorage', () => {
         setMode(GameModeEnum.game);
     };
 
+    /** ****************************************************************************************************************** Проверка модов */
+
+    /**
+     * Проверяет соответствие переданного мода текущему.
+     * @param modeToCheck
+     */
+    const isMode = (modeToCheck: GameModeEnum): boolean => {
+        return mode.value === modeToCheck;
+    };
+
     const isInWarmUpMode = (): boolean => {
         return isMode(GameModeEnum.warmUp);
     };
@@ -538,71 +730,31 @@ export const useGameStore = defineStore('gameStorage', () => {
         return isMode(GameModeEnum.game);
     };
 
-    /** *********************************************************************************************************************** Состояния */
+    /** ************************************************************************************************************* Установка состояний */
 
-    const setState = (state: GameStateEnum): void => {
-        previousState.value = gameState.value;
-        gameState.value = state;
-    };
-
-    const isState = (state: GameStateEnum): boolean => {
-        return gameState.value === state;
-    };
-
-    const setLevelPreparingState = (): void => {
-        setState(GameStateEnum.levelPreparing);
-    };
-
-    const handleLevelPreparing = async () => {
-        successfulRoundsStreak = 0;
-        unsuccessfulRoundsStreak = 0;
-
-        stopTotalTimer();
-        setLevelPreparingState();
-
-        await startCountdown();
-
-        if (isInDefaultRegime() && isInGameMode()) {
-            startTotalTimer();
-        }
-    };
-
-    const handleGamePreparing = async () => {
-        await handleLevelPreparing();
+    /**
+     * Устанавливает переданное состояние, запоминая предыдущее.
+     * @param stateToSet
+     */
+    const setState = (stateToSet: GameStateEnum): void => {
+        previousState.value = state.value;
+        state.value = stateToSet;
     };
 
     const setGamePreparingState = (): void => {
         setState(GameStateEnum.gamePreparing);
     };
 
+    const setLevelPreparingState = (): void => {
+        setState(GameStateEnum.levelPreparing);
+    };
+
     const setRoundPreparingState = (): void => {
         setState(GameStateEnum.roundPreparing);
     };
 
-    const handleRoundPreparing = (): void => {
-        setRoundTime(currentLevel.value.timeToContemplate);
-
-        isRoundFailed = false;
-        setRoundPreparingState();
-    };
-
     const setContemplationState = (): void => {
         setState(GameStateEnum.contemplation);
-    };
-
-    const handleInteractive = async (): Promise<void> => {
-        stopRoundTimer();
-        setRoundTime(currentLevel.value.timeToAnswer);
-        setInteractiveState();
-
-        await startRoundTimer();
-    };
-
-    const handleContemplation = async (): Promise<void> => {
-        setContemplationState();
-        startReactionTimer();
-
-        await startRoundTimer();
     };
 
     const setInteractiveState = (): void => {
@@ -637,14 +789,22 @@ export const useGameStore = defineStore('gameStorage', () => {
         setState(GameStateEnum.pause);
     };
 
-    /** ************************************************************************************************************************ Проверки */
+    /** ************************************************************************************************************** Проверка состояний */
 
-    const isInLevelPreparingState = (): boolean => {
-        return isState(GameStateEnum.levelPreparing);
+    /**
+     * Проверяет соответствие переданного состояние текущему.
+     * @param stateToCheck
+     */
+    const isState = (stateToCheck: GameStateEnum): boolean => {
+        return state.value === stateToCheck;
     };
 
     const isInGamePreparingState = (): boolean => {
         return isState(GameStateEnum.gamePreparing);
+    };
+
+    const isInLevelPreparingState = (): boolean => {
+        return isState(GameStateEnum.levelPreparing);
     };
 
     const isInRoundPreparingState = (): boolean => {
@@ -695,168 +855,20 @@ export const useGameStore = defineStore('gameStorage', () => {
         return isState(GameStateEnum.pause);
     };
 
-    const setupLevels = async () => {
-        const response: BaseResponse<IGameLevels<any>> = await service.fetchLevels();
+    /** ********************************************************************************************************** Логика смены состояний */
 
-        maxUserLevel.value = response.data.maxLevel;
-        currentUserLevel.value = response.data.userLevel;
-        levels.value = response.data.levels;
-    };
-
-    const resetLevels = () => {
-        maxUserLevel.value = 0;
-        currentUserLevel.value = 0;
-        levels.value = {};
+    /**
+     * Проверяет необходимость завершения разминки и смены мода игры.
+     */
+    const checkMode = async () => {
+        if (isInWarmUpMode() && isTimeToSwitchMode.value) {
+            await handleModeSwitching();
+        }
     };
 
     /**
-     * Определяет, является ли текущий уровень максимальным уровнем в игре.
+     * Осуществляет смену режима с разминки на игровой.
      */
-    const isFinalLevel = (): boolean => {
-        return currentUserLevel.value === Number(Object.keys(levels.value).at(-1));
-    };
-
-    /**
-     * Определяет, является ли текущий уровень минимальным уровнем в игре.
-     */
-    const isFirstLevel = (): boolean => {
-        return currentUserLevel.value === Number(Object.keys(levels.value).at(0));
-    };
-
-    /**
-     * Определяет, следует ли повышать уровень игры.
-     */
-    const isTimeToPromoteLevel = (): boolean => {
-        return !isFinalLevel() && successfulRoundsStreak >= currentLevel.value.correctAnswersBeforePromotion;
-    };
-
-    /**
-     * Определяет, следует ли понижать уровень игры.
-     */
-    const isTimeToDemoteLevel = (): boolean => {
-        return !isFirstLevel() && unsuccessfulRoundsStreak >= currentLevel.value.incorrectAnswersBeforeDemotion;
-    };
-
-    const isTimeToChangeLevel = (): boolean => {
-        // todo: isInConstructorRegime() check
-        if (isInWarmUpMode()) {
-            return false;
-        }
-
-        return isTimeToPromoteLevel() || isTimeToDemoteLevel();
-    };
-
-    const handleLevelChanging = (): void => {
-        stopTotalTimer();
-
-        switch (true) {
-            case isTimeToPromoteLevel():
-                return handleLevelPromotion();
-            case isTimeToDemoteLevel():
-                return handleLevelDemotion();
-        }
-    };
-
-    const handleLevelPromotion = () => {
-        currentUserLevel.value++;
-
-        // Сохраняем открытый пользователем уровень
-        if (currentUserLevel.value > maxUserLevel.value) {
-            maxUserLevel.value = currentUserLevel.value;
-        }
-
-        setLevelPromotionState();
-    };
-
-    const handleLevelDemotion = () => {
-        currentUserLevel.value--;
-        setLevelDemotionState();
-    };
-
-    const calculateMeanReactionTime = (): number => {
-        const meanSec = useMean(reactionTimes) / 1000;
-
-        return Number(meanSec.toFixed(2));
-    };
-
-    const calculateAccuracy = (): number => {
-        const accuracy = ((totalAnswersAmount - totalIncorrectAnswersAmount) / totalAnswersAmount) * 100;
-
-        return Number(accuracy.toFixed(1));
-    };
-
-    const getResults = (): IGameResult => {
-        // todo
-        const gamePage = useGamePageStore();
-
-        return {
-            game: gamePage.game as string,
-            finishedAtTheLevel: currentUserLevel.value,
-            maxUnlockedLevel: maxUserLevel.value,
-            meanReactionTime: calculateMeanReactionTime(),
-            accuracy: calculateAccuracy(),
-            withinSession: false, // todo: implement withinSession logic
-        };
-    };
-
-    const isTimeToSwitchMode = computed((): boolean => {
-        return playedWarmUpLevelsAmount.value >= warmUpLevelsAmount.value && isInWarmUpMode();
-    });
-
-    const setPause = () => {
-        setPauseState();
-        pausePromise = new Promise((resolve) => {
-            pauseResolver = resolve;
-        });
-    };
-
-    const endPause = () => {
-        if (previousState.value !== undefined) {
-            setState(previousState.value);
-        }
-
-        if (pauseResolver) {
-            pauseResolver();
-        }
-    };
-
-    const getPausePromise = () => {
-        return pausePromise;
-    };
-
-    /**
-     * todo: //
-     */
-    const setPrompt = (content: string, translatable: boolean = false): Promise<void> => {
-        closePrompt();
-
-        prompt.value = {
-            content,
-            translatable,
-        };
-
-        setPromptState();
-
-        return new Promise((resolve) => {
-            promptResolver = resolve;
-        });
-    };
-
-    const closePrompt = () => {
-        if (promptResolver) {
-            promptResolver();
-        }
-    };
-
-    const destroyPrompt = () => {
-        promptResolver = undefined;
-    };
-
-    const destroyPause = () => {
-        endPause();
-        pauseResolver = undefined;
-    };
-
     const handleModeSwitching = async () => {
         setGameMode();
         setTranslatableMessage('warmUpCompleted');
@@ -869,28 +881,90 @@ export const useGameStore = defineStore('gameStorage', () => {
         }
     };
 
-    const handleGameFinishingState = async () => {
-        const gamePage = useGamePageStore();
-
-        if (isInDefaultRegime()) {
-            await service.saveResults(getResults());
-        }
-
-        gamePage.selectResultTab();
+    /**
+     * Осуществляет переход в состояние подготовки игры.
+     */
+    const handleGamePreparing = async () => {
+        await handleLevelPreparing();
     };
 
-    const checkMode = async () => {
-        if (isInWarmUpMode() && isTimeToSwitchMode.value) {
-            await handleModeSwitching();
+    /**
+     * Осуществляет переход в состояние подготовки уровня. Останавливает таймер на время смены уровня. Запускает обратный отсчёт.
+     */
+    const handleLevelPreparing = async () => {
+        successfulRoundsStreak = 0;
+        unsuccessfulRoundsStreak = 0;
+
+        stopTotalTimer();
+        setLevelPreparingState();
+
+        await startCountdown();
+
+        if (isInDefaultRegime() && isInGameMode()) {
+            startTotalTimer();
         }
     };
 
+    /**
+     * Осуществляет переход в состояние подготовки раунда. Обновляет значение переменноЙ roundTime.
+     */
+    const handleRoundPreparing = (): void => {
+        setRoundTime(currentLevel.value.timeToContemplate);
+
+        isRoundFailed = false;
+        setRoundPreparingState();
+    };
+
+    /**
+     * Осуществляет переход в состояние запоминания.
+     */
+    const handleContemplation = async (): Promise<void> => {
+        setContemplationState();
+        startReactionTimer();
+
+        await startRoundTimer();
+    };
+
+    /**
+     * Осуществляет переход в состояние ответа.
+     */
+    const handleInteractive = async (): Promise<void> => {
+        stopRoundTimer();
+        setRoundTime(currentLevel.value.timeToAnswer);
+        setInteractiveState();
+
+        await startRoundTimer();
+    };
+
+    /**
+     * Обрабатывает ответ пользователя.
+     */
+    const handleAnswering = () => {
+        if (isInGameMode() && isInDefaultRegime()) {
+            totalAnswersAmount++;
+        }
+    };
+
+    /**
+     * Обрабатывает неверный ответ пользователя.
+     */
+    const handleIncorrectAnswering = () => {
+        if (isInGameMode() && isInDefaultRegime()) {
+            totalIncorrectAnswersAmount++;
+        }
+
+        markRoundAsFailed();
+    };
+
+    /**
+     * Осуществляет завершение раунда.
+     */
     const handleRoundFinishing = () => {
         if (isInGameMode() && isInDefaultRegime()) {
-            storeAndResetReactionTime(); // Записываем время, затраченное пользователем на раунд
+            storeAndResetReactionTime();
         }
 
-        stopRoundTimer(); // Останавливаем уменьшение времени roundTime
+        stopRoundTimer();
 
         if (isInWarmUpMode()) {
             playedWarmUpLevelsAmount.value++;
@@ -903,15 +977,9 @@ export const useGameStore = defineStore('gameStorage', () => {
         }
     };
 
-    const handleSuccessfulRoundFinishing = () => {
-        if (isInGameMode()) {
-            unsuccessfulRoundsStreak = 0;
-            successfulRoundsStreak++;
-        }
-
-        setSuccessfulRoundFinishingState();
-    };
-
+    /**
+     * Осуществляет завершение раунда, в котором были неверные ответы.
+     */
     const handleFailedRoundFinishing = () => {
         if (isInGameMode()) {
             successfulRoundsStreak = 0;
@@ -921,25 +989,152 @@ export const useGameStore = defineStore('gameStorage', () => {
         setFailedRoundFinishingState();
     };
 
-    const handleAnswering = () => {
-        if (isInGameMode() && isInDefaultRegime()) {
-            totalAnswersAmount++;
+    /**
+     * Осуществляет завершение раунда без неверных ответов.
+     */
+    const handleSuccessfulRoundFinishing = () => {
+        if (isInGameMode()) {
+            unsuccessfulRoundsStreak = 0;
+            successfulRoundsStreak++;
+        }
+
+        setSuccessfulRoundFinishingState();
+    };
+
+    /**
+     * Осуществляет смену уровня.
+     */
+    const handleLevelChanging = (): void => {
+        stopTotalTimer();
+
+        switch (true) {
+            case isTimeToPromoteLevel():
+                return handleLevelPromotion();
+            case isTimeToDemoteLevel():
+                return handleLevelDemotion();
         }
     };
 
-    const handleIncorrectAnswering = () => {
-        if (isInGameMode() && isInDefaultRegime()) {
-            totalIncorrectAnswersAmount++;
-        }
-
-        markRoundAsFailed();
+    /**
+     * Осуществляет понижение уровня.
+     */
+    const handleLevelDemotion = () => {
+        currentUserLevel.value--;
+        setLevelDemotionState();
     };
 
+    /**
+     * Осуществляет повышение уровня.
+     */
+    const handleLevelPromotion = () => {
+        currentUserLevel.value++;
+
+        if (currentUserLevel.value > maxUserLevel.value) {
+            maxUserLevel.value = currentUserLevel.value;
+        }
+
+        setLevelPromotionState();
+    };
+
+    /**
+     * Осуществляет завершение игры.
+     */
+    const handleGameFinishingState = async () => {
+        const gamePage = useGamePageStore();
+
+        if (isInDefaultRegime()) {
+            await service.saveResults(getResults());
+        }
+
+        gamePage.selectResultTab();
+    };
+
+    /** **************************************************************************************************************** Сбор статистики  */
+
+    /**
+     * Подсчитывает среднюю точность за игру.
+     */
+    const calculateAccuracy = (): number => {
+        const accuracy = ((totalAnswersAmount - totalIncorrectAnswersAmount) / totalAnswersAmount) * 100;
+
+        return Number(accuracy.toFixed(1));
+    };
+
+    /**
+     * Подсчитывает среднее время реакции за игру.
+     */
+    const calculateMeanReactionTime = (): number => {
+        const meanSec = useMean(reactionTimes) / 1000;
+
+        return Number(meanSec.toFixed(2));
+    };
+
+    /** ********************************************************************************************************** Вспомогательные методы */
+
+    /**
+     * Добавляет новый элемент в массив incorrectAnswerReactions.
+     * Благодаря этому, в шаблоне появляется новый анимированный элемент, сигнализирующий пользователю о том,
+     * что был дан неверный ответ.
+     */
+    const addReaction = () => {
+        const reactionId = Date.now();
+        incorrectAnswerReactions.value.push({ id: reactionId });
+
+        setTimeout(() => {
+            incorrectAnswerReactions.value = incorrectAnswerReactions.value.filter((reaction) => reaction.id !== reactionId);
+        }, TIME_TO_SHOW_INCORRECT_ANSWER_REACTION);
+    };
+
+    /**
+     * Помечает раунд, как раунд, содержащий неправильный ответ.
+     */
     const markRoundAsFailed = () => {
         isRoundFailed = true;
         addReaction();
     };
 
+    /**
+     * Формирует результаты игры.
+     */
+    const getResults = (): IGameResult => {
+        // todo
+        const gamePage = useGamePageStore();
+
+        return {
+            game: gamePage.game as string,
+            finishedAtTheLevel: currentUserLevel.value,
+            maxUnlockedLevel: maxUserLevel.value,
+            withinSession: withinSession.value,
+            meanReactionTime: calculateMeanReactionTime(),
+            accuracy: calculateAccuracy(),
+        };
+    };
+
+    /** *********************************************************************************************** Установка и сброс состояния стора */
+
+    /**
+     * Устанавливает набор уровней текущей игры, обращаясь к серверу.
+     */
+    const setupLevels = async () => {
+        const response: BaseResponse<IGameLevels<any>> = await service.fetchLevels();
+
+        maxUserLevel.value = response.data.maxLevel;
+        currentUserLevel.value = response.data.userLevel;
+        levels.value = response.data.levels;
+    };
+
+    /**
+     * Сбрасывает набор уровней.
+     */
+    const resetLevels = () => {
+        maxUserLevel.value = 0;
+        currentUserLevel.value = 0;
+        levels.value = {};
+    };
+
+    /**
+     * Сбрасывает основные переменные, используемые стором.
+     */
     const resetState = () => {
         successfulRoundsStreak = 0;
         unsuccessfulRoundsStreak = 0;
@@ -957,12 +1152,18 @@ export const useGameStore = defineStore('gameStorage', () => {
         reactionTimes.length = 0;
     };
 
+    /**
+     * Инициализация стора.
+     */
     const $setup = async () => {
         setGamePreparingState();
         await setupLevels();
-        totalTimeLeft.value = totalTime.value = 90; // implement logic to get game duration from backend
+        setTotalTime(90); // implement logic to get game duration from backend
     };
 
+    /**
+     * Сброс стора.
+     */
     const $reset = () => {
         resetCountdown();
         resetRoundTimer();
@@ -1001,6 +1202,7 @@ export const useGameStore = defineStore('gameStorage', () => {
     });
 
     return {
+        // Работа с состояниями игры
         setLevelPreparingState,
         setGamePreparingState,
         setRoundPreparingState,
@@ -1012,7 +1214,7 @@ export const useGameStore = defineStore('gameStorage', () => {
         setLevelPromotionState,
         setGameFinishingState,
         setPromptState,
-        gameState,
+        state,
         isInLevelPreparingState,
         isInGamePreparingState,
         isInRoundPreparingState,
@@ -1027,6 +1229,19 @@ export const useGameStore = defineStore('gameStorage', () => {
         isInGameFinishingState,
         isInPromptState,
 
+        // Работа с модами
+        isTimeToSwitchMode,
+        checkMode,
+        setWarmUpMode,
+        setGameMode,
+        isInWarmUpMode,
+        isInGameMode,
+
+        // Работа с режимами
+        isInInfiniteRegime,
+        isInDefaultRegime,
+
+        // Ключевые моменты игрового процесса
         handleGamePreparing,
         handleLevelPreparing,
         handleRoundPreparing,
@@ -1038,19 +1253,6 @@ export const useGameStore = defineStore('gameStorage', () => {
         handleAnswering,
         handleIncorrectAnswering,
 
-        // Работа с модами
-        isTimeToSwitchMode,
-        checkMode,
-        setWarmUpMode,
-        setGameMode,
-        isInWarmUpMode,
-        isInGameMode,
-        // handleModeSwitching,
-
-        // Работа с режимами
-        isInInfiniteRegime,
-        isInDefaultRegime,
-
         // Работа с сообщениями
         message,
         setMessage,
@@ -1058,7 +1260,7 @@ export const useGameStore = defineStore('gameStorage', () => {
         clearMessage,
         isMessageSet,
 
-        // Работа с промптами
+        // Работа с подсказками
         prompt,
         setPrompt,
         closePrompt,
@@ -1078,32 +1280,35 @@ export const useGameStore = defineStore('gameStorage', () => {
         roundTimeLeft,
         showRoundTimeLine,
 
+        // Обратный отсчёт
         countdown,
         startCountdown,
 
-        isRoundFailed,
-        // incorrectAnswersOnRound,
-        incorrectAnswerReactions,
-        markRoundAsFailed,
-
+        // Работа с уровнями
         currentLevel,
         currentUserLevel,
         maxUserLevel,
         maxLevelNumber,
         levels,
-
         isTimeToPromoteLevel,
         isTimeToDemoteLevel,
         isTimeToChangeLevel,
-
         isFinalLevel,
         isFirstLevel,
 
+        // Настройки разминочного режима
         maxWarmUpLevelsAmount,
         warmUpLevelsAmount,
         playedWarmUpLevelsAmount,
+
+        // Конфигурация игры
         withinSession,
         infinityGame,
+
+        // Вспомогательные методы
+        isRoundFailed,
+        incorrectAnswerReactions,
+        markRoundAsFailed,
 
         $setup,
         $reset,
