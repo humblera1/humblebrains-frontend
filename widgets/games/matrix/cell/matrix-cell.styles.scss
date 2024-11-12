@@ -7,7 +7,6 @@
     &__inner {
         width: 100%;
         height: 100%;
-        transition: transform 200ms;
         transform-style: preserve-3d;
         position: relative;
     }
@@ -21,7 +20,6 @@
         width: 100%;
         height: 100%;
         position: absolute;
-        backface-visibility: hidden;
         border-radius: 16px;
         font-size: 24px;
         color: white;
@@ -33,11 +31,15 @@
 
     &__front {
         background-color: var(--matrix-cell);
-        transition: background-color 100ms ease-in-out;
+        transition: background-color 200ms ease-in-out;
+
     }
 
     &__back {
         transform: rotateY(180deg);
+        transition: background-color 500ms ease;
+        backface-visibility: hidden;
+
         &_success {
             background-color: var(--matrix-cell-valid);
 
@@ -53,6 +55,10 @@
                 background-color: var(--matrix-cell-invalid);
             }
         }
+
+        &_covered {
+            background-color: transparent;
+        }
     }
 
     &_opened {
@@ -66,6 +72,7 @@
     }
 
     &__icon {
+        transition: all 500ms ease;
         display: flex;
         justify-content: center;
         width: 100%;

@@ -1,6 +1,6 @@
 <template>
     <div :class="cellClasses" @click="store.handleCellOpening(number)">
-        <div class="cell__inner">
+        <div class="cell__inner" :style="innerStyles">
             <div class="cell__front" :style="frontStyles" />
             <div :class="backClasses">
                 <div :class="iconClasses" :style="iconStyles">
@@ -38,6 +38,7 @@ const backClasses = computed(() => {
     return [
         'cell__back',
         {
+            cell__back_covered: store.coveredCells.includes(number),
             cell__back_success: store.showCorrectlyOpenedCell(number),
             cell__back_error: store.showIncorrectlyOpenedCell(number),
         },
@@ -48,9 +49,13 @@ const iconClasses = computed(() => {
     return [
         'cell__icon',
         {
-            cell__icon_visible: store.isCellOpened(number),
+            cell__icon_visible: store.isCellOpened(number) && !store.isCellCovered(number),
         },
     ];
+});
+
+const innerStyles = computed(() => {
+    return store.isCellCovered(number) ? '' : 'transition: transform 350ms ease';
 });
 
 const iconStyles = computed(() => {

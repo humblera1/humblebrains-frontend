@@ -26,12 +26,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     /**
      * Время между появлениями ячеек на поле.
      */
-    const TIME_TO_COLORIZE_CELL = 250;
-
-    /**
-     * Вспомогательный стор для навигации по вкладках на странице игры
-     */
-    const page = useGamePageStore();
+    const TIME_TO_COLORIZE_CELL = 350;
 
     /**
      * Базовый стор, работает с логикой, общей для всех игр
@@ -87,10 +82,40 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     const destroyedCells = ref<number[]>([]);
 
     /**
+     * Дополнительная переменная, необходимая для реализации анимации сокрытия верно открытых ячеек.
+     */
+    const coveredCells = ref<number[]>([]);
+
+    /**
      * Справочные константы, которые будут приходить с бэка вместе с набором уровней.
      * todo:
      */
     const availableColors: string[] = ['#59AF8E', '#E9CA6D', '#EE8670', '#C38AC1', '#9BC4F8', '#6878DE'];
+
+    /**
+     * Идентификатор таймера, ответственного за сокрытие верно открытых ячеек.
+     */
+    let coveringTimerId: ReturnType<typeof setTimeout> | null = null;
+
+    /**
+     * Идентификатор таймера, ответственного за последовательный поворот игрового поля.
+     */
+    let rotatingTimerId: ReturnType<typeof setTimeout> | null = null;
+
+    /**
+     * Идентификатор таймера, ответственного за последовательное сокрытие при завершении уровня.
+     */
+    let destroyingTimerId: ReturnType<typeof setTimeout> | null = null;
+
+    /**
+     * Идентификатор таймера, ответственного за последовательный показ ячеек в начале уровня.
+     */
+    let buildingTimerId: ReturnType<typeof setTimeout> | null = null;
+
+    /**
+     * Идентификатор таймера, ответственного за последовательный показ ячеек для запоминания.
+     */
+    let colorizingTimerId: ReturnType<typeof setTimeout> | null = null;
 
     /**
      * Возвращает текущий уровень. Прокси, сужающий тип.
@@ -169,7 +194,6 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * @param cellNumber
      */
     const isCellHidden = (cellNumber: number): boolean => {
-        // todo: логика работы с состоянием gameFinishing
         return (
             (game.isInLevelFinishingState() || game.isInLevelPreparingState() || game.isInGameFinishingState()) &&
             destroyedCells.value.includes(cellNumber)
@@ -177,26 +201,11 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     };
 
     /**
-     * Стоит ли показывать цвет ячейки: да, если игра в состоянии 'contemplation' или 'roundPreparing' и ячейка была раскрашена.
-     */
-    const showColorizedCell = (cellNumber: number): boolean => {
-        return (game.isInContemplationState() || game.isInRoundPreparingState()) && isCellColorized(cellNumber);
-    };
-
-    /**
-     * Будет ли отображена ячейка с корректным ответом: да, если она является правильной ячейкой и уже была открыта пользователем.
+     * Проверяет, скрыта ли верно открытая ячейка под переданным номером.
      * @param cellNumber
      */
-    const showCorrectlyOpenedCell = (cellNumber: number): boolean => {
-        return (game.isInInteractiveState() || game.isInRoundFinishingState()) && isCellOpened(cellNumber) && isCellCorrect(cellNumber);
-    };
-
-    /**
-     * Будет ли отображена ячейка с некорректным ответом: да, если она не является правильной ячейкой и уже была открыта пользователем.
-     * @param cellNumber
-     */
-    const showIncorrectlyOpenedCell = (cellNumber: number): boolean => {
-        return (game.isInInteractiveState() || game.isInRoundFinishingState()) && isCellOpened(cellNumber) && !isCellCorrect(cellNumber);
+    const isCellCovered = (cellNumber: number): boolean => {
+        return coveredCells.value.includes(cellNumber);
     };
 
     /**
@@ -211,6 +220,29 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      */
     const isTimeToFinishRound = (): boolean => {
         return correctlyOpenedCells.value.size === currentLevel.value.cellsAmountToReproduce;
+    };
+
+    /**
+     * Стоит ли показывать цвет ячейки: да, если игра в состоянии 'contemplation' или 'roundPreparing' и ячейка была раскрашена.
+     */
+    const showColorizedCell = (cellNumber: number): boolean => {
+        return (game.isInContemplationState() || game.isInRoundPreparingState()) && isCellColorized(cellNumber);
+    };
+
+    /**
+     * Будет ли отображена ячейка с корректным ответом: да, если она является правильной ячейкой и уже была открыта пользователем.
+     * @param cellNumber
+     */
+    const showCorrectlyOpenedCell = (cellNumber: number): boolean => {
+        return isCellOpened(cellNumber) && isCellCorrect(cellNumber);
+    };
+
+    /**
+     * Будет ли отображена ячейка с некорректным ответом: да, если она не является правильной ячейкой и уже была открыта пользователем.
+     * @param cellNumber
+     */
+    const showIncorrectlyOpenedCell = (cellNumber: number): boolean => {
+        return isCellOpened(cellNumber) && !isCellCorrect(cellNumber);
     };
 
     /** ********************************************************************************************************** Вспомогательные методы */
@@ -262,24 +294,22 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
 
     /**
      * Отвечает за закрытие всех правильно открытых ячеек на игровом поле.
+     * Для сокрытия ячеек с верным ответом используется другая анимация, поэтому используется дополнительная переменная coveredCells.
      */
     const clearCorrectlyOpenedCells = (): Promise<void> => {
-        // todo: думаем над анимацией закрытия ячеек после завершения раунда
-        // correctlyOpenedCells.value.clear();
-        // return new Promise((resolve) => {
-        //     resolve();
-        // });
-
         return new Promise((resolve) => {
-            const iterator = correctlyOpenedCells.value.values();
-            const intervalId = setInterval(() => {
-                const result = iterator.next();
-                if (result.done) {
-                    clearInterval(intervalId);
-                    resolve();
-                }
-                correctlyOpenedCells.value.delete(result.value);
-            }, 250);
+            coveringTimerId = setTimeout(() => {
+                coveredCells.value.push(...Array.from(correctlyOpenedCells.value)); // first hide opened cells
+
+                coveringTimerId = setTimeout(() => {
+                    correctlyOpenedCells.value.clear(); // then clear hidden correctly opened cells without any animation
+
+                    coveringTimerId = setTimeout(() => {
+                        coveredCells.value.length = 0; // and then return animation styles
+                        resolve();
+                    }, 250);
+                }, 500);
+            }, 750);
         });
     };
 
@@ -305,18 +335,22 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         const cellNumbers = useShuffle(generateAvailableNumbers());
 
         return new Promise((resolve) => {
-            const destroy = () => {
+            const destroy = async () => {
+                if (game.isInPauseState()) {
+                    await game.getPausePromise();
+                }
+
                 if (cellNumbers.length !== 0) {
                     const cellToDestroy = cellNumbers.pop() as number;
                     destroyedCells.value.push(cellToDestroy);
 
-                    setTimeout(destroy, TIME_TO_DESTROY_CELL);
+                    destroyingTimerId = setTimeout(destroy, TIME_TO_DESTROY_CELL);
                 } else {
                     resolve();
                 }
             };
 
-            setTimeout(destroy, TIME_TO_DESTROY_CELL);
+            destroyingTimerId = setTimeout(destroy, TIME_TO_DESTROY_CELL);
         });
     };
 
@@ -325,17 +359,21 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      */
     const buildField = (): Promise<void> => {
         return new Promise((resolve) => {
-            const build = () => {
+            const build = async () => {
+                if (game.isInPauseState()) {
+                    await game.getPausePromise();
+                }
+
                 if (destroyedCells.value.length !== 0) {
                     destroyedCells.value.splice(0, 2);
 
-                    setTimeout(build, TIME_TO_BUILD_CELL);
+                    buildingTimerId = setTimeout(build, TIME_TO_BUILD_CELL);
                 } else {
                     resolve();
                 }
             };
 
-            setTimeout(build, TIME_TO_BUILD_CELL);
+            buildingTimerId = setTimeout(build, TIME_TO_BUILD_CELL);
         });
     };
 
@@ -365,7 +403,11 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
             setRotatingState();
 
             let iterations = 0;
-            const rotate = () => {
+            const rotate = async () => {
+                if (game.isInPauseState()) {
+                    await game.getPausePromise();
+                }
+
                 if (iterations < currentLevel.value.rotationIterations) {
                     if (Math.random() < 0.5) {
                         rotationDegree.value += 90;
@@ -375,13 +417,13 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
 
                     iterations++;
 
-                    setTimeout(rotate, ROTATION_ITERATION_TIME);
+                    rotatingTimerId = setTimeout(rotate, ROTATION_ITERATION_TIME);
                 } else {
                     resolve();
                 }
             };
 
-            setTimeout(rotate, ROTATION_ITERATION_TIME);
+            rotatingTimerId = setTimeout(rotate, ROTATION_ITERATION_TIME);
         });
     };
 
@@ -408,7 +450,6 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     };
 
     /**
-     * todo:
      * Раскрашиваем ячейки: с интервалом TIME_TO_COLORIZE_CELL добавляем в colorizedCells номер ячейки в качестве ключа
      * и цвет ячейки под этим номером в виде значения.
      */
@@ -436,18 +477,22 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
                 }
             }
 
-            const addNumber = () => {
+            const addNumber = async () => {
+                if (game.isInPauseState()) {
+                    await game.getPausePromise();
+                }
+
                 if (colorsAndNumbers.length !== 0) {
                     const elem = colorsAndNumbers.pop() as [string, number];
                     colorizeCell(elem[0], elem[1]);
 
-                    setTimeout(addNumber, TIME_TO_COLORIZE_CELL);
+                    colorizingTimerId = setTimeout(addNumber, TIME_TO_COLORIZE_CELL);
                 } else {
                     resolve();
                 }
             };
 
-            setTimeout(addNumber, TIME_TO_COLORIZE_CELL);
+            colorizingTimerId = setTimeout(addNumber, TIME_TO_COLORIZE_CELL);
         });
     };
 
@@ -515,12 +560,25 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     const finishRound = async () => {
         game.handleRoundFinishing();
 
+        await Promise.all([clearRoundData(), handleRoundFinishing()]);
+        await startNewRound();
+    };
+
+    /**
+     * Очищает информацию о ячейках перед началом нового раунда.
+     */
+    const clearRoundData = async () => {
         await clearCorrectlyOpenedCells();
+
         clearColorizedCells();
         clearOrderedCells();
+    };
 
+    /**
+     * Обрабатывает события смены режима, уровня и завершения игры.
+     */
+    const handleRoundFinishing = async () => {
         await game.checkMode();
-
         if (game.isGameTimeOver) {
             await finishGame();
 
@@ -530,8 +588,6 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         if (game.isTimeToChangeLevel()) {
             await changeLevel();
         }
-
-        await startNewRound();
     };
 
     /**
@@ -582,24 +638,77 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         await game.handleGameFinishingState();
     };
 
+    const resetCoveringTimer = () => {
+        if (coveringTimerId) {
+            clearTimeout(coveringTimerId);
+            coveringTimerId = null;
+        }
+    };
+
+    const resetRotatingTimer = () => {
+        if (rotatingTimerId) {
+            clearTimeout(rotatingTimerId);
+            rotatingTimerId = null;
+        }
+    };
+
+    const resetColorizingTimer = () => {
+        if (colorizingTimerId) {
+            clearTimeout(colorizingTimerId);
+            colorizingTimerId = null;
+        }
+    };
+
+    const resetDestroyingTimer = () => {
+        if (destroyingTimerId) {
+            clearTimeout(destroyingTimerId);
+            destroyingTimerId = null;
+        }
+    };
+
+    const resetBuildingTimer = () => {
+        if (buildingTimerId) {
+            clearTimeout(buildingTimerId);
+            buildingTimerId = null;
+        }
+    };
+
+    const resetAllTimers = () => {
+        resetCoveringTimer();
+        resetRotatingTimer();
+        resetColorizingTimer();
+        resetDestroyingTimer();
+        resetBuildingTimer();
+    };
+
     const $setup = async () => {
         setupLevelColors();
         setupRoundColor();
-
-        // await game.handleGamePreparing();
 
         await game.handleLevelPreparing();
         await startNewRound();
     };
 
     const $reset = () => {
-        // game.$reset();
-        console.log('reset matrix store');
+        resetAllTimers();
+        setDefaultState();
+        clearColorizedCells();
+        clearOrderedCells();
+
+        correctlyOpenedCells.value = new Set();
+        incorrectlyOpenedCells.value = new Set();
+        rotationDegree.value = 0;
+
+        destroyedCells.value = [];
+        coveredCells.value = [];
+
+        game.$reset();
     };
 
     return {
         isCellOpened,
         isCellHidden,
+        isCellCovered,
         showColorizedCell,
         showCorrectlyOpenedCell,
         showIncorrectlyOpenedCell,
@@ -614,5 +723,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
 
         $setup,
         $reset,
+
+        coveredCells,
     };
 });

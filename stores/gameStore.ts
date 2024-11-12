@@ -187,6 +187,7 @@ export const useGameStore = defineStore('gameStorage', () => {
     /**
      * Метка времени, в которое был осуществлен выход из состояния ответа.
      */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     let endReactionTime: number;
 
     /**
@@ -461,10 +462,6 @@ export const useGameStore = defineStore('gameStorage', () => {
             await pausePromise;
         }
 
-        if (isInPromptState()) {
-            return;
-        }
-
         if (isGameTimeOver.value) {
             stopTotalTimer();
         } else {
@@ -604,9 +601,10 @@ export const useGameStore = defineStore('gameStorage', () => {
      */
     const countdownTick = async (resolve: (value: void | PromiseLike<void>) => void): Promise<void> => {
         if (isInPauseState()) {
-            await pausePromise;
             resetCountdown();
-            await startCountdown(); // todo: логика выхода из режима паузы
+            countdown.value++;
+
+            await getPausePromise();
         }
 
         if (countdown.value <= 1) {
@@ -668,6 +666,7 @@ export const useGameStore = defineStore('gameStorage', () => {
         setRegime(GameRegimeEnum.default);
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const setConstructorRegime = () => {
         setRegime(GameRegimeEnum.constructor);
     };
@@ -895,6 +894,7 @@ export const useGameStore = defineStore('gameStorage', () => {
         successfulRoundsStreak = 0;
         unsuccessfulRoundsStreak = 0;
 
+        clearMessage();
         stopTotalTimer();
         setLevelPreparingState();
 
@@ -1019,6 +1019,7 @@ export const useGameStore = defineStore('gameStorage', () => {
      * Осуществляет понижение уровня.
      */
     const handleLevelDemotion = () => {
+        setTranslatableMessage('levelDown');
         currentUserLevel.value--;
         setLevelDemotionState();
     };
@@ -1027,6 +1028,7 @@ export const useGameStore = defineStore('gameStorage', () => {
      * Осуществляет повышение уровня.
      */
     const handleLevelPromotion = () => {
+        setTranslatableMessage('levelUp');
         currentUserLevel.value++;
 
         if (currentUserLevel.value > maxUserLevel.value) {
@@ -1228,6 +1230,7 @@ export const useGameStore = defineStore('gameStorage', () => {
         isInLevelPromotionState,
         isInGameFinishingState,
         isInPromptState,
+        isInPauseState,
 
         // Работа с модами
         isTimeToSwitchMode,
@@ -1312,5 +1315,7 @@ export const useGameStore = defineStore('gameStorage', () => {
 
         $setup,
         $reset,
+
+        pauseResolver,
     };
 });
