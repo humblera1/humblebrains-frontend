@@ -4,7 +4,6 @@ import type { IGameLevels } from '~/entities/interfaces/games/IGameLevels';
 import type { BaseResponse } from '~/entities/interfaces/responses/BaseResponse';
 import type { IGameLevel } from '~/entities/interfaces/games/IGameLevel';
 import type { IBaseGameLevel } from '~/entities/interfaces/games/IBaseGameLevel';
-import { useEmitGameEvent } from '~/composables/useGameEventBus';
 import type { IGameResult } from '~/entities/interfaces/games/IGameResult';
 import { GameModeEnum } from '~/entities/enums/games/GameModeEnum';
 import { GameRegimeEnum } from '~/entities/enums/games/GameRegimeEnum';
@@ -853,6 +852,11 @@ export const useGameStore = defineStore('gameStorage', () => {
         promptResolver = undefined;
     };
 
+    const destroyPause = () => {
+        endPause();
+        pauseResolver = undefined;
+    };
+
     const handleModeSwitching = async () => {
         setGameMode();
         setTranslatableMessage('warmUpCompleted');
@@ -936,6 +940,23 @@ export const useGameStore = defineStore('gameStorage', () => {
         addReaction();
     };
 
+    const resetState = () => {
+        successfulRoundsStreak = 0;
+        unsuccessfulRoundsStreak = 0;
+        totalIncorrectAnswersAmount = 0;
+        totalAnswersAmount = 0;
+        isRoundFailed = false;
+        withinSession.value = false;
+        infinityGame.value = false;
+        warmUpLevelsAmount.value = 1;
+        playedWarmUpLevelsAmount.value = 0;
+        incorrectAnswerReactions.value = [];
+        previousState.value = undefined;
+
+        accumulatedReactionTime = 0;
+        reactionTimes.length = 0;
+    };
+
     const $setup = async () => {
         setGamePreparingState();
         await setupLevels();
@@ -947,6 +968,10 @@ export const useGameStore = defineStore('gameStorage', () => {
         resetRoundTimer();
         resetTotalTimer();
         resetLevels();
+        resetState();
+        clearMessage();
+        destroyPause();
+        destroyPrompt();
     };
 
     /**
