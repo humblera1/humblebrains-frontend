@@ -41,11 +41,11 @@ const formattedTime = computed((): string => {
 });
 
 const lineClass = computed((): string => {
-    if (game.roundTime < game.totalRoundTime / 3) {
+    if (game.roundTimeLeft < game.roundTime / 3) {
         return 'game-time__line_red';
     }
 
-    if (game.roundTime < (game.totalRoundTime * 2) / 3) {
+    if (game.roundTimeLeft < (game.roundTime * 2) / 3) {
         return 'game-time__line_yellow';
     }
 
@@ -54,10 +54,10 @@ const lineClass = computed((): string => {
 
 const lineStyle = computed((): string => {
     // Используем разную скорость анимации в зависимости от того, идёт увеличение или уменьшение таймера
-    const transitionDuration = game.roundTime < game.totalRoundTime ? 1000 : 100;
+    const transitionDuration = game.roundTimeLeft < game.roundTime ? 1000 : 100;
 
     // рассчитываем ширину полоски таймера
-    const percentWidth = game.totalRoundTime !== 0 ? (game.roundTime / game.totalRoundTime) * 100 : 100;
+    const percentWidth = game.roundTime !== 0 ? (game.roundTimeLeft / game.roundTime) * 100 : 100;
 
     const transition = `transition: background-color 500ms linear, width ${transitionDuration}ms linear`;
     const width = `width: ${percentWidth}%`;

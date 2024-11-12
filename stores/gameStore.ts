@@ -41,14 +41,15 @@ export const useGameStore = defineStore('gameStorage', () => {
     let totalTimerId: ReturnType<typeof setTimeout> | null = null;
 
     /**
-     * Время, отведенное на запоминание условий или на ответ, устанавливается стором конкретной игры
+     * Время, отведенное на запоминание условий или на ответ.
+     * Обновляется при переходе в режим contemplation (на время на запоминание) и в режим interactive (на время на ответ).
      */
     const roundTime = ref<number>(0);
 
     /**
-     * Вспомогательная переменная, хранит оригинальное значение roundTime
+     * Вспомогательная переменная, хранит оставшееся значение времени roundTime.
      */
-    const totalRoundTime = ref<number>(0);
+    const roundTimeLeft = ref<number>(0);
 
     /**
      *
@@ -303,75 +304,82 @@ export const useGameStore = defineStore('gameStorage', () => {
     /** **************************************************************************************************************** Таймер roundTime */
 
     /**
-     * Устанавливает значение переменной roundTime (которая будет изменяться по ходу раунда)
-     * и вспомогательной переменной totalRoundTime
-     * @param seconds время в секундах
+     * Вспомогательная переменная для виджетов, связанных с временем, отведенным на раунд.
      */
-    const setRoundTime = (seconds: number) => {
-        totalRoundTime.value = seconds;
-        roundTime.value = seconds;
-    };
-
     const showRoundTimeLine = computed((): boolean => {
         return isInContemplationState() || isInInteractiveState();
     });
 
     /**
-     * Инициирует уменьшение переменной roundTime (на единицу каждую секунду)
+     * Устанавливает значение переменной roundTime (которая будет изменяться по ходу раунда)
+     * и вспомогательной переменной totalRoundTime
+     * @param seconds время в секундах
      */
-    const startRoundTimer = () => {
-        // check if timer is already started
-        if (isRoundTimerStarted()) {
-            return;
+    const setRoundTime = (seconds: number): void => {
+        roundTimeLeft.value = roundTime.value = seconds;
+    };
+
+    /**
+     * Запускает таймер раунда. Отвечает за логику ограничения времени на запоминание/ответ.
+     */
+    const startRoundTimer = (): Promise<void> => {
+        return new Promise((resolve) => {
+            if (isRoundTimerStarted()) {
+                return;
+            }
+
+            roundTick(resolve);
+            // roundTimerId = setTimeout(() => roundTick(resolve), 1000);
+        });
+    };
+
+    /**
+     * Уменьшает переменную roundTime на единицу каждую секунду.
+     * @param resolve
+     */
+    const roundTick = async (resolve: (value: void | PromiseLike<void>) => void): Promise<void> => {
+        if (isInPauseState()) {
+            await pausePromise;
         }
 
-        totalRoundTime.value = roundTime.value;
-
-        const tick = async () => {
-            if (isInPauseState()) {
-                await pausePromise;
-            }
-
-            if (roundTime.value <= 0) {
-                // @ts-ignore
-                clearTimeout(roundTimerId);
-
-                if (isInInteractiveState()) {
-                    useEmitGameEvent('game:answeringTimeIsOver');
-                }
-
-                if (isInContemplationState()) {
-                    useEmitGameEvent('game:contemplationTimeIsOver');
-                }
-            } else {
-                decreaseRoundTime();
-                roundTimerId = setTimeout(tick, 1000);
-            }
-        };
-
-        roundTimerId = setTimeout(tick, 1000);
+        if (roundTimeLeft.value <= 0) {
+            stopRoundTimer();
+            resolve();
+        } else {
+            decreaseRoundTime();
+            roundTimerId = setTimeout(() => roundTick(resolve), 1000);
+        }
     };
 
     /**
-     * Останавливает уменьшение переменной roundTime
+     * Уменьшает значение переменной roundTime на единицу.
      */
-    const stopRoundTimer = () => {
-        // @ts-ignore
-        clearTimeout(roundTimerId);
-        roundTimerId = null;
+    const decreaseRoundTime = (): void => {
+        roundTimeLeft.value--;
     };
 
     /**
-     * Уменьшает значение переменной roundTime на единицу
+     * Останавливает уменьшение переменной roundTime.
      */
-    const decreaseRoundTime = () => {
-        roundTime.value--;
+    const stopRoundTimer = (): void => {
+        if (roundTimerId) {
+            clearTimeout(roundTimerId);
+            roundTimerId = null;
+        }
     };
 
     /**
-     * Проверяет, запущено ли уменьшение времени roundTime
+     * Сбрасывает таймер раунда.
      */
-    const isRoundTimerStarted = () => {
+    const resetRoundTimer = (): void => {
+        stopRoundTimer();
+        setRoundTime(0);
+    };
+
+    /**
+     * Проверяет, запущено ли уменьшение времени roundTime.
+     */
+    const isRoundTimerStarted = (): boolean => {
         return roundTimerId !== null;
     };
 
@@ -381,29 +389,37 @@ export const useGameStore = defineStore('gameStorage', () => {
      * Запускает обратный отсчёт.
      */
     const startCountdown = (): Promise<void> => {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             if (isCountdownStarted()) {
-                return reject(new Error('Countdown already started'));
+                return;
             }
 
-            const tick = async () => {
-                if (isInPauseState()) {
-                    await pausePromise;
-                    resetCountdown();
-                }
-
-                if (countdown.value <= 1) {
-                    resetCountdown();
-                    resolve();
-                } else {
-                    decreaseCountdown();
-                    countdownTimerId = setTimeout(tick, 1000);
-                }
-            };
-
-            // возможно, следует добавить задержку перед началом отсчета
-            countdownTimerId = setTimeout(tick, 1000);
+            countdownTimerId = setTimeout(() => countdownTick(resolve), 1000);
         });
+    };
+
+    /**
+     * Уменьшает переменную countdown на единицу каждую секунду.
+     * @param resolve
+     */
+    const countdownTick = async (resolve: (value: void | PromiseLike<void>) => void): Promise<void> => {
+        if (isInPauseState()) {
+            await pausePromise;
+            resetCountdown();
+        }
+
+        if (countdown.value <= 1) {
+            resetCountdown();
+
+            if (isInGameMode() && isInDefaultRegime()) {
+                startTotalTimer();
+            }
+
+            resolve();
+        } else {
+            decreaseCountdown();
+            countdownTimerId = setTimeout(() => countdownTick(resolve), 1000);
+        }
     };
 
     /**
@@ -423,7 +439,7 @@ export const useGameStore = defineStore('gameStorage', () => {
     /**
      * Останавливает обратный отсчёт, очищая соответствующий timerId.
      */
-    const clearCountdownTimer = () => {
+    const stopCountdown = () => {
         if (countdownTimerId) {
             clearTimeout(countdownTimerId);
             countdownTimerId = null;
@@ -434,7 +450,7 @@ export const useGameStore = defineStore('gameStorage', () => {
      * Останавливает обратный отсчёт и сбрасывает значение переменной countdown.
      */
     const resetCountdown = () => {
-        clearCountdownTimer();
+        stopCountdown();
         countdown.value = COUNTDOWN_INITIAL_VALUE;
     };
 
@@ -537,21 +553,22 @@ export const useGameStore = defineStore('gameStorage', () => {
         setState(GameStateEnum.levelPreparing);
     };
 
-    const handleLevelPreparing = () => {
+    const handleLevelPreparing = async () => {
         successfulRoundsStreak = 0;
         unsuccessfulRoundsStreak = 0;
 
+        stopTotalTimer();
         setLevelPreparingState();
-    };
-
-    const handleGamePreparing = async () => {
-        handleLevelPreparing();
 
         await startCountdown();
 
         if (isInDefaultRegime() && isInGameMode()) {
             startTotalTimer();
         }
+    };
+
+    const handleGamePreparing = async () => {
+        await handleLevelPreparing();
     };
 
     const setGamePreparingState = (): void => {
@@ -573,19 +590,19 @@ export const useGameStore = defineStore('gameStorage', () => {
         setState(GameStateEnum.contemplation);
     };
 
-    const handleInteractive = () => {
+    const handleInteractive = async (): Promise<void> => {
         stopRoundTimer();
-
         setRoundTime(currentLevel.value.timeToAnswer);
-        startRoundTimer();
-
         setInteractiveState();
+
+        await startRoundTimer();
     };
 
-    const handleContemplation = (): void => {
-        startRoundTimer();
-        startReactionTimer();
+    const handleContemplation = async (): Promise<void> => {
         setContemplationState();
+        startReactionTimer();
+
+        await startRoundTimer();
     };
 
     const setInteractiveState = (): void => {
@@ -730,6 +747,8 @@ export const useGameStore = defineStore('gameStorage', () => {
     };
 
     const handleLevelChanging = (): void => {
+        stopTotalTimer();
+
         switch (true) {
             case isTimeToPromoteLevel():
                 return handleLevelPromotion();
@@ -923,6 +942,7 @@ export const useGameStore = defineStore('gameStorage', () => {
 
     const $reset = () => {
         resetCountdown();
+        resetRoundTimer();
         resetLevels();
     };
 
@@ -1025,12 +1045,10 @@ export const useGameStore = defineStore('gameStorage', () => {
         startTotalTimer,
         stopTotalTimer,
 
+        // Работа с временем раунда
         roundTime,
-        totalRoundTime,
+        roundTimeLeft,
         showRoundTimeLine,
-        setRoundTime,
-        startRoundTimer,
-        stopRoundTimer,
 
         countdown,
         startCountdown,

@@ -454,12 +454,15 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     /**
      * Вызывается по готовности пользователя воспроизвести показанные ячейки.
      */
-    const ready = () => {
+    const switchToInteractive = async (): Promise<void> => {
         if (currentLevel.value.rotationIterations !== 0) {
             rotateField().then(() => setDefaultState());
         }
 
-        game.handleInteractive();
+        await game.handleInteractive();
+
+        game.markRoundAsFailed();
+        await finishRound();
     };
 
     /** ******************************************************************************************************** Обработка открытия ячеек */
@@ -540,7 +543,9 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         setupRoundColor();
 
         await colorizeCells();
-        game.handleContemplation();
+        await game.handleContemplation();
+
+        await switchToInteractive();
     };
 
     /** ****************************************************************************************************** Обработка изменений уровня */
@@ -551,12 +556,11 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      */
     const changeLevel = async () => {
         game.handleLevelChanging();
+
         setupLevelColors();
-
         await rebuildField();
-        game.handleLevelPreparing();
 
-        await game.startCountdown();
+        await game.handleLevelPreparing();
     };
 
     /**
@@ -582,7 +586,9 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         setupLevelColors();
         setupRoundColor();
 
-        await game.handleGamePreparing();
+        // await game.handleGamePreparing();
+
+        await game.handleLevelPreparing();
         await startNewRound();
     };
 
@@ -590,27 +596,6 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         // game.$reset();
         console.log('reset matrix store');
     };
-
-    /**
-     * Обработка события окончания времени запоминания.
-     */
-    useListenGameEvent('game:contemplationTimeIsOver', async () => {
-        if (currentLevel.value.rotationIterations !== 0) {
-            await rotateField();
-
-            setDefaultState();
-        }
-
-        game.handleInteractive();
-    });
-
-    /**
-     * Обработка события окончания времени на ответ.
-     */
-    useListenGameEvent('game:answeringTimeIsOver', async () => {
-        game.markRoundAsFailed();
-        await finishRound();
-    });
 
     return {
         isCellOpened,
@@ -621,7 +606,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
 
         handleCellOpening,
         getCellColor,
-        ready,
+        switchToInteractive,
 
         rotationDegree,
         cellsAmount,
