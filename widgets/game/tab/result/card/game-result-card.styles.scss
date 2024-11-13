@@ -1,0 +1,120 @@
+.card {
+    cursor: pointer;
+    display: flex;
+    flex: 1 1 340px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+    width: 100%;
+    min-width: 340px;
+    max-width: 380px;
+    padding: 24px 32px;
+    border-radius: 36px;
+    background-color: var(--badge-bg);
+
+    @include mainShadow();
+
+    @include tablet {
+        flex: 1 1 320px;
+        gap: 32px;
+        padding: 32px 24px;
+        min-width: 320px;
+        max-width: 360px;
+    }
+
+    @include mobile {
+        min-width: 250px;
+    }
+
+    &_completed {
+        cursor: default;
+        background-color: transparent;
+        box-shadow: unset;
+        border: 1px solid var(--border-primary);
+    }
+
+    &__body {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+
+        @include tablet {
+            grid-template-columns: unset;
+            gap: 16px;
+        }
+    }
+
+    &__image {
+        width: 135px;
+        height: 135px;
+
+        @include tablet {
+            width: 120px;
+            height: 120px;
+        }
+
+        img {
+            object-fit: contain;
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    &__info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 4px;
+
+        @include tablet {
+            align-items: center;
+        }
+    }
+
+    &__controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 36px;
+
+        @include tablet {
+            gap: 24px;
+        }
+    }
+
+    &__check {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 30px;
+        height: 30px;
+        background-color: var(--green);
+        color: var(--white);
+        border-radius: 50%;
+
+        @include tablet {
+            width: 28px;
+            height: 28px;
+        }
+
+        @include mobile {
+            width: 24px;
+            height: 24px;
+        }
+
+        svg {
+            object-fit: contain;
+            width: 40%;
+            height: 40%;
+        }
+    }
+
+    &__title {
+        @include mainFont(500, 18, var(--primary-title));
+    }
+
+    &__subtitle {
+        @include mainFont(400, 14, var(--primary-subtitle));
+    }
+}
