@@ -1,0 +1,35 @@
+.achievements {
+    display: flex;
+    justify-content: center;
+
+    &__inner {
+        display: flex;
+        align-self: center;
+        flex-wrap: wrap;
+        row-gap: 16px;
+        column-gap: 24px;
+        width: 100%;
+
+        @include mobile {
+            row-gap: 12px;
+        }
+    }
+
+    &__preloader {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+}
+
+.achievement-enter-active,
+.achievement-leave-active {
+    transition: all 500ms ease;
+}
+
+.achievement-enter-from,
+.achievement-leave-to {
+    transform: scale(0);
+    opacity: 0;
+    visibility: hidden;
+}
