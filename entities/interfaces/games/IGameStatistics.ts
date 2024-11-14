@@ -1,11 +1,28 @@
+// export interface IGameStatistics {
+//     /**
+//      * Серийные номера сыгранных игр.
+//      */
+//     xAsis: number[];
+//
+//     /**
+//      * Значения счёта.
+//      */
+//     yAsis: number[];
+// }
+
 export interface IGameStatistics {
     /**
      * Серийные номера сыгранных игр.
      */
-    xAsis: number[];
+    games: number[];
 
     /**
      * Значения счёта.
      */
-    yAsis: number[];
+    scores: number[];
+
+    /**
+     * Значение точности.
+     */
+    accuracy: number[];
 }

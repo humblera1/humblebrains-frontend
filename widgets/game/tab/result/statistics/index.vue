@@ -17,11 +17,13 @@
 import type { BaseResponse } from '~/entities/interfaces/responses/BaseResponse';
 import type { IGameStatistics } from '~/entities/interfaces/games/IGameStatistics';
 
+// todo: reaction time from checkpoint
+
 const { $api } = useNuxtApp();
 
 const page = useGamePageStore();
 
-const { status, data: statistics } = await useLazyAsyncData('total-achievements', async () => {
+const { status, data: statistics } = await useLazyAsyncData('statistics', async () => {
     const response = await $api<BaseResponse<IGameStatistics>>(`/v1/games/${page.game}/statistics`, {
         credentials: 'include',
     });
@@ -44,14 +46,4 @@ const accuracyData = computed(() => {
 });
 </script>
 
-<style scoped lang="scss">
-.statistics {
-    &__content {
-        display: flex;
-        justify-content: center;
-        flex-direction: row-reverse;
-        flex-wrap: wrap;
-        gap: 16px;
-    }
-}
-</style>
+<style scoped lang="scss" src="./game-result-statistics.styles.scss" />

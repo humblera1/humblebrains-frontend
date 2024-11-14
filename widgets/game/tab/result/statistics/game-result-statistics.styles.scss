@@ -1,0 +1,9 @@
+.statistics {
+    &__content {
+        display: flex;
+        justify-content: center;
+        flex-direction: row-reverse;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+}

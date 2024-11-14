@@ -36,7 +36,7 @@ const container = ref(null);
 const inner = ref(null);
 const { width: containerWidth } = useElementSize(container);
 
-const { status, data: achievements } = await useLazyAsyncData('total-achievements', async () => {
+const { status, data: achievements } = await useLazyAsyncData('achievements', async () => {
     const response = await $api<BaseResponse<IAchievement[]>>(`/v1/games/${page.game}/achievements`, {
         credentials: 'include',
     });
