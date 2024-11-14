@@ -49,6 +49,16 @@ export default defineI18nConfig(() => ({
             infinityMode: 'Бесконечный режим',
             withinSession: 'Игра в рамках сессии',
             letsGo: 'Поехали!',
+            gameCompleted: 'Упражнение завершено',
+            score: 'Счёт',
+            repeat: 'Повторить',
+            nextOne: 'К следующему',
+            gameStatistics: 'Статистика упражнения',
+            meanReactionTime: 'Среднее время вашей реакции за игру',
+            ms: 'мс',
+            scores: 'Очки и прогресс',
+            accuracy: 'Точность ответов',
+            gamesAmount: 'Количество игр',
 
             // Matrix
             remember: 'Запомнил',
@@ -131,6 +141,16 @@ export default defineI18nConfig(() => ({
             infinityMode: 'Infinity mode',
             withinSession: 'Game within a session',
             letsGo: 'Let\'s go!',
+            gameCompleted: 'Exercise completed',
+            score: 'Score',
+            repeat: 'Repeat',
+            nextOne: 'Next One',
+            gameStatistics: 'Statistics',
+            meanReactionTime: 'Average reaction time per game',
+            ms: 'ms',
+            scores: 'Points and progress',
+            accuracy: 'Answer accuracy',
+            gamesAmount: 'Number of games',
 
             // Matrix
             remember: 'Remember',
