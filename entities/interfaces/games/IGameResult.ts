@@ -25,7 +25,17 @@ export interface IGameResult {
     accuracy: number;
 
     /**
+     * Количество верных ответов, данных за всю игру.
+     */
+    correctAnswersAmount: number;
+
+    /**
      * Была ли игра сыграна в рамках текущей сессии.
      */
     withinSession: boolean;
+
+    /**
+     * Количество очков.
+     */
+    score: number;
 }

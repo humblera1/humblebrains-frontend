@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { range, sample, shuffle } from 'lodash';
 import { MatrixStateEnum } from '~/entities/enums/games/matrix/MatrixStateEnum';
 import type { IMatrixLevel } from '~/entities/interfaces/games/matrix/IMatrixLevel';
 
@@ -216,13 +217,6 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     };
 
     /**
-     * Определяет все ли правильные ячейки были открыты пользователем.
-     */
-    const isTimeToFinishRound = (): boolean => {
-        return correctlyOpenedCells.value.size === currentLevel.value.cellsAmountToReproduce;
-    };
-
-    /**
      * Стоит ли показывать цвет ячейки: да, если игра в состоянии 'contemplation' или 'roundPreparing' и ячейка была раскрашена.
      */
     const showColorizedCell = (cellNumber: number): boolean => {
@@ -273,7 +267,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * Случайным образом устанавливает цвета, которые будут фигурировать в текущем уровне
      */
     const setupLevelColors = (): void => {
-        const colors = useShuffle(availableColors);
+        const colors = shuffle(availableColors);
         availableLevelColors = colors.splice(1, currentLevel.value.colorsAmount);
     };
 
@@ -282,14 +276,14 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * Значение выбирается случайным образом из массива доступных цветов levelColors
      */
     const setupRoundColor = (): void => {
-        activeRoundColor.value = useSample(availableLevelColors) as string;
+        activeRoundColor.value = sample(availableLevelColors) as string;
     };
 
     /**
      * Возвращает массив всех допустимых номеров ячеек в порядке возрастания, основываясь на значении squareSide.
      */
     const generateAvailableNumbers = (): number[] => {
-        return useRange(1, currentLevel.value.squareSide ** 2 + 1);
+        return range(1, currentLevel.value.squareSide ** 2 + 1);
     };
 
     /**
@@ -332,7 +326,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * Ячейкам, находящимся в данном массиве, присваивается особый класс, отвечающий за их сокрытие на поле.
      */
     const destroyField = (): Promise<void> => {
-        const cellNumbers = useShuffle(generateAvailableNumbers());
+        const cellNumbers = shuffle(generateAvailableNumbers());
 
         return new Promise((resolve) => {
             const destroy = async () => {
@@ -384,7 +378,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     const rebuildField = (): Promise<void> => {
         return new Promise((resolve) => {
             destroyField().then(() => {
-                destroyedCells.value = useShuffle(generateAvailableNumbers());
+                destroyedCells.value = shuffle(generateAvailableNumbers());
 
                 buildField().then(() => resolve());
             });
@@ -452,21 +446,24 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     /**
      * Раскрашиваем ячейки: с интервалом TIME_TO_COLORIZE_CELL добавляем в colorizedCells номер ячейки в качестве ключа
      * и цвет ячейки под этим номером в виде значения.
+     *
+     * todo: ошибка при наличии нескольких цветов
+     * @error
      */
     const colorizeCells = (): Promise<void> => {
         return new Promise((resolve) => {
             const availableNumbers = generateAvailableNumbers();
 
             // Получаем массивы допустимых цветов и номеров, которые мы можем использовать для раскрашивания
-            const shuffledNumbers = useShuffle(availableNumbers);
-            const shuffledColors = useShuffle(availableLevelColors);
+            const shuffledNumbers = shuffle(availableNumbers);
+            const shuffledColors = shuffle(availableLevelColors);
 
             const colorsAndNumbers: [string, number][] = [];
 
             for (const color of shuffledColors) {
                 let numberIterations = 0;
                 for (const number of shuffledNumbers) {
-                    if (numberIterations >= currentLevel.value.cellsAmountToReproduce) {
+                    if (numberIterations >= currentLevel.value.correctAnswersBeforeFinish) {
                         shuffledNumbers.slice(0, numberIterations);
                         continue;
                     }
@@ -518,12 +515,10 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      */
     const handleCellOpening = async (cellNumber: number): Promise<void> => {
         if (canTheCellBeOpened(cellNumber)) {
-            game.handleAnswering();
-
             if (isCellCorrect(cellNumber)) {
                 await handleCorrectCellOpening(cellNumber);
             } else {
-                handleIncorrectCellOpening(cellNumber);
+                await handleIncorrectCellOpening(cellNumber);
             }
         }
     };
@@ -535,7 +530,9 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     const handleCorrectCellOpening = async (cellNumber: number): Promise<void> => {
         correctlyOpenedCells.value.add(cellNumber);
 
-        if (isTimeToFinishRound()) {
+        game.handleCorrectAnswering();
+
+        if (game.isTimeToFinishRound()) {
             await finishRound();
         }
     };
@@ -544,12 +541,15 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * Обрабатывает открытие неверной ячейки.
      * @param cellNumber
      */
-    const handleIncorrectCellOpening = (cellNumber: number): void => {
+    const handleIncorrectCellOpening = async (cellNumber: number): Promise<void> => {
         incorrectlyOpenedCells.value.add(cellNumber);
+        setTimeout(() => incorrectlyOpenedCells.value.delete(cellNumber), TIME_TO_CLOSE_INCORRECT_CELL);
 
         game.handleIncorrectAnswering();
 
-        setTimeout(() => incorrectlyOpenedCells.value.delete(cellNumber), TIME_TO_CLOSE_INCORRECT_CELL);
+        if (game.isTimeToFinishRound()) {
+            await finishRound();
+        }
     };
 
     /** ****************************************************************************************************** Обработка изменений раунда */
@@ -579,6 +579,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      */
     const handleRoundFinishing = async () => {
         await game.checkMode();
+
         if (game.isGameTimeOver) {
             await finishGame();
 

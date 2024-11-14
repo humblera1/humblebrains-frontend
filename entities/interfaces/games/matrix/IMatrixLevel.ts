@@ -7,13 +7,7 @@ export interface IMatrixLevel extends IBaseGameLevel {
     squareSide: number;
 
     /**
-     * Количество ячеек, которые необходимо запомнить и воспроизвести.
-     */
-    cellsAmountToReproduce: number;
-
-    /**
      * Количество различных цветов на игровом поле.
-     * todo: валидация cellsAmountToReproduce * colorsAmount <= squareSide^2
      */
     colorsAmount: number;
 

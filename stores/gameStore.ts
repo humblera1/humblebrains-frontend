@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { mean } from 'lodash';
 import { GameStateEnum } from '~/entities/enums/games/GameStateEnum';
 import type { IGameLevels } from '~/entities/interfaces/games/IGameLevels';
 import type { BaseResponse } from '~/entities/interfaces/responses/BaseResponse';
@@ -29,6 +30,11 @@ export const useGameStore = defineStore('gameStorage', () => {
      * Сервис с вспомогательными методами (в основном, для запросов к серверу).
      */
     const service = useGameService();
+
+    /**
+     * Состояние страницы.
+     */
+    const page = useGamePageStore();
 
     /**
      * Текущий режим игры.
@@ -107,6 +113,21 @@ export const useGameStore = defineStore('gameStorage', () => {
     let unsuccessfulRoundsStreak: number = 0;
 
     /**
+     * Количество неверных ответов в раунде.
+     */
+    let incorrectAnswersOnRound: number = 0;
+
+    /**
+     * Количество верных ответов в раунде.
+     */
+    let correctAnswersOnRound: number = 0;
+
+    /**
+     * Переменная, сигнализирующая о том, что текущий раунд объявлен неуспешным.
+     */
+    let isRoundFailedFlag: boolean = false;
+
+    /**
      * Номер максимально открытого пользователем уровня в текущей игре.
      */
     const maxUserLevel = ref<number>(0);
@@ -170,14 +191,19 @@ export const useGameStore = defineStore('gameStorage', () => {
     let pausePromise: Promise<void>;
 
     /**
-     * Полное число ответов, данных пользователем за всю игру. Используется для подсчёта точности.
+     * Полное число верных ответов, данных пользователем за всю игру.
      */
-    let totalAnswersAmount: number = 0;
+    let totalCorrectAnswersAmount: number = 0;
 
     /**
-     * Полное число неверных ответов, данных пользователем за всю игру. Используется для подсчёта точности.
+     * Полное число неверных ответов, данных пользователем за всю игру.
      */
     let totalIncorrectAnswersAmount: number = 0;
+
+    /**
+     * Количество очков за игру.
+     */
+    const totalScore = ref<number>(0);
 
     /**
      * Метка времени, в которое был осуществлен переход в состояние запоминания.
@@ -201,16 +227,18 @@ export const useGameStore = defineStore('gameStorage', () => {
     const reactionTimes: number[] = [];
 
     /**
-     * Переменная, сигнализирующая о том, что в текущем раунде была допущена ошибка.
-     */
-    let isRoundFailed: boolean = false;
-
-    /**
      * Вспомогательная переменная, отвечают за анимацию виджетов шаблона при неправильном ответе.
      * При каждом неправильном ответе, данная переменная увеличивается на определённое время, и на поле появляется
      * новый элемент, сигнализирующий о неправильном ответе.
      */
     const incorrectAnswerReactions = ref<{ id: number }[]>([]);
+
+    /**
+     * Переменная с результатом игры.
+     */
+    // let results: IGameResult | undefined;
+
+    const gameData: { name: string; results: IGameResult | undefined } = { name: '', results: undefined };
 
     /**
      * Текущий уровень игры.
@@ -248,6 +276,14 @@ export const useGameStore = defineStore('gameStorage', () => {
     });
 
     /**
+     * Проверяет, считается ли текущий раунд неуспешным. Раунд может быть засчитан неуспешным в двух случаях:
+     * если количество неправильных ответов достигло максимального допустимого числа, или если раунд был помечен как неуспешным конкретным игровым стором.
+     */
+    const isRoundFailed = (): boolean => {
+        return isRoundFailedFlag || incorrectAnswersOnRound >= currentLevel.value.incorrectAnswersToFail;
+    };
+
+    /**
      * Определяет, является ли текущий уровень максимальным уровнем в игре.
      */
     const isFinalLevel = (): boolean => {
@@ -265,14 +301,14 @@ export const useGameStore = defineStore('gameStorage', () => {
      * Определяет, следует ли повышать уровень игры.
      */
     const isTimeToPromoteLevel = (): boolean => {
-        return !isFinalLevel() && successfulRoundsStreak >= currentLevel.value.correctAnswersBeforePromotion;
+        return !isFinalLevel() && successfulRoundsStreak >= currentLevel.value.successfulRoundsBeforePromotion;
     };
 
     /**
      * Определяет, следует ли понижать уровень игры.
      */
     const isTimeToDemoteLevel = (): boolean => {
-        return !isFirstLevel() && unsuccessfulRoundsStreak >= currentLevel.value.incorrectAnswersBeforeDemotion;
+        return !isFirstLevel() && unsuccessfulRoundsStreak >= currentLevel.value.failedRoundsBeforeDemotion;
     };
 
     /**
@@ -284,6 +320,27 @@ export const useGameStore = defineStore('gameStorage', () => {
         }
 
         return isTimeToPromoteLevel() || isTimeToDemoteLevel();
+    };
+
+    /**
+     * Определяет, достигло ли количество неправильных ответов на раунде максимально допустимое значение.
+     */
+    const isTimeToFinishFailedRound = (): boolean => {
+        return incorrectAnswersOnRound >= currentLevel.value.incorrectAnswersBeforeFinish;
+    };
+
+    /**
+     * Определяет, достигло ли количество правильных ответов на раунде необходимого значения.
+     */
+    const isTimeToFinishSuccessfulRound = (): boolean => {
+        return correctAnswersOnRound >= currentLevel.value.correctAnswersBeforeFinish;
+    };
+
+    /**
+     * Определяет, пришло ли время завершить раунд.
+     */
+    const isTimeToFinishRound = (): boolean => {
+        return isTimeToFinishFailedRound() || isTimeToFinishSuccessfulRound();
     };
 
     /** ************************************************************************************************************ Работа с сообщениями */
@@ -911,7 +968,12 @@ export const useGameStore = defineStore('gameStorage', () => {
     const handleRoundPreparing = (): void => {
         setRoundTime(currentLevel.value.timeToContemplate);
 
-        isRoundFailed = false;
+        if (isInGameMode() && isInDefaultRegime()) {
+            totalCorrectAnswersAmount += correctAnswersOnRound;
+            totalIncorrectAnswersAmount += incorrectAnswersOnRound;
+        }
+
+        resetRoundAnswers();
         setRoundPreparingState();
     };
 
@@ -937,11 +999,13 @@ export const useGameStore = defineStore('gameStorage', () => {
     };
 
     /**
-     * Обрабатывает ответ пользователя.
+     * Обрабатывает верный ответ пользователя.
      */
-    const handleAnswering = () => {
-        if (isInGameMode() && isInDefaultRegime()) {
-            totalAnswersAmount++;
+    const handleCorrectAnswering = () => {
+        correctAnswersOnRound++;
+
+        if (isInGameMode()) {
+            totalScore.value += currentLevel.value.pointsForAnswer;
         }
     };
 
@@ -949,11 +1013,7 @@ export const useGameStore = defineStore('gameStorage', () => {
      * Обрабатывает неверный ответ пользователя.
      */
     const handleIncorrectAnswering = () => {
-        if (isInGameMode() && isInDefaultRegime()) {
-            totalIncorrectAnswersAmount++;
-        }
-
-        markRoundAsFailed();
+        incorrectAnswersOnRound++;
     };
 
     /**
@@ -970,7 +1030,7 @@ export const useGameStore = defineStore('gameStorage', () => {
             playedWarmUpLevelsAmount.value++;
         }
 
-        if (isRoundFailed) {
+        if (isRoundFailed()) {
             handleFailedRoundFinishing();
         } else {
             handleSuccessfulRoundFinishing();
@@ -1042,13 +1102,13 @@ export const useGameStore = defineStore('gameStorage', () => {
      * Осуществляет завершение игры.
      */
     const handleGameFinishingState = async () => {
-        const gamePage = useGamePageStore();
+        generateResults();
 
-        if (isInDefaultRegime()) {
-            await service.saveResults(getResults());
+        if (gameData.results) {
+            await service.saveResults(gameData.results);
         }
 
-        gamePage.selectResultTab();
+        page.selectResultTab();
     };
 
     /** **************************************************************************************************************** Сбор статистики  */
@@ -1057,7 +1117,7 @@ export const useGameStore = defineStore('gameStorage', () => {
      * Подсчитывает среднюю точность за игру.
      */
     const calculateAccuracy = (): number => {
-        const accuracy = ((totalAnswersAmount - totalIncorrectAnswersAmount) / totalAnswersAmount) * 100;
+        const accuracy = (totalCorrectAnswersAmount / (totalCorrectAnswersAmount + totalIncorrectAnswersAmount)) * 100;
 
         return Number(accuracy.toFixed(1));
     };
@@ -1066,7 +1126,7 @@ export const useGameStore = defineStore('gameStorage', () => {
      * Подсчитывает среднее время реакции за игру.
      */
     const calculateMeanReactionTime = (): number => {
-        const meanSec = useMean(reactionTimes) / 1000;
+        const meanSec = mean(reactionTimes) / 1000;
 
         return Number(meanSec.toFixed(2));
     };
@@ -1091,28 +1151,54 @@ export const useGameStore = defineStore('gameStorage', () => {
      * Помечает раунд, как раунд, содержащий неправильный ответ.
      */
     const markRoundAsFailed = () => {
-        isRoundFailed = true;
+        isRoundFailedFlag = true;
         addReaction();
     };
 
     /**
      * Формирует результаты игры.
      */
-    const getResults = (): IGameResult => {
-        // todo
-        const gamePage = useGamePageStore();
-
-        return {
-            game: gamePage.game as string,
+    const generateResults = (): void => {
+        // todo:
+        gameData.results = {
+            game: page.game as string,
             finishedAtTheLevel: currentUserLevel.value,
             maxUnlockedLevel: maxUserLevel.value,
             withinSession: withinSession.value,
             meanReactionTime: calculateMeanReactionTime(),
             accuracy: calculateAccuracy(),
+            correctAnswersAmount: totalCorrectAnswersAmount,
+            score: totalScore.value,
         };
     };
 
+    const resetResults = (): void => {
+        gameData.results = undefined;
+    };
+
     /** *********************************************************************************************** Установка и сброс состояния стора */
+
+    /**
+     * Получает информацию о текущей игре с сервера: название, набор уровней и прогресс пользователя.
+     */
+    const setupGame = async () => {
+        // gameData.name = 'Матрица';
+        resetResults();
+
+        // todo:
+        // gameData.results = {
+        //     game: 'matrix',
+        //     finishedAtTheLevel: 3,
+        //     maxUnlockedLevel: 4,
+        //     withinSession: true,
+        //     meanReactionTime: 2.81,
+        //     accuracy: 79.5,
+        //     totalCorrectAnswersAmount: 10,
+        //     score: 10,
+        // };
+
+        await setupLevels();
+    };
 
     /**
      * Устанавливает набор уровней текущей игры, обращаясь к серверу.
@@ -1123,6 +1209,16 @@ export const useGameStore = defineStore('gameStorage', () => {
         maxUserLevel.value = response.data.maxLevel;
         currentUserLevel.value = response.data.userLevel;
         levels.value = response.data.levels;
+    };
+
+    /**
+     * Сбрасывает информацию об ответах в течение раунда.
+     */
+    const resetRoundAnswers = () => {
+        isRoundFailedFlag = false;
+
+        correctAnswersOnRound = 0;
+        incorrectAnswersOnRound = 0;
     };
 
     /**
@@ -1140,26 +1236,38 @@ export const useGameStore = defineStore('gameStorage', () => {
     const resetState = () => {
         successfulRoundsStreak = 0;
         unsuccessfulRoundsStreak = 0;
+        totalCorrectAnswersAmount = 0;
         totalIncorrectAnswersAmount = 0;
-        totalAnswersAmount = 0;
-        isRoundFailed = false;
         withinSession.value = false;
         infinityGame.value = false;
         warmUpLevelsAmount.value = 1;
         playedWarmUpLevelsAmount.value = 0;
         incorrectAnswerReactions.value = [];
         previousState.value = undefined;
+        totalScore.value = 0;
 
         accumulatedReactionTime = 0;
         reactionTimes.length = 0;
+
+        resetRoundAnswers();
     };
 
     /**
      * Инициализация стора.
      */
     const $setup = async () => {
+        // results = {
+        //     game: page.game as string,
+        //     finishedAtTheLevel: currentUserLevel.value,
+        //     maxUnlockedLevel: maxUserLevel.value,
+        //     withinSession: withinSession.value,
+        //     meanReactionTime: calculateMeanReactionTime(),
+        //     accuracy: calculateAccuracy(),
+        // };
+
+        // resetResults();
         setGamePreparingState();
-        await setupLevels();
+        await setupGame();
         setTotalTime(90); // implement logic to get game duration from backend
     };
 
@@ -1172,6 +1280,7 @@ export const useGameStore = defineStore('gameStorage', () => {
         resetTotalTimer();
         resetLevels();
         resetState();
+        setWarmUpMode();
         clearMessage();
         destroyPause();
         destroyPrompt();
@@ -1253,7 +1362,7 @@ export const useGameStore = defineStore('gameStorage', () => {
         handleRoundFinishing,
         handleLevelChanging,
         handleGameFinishingState,
-        handleAnswering,
+        handleCorrectAnswering,
         handleIncorrectAnswering,
 
         // Работа с сообщениями
@@ -1296,6 +1405,7 @@ export const useGameStore = defineStore('gameStorage', () => {
         isTimeToPromoteLevel,
         isTimeToDemoteLevel,
         isTimeToChangeLevel,
+        isTimeToFinishRound,
         isFinalLevel,
         isFirstLevel,
 
@@ -1312,6 +1422,8 @@ export const useGameStore = defineStore('gameStorage', () => {
         isRoundFailed,
         incorrectAnswerReactions,
         markRoundAsFailed,
+
+        gameData,
 
         $setup,
         $reset,
