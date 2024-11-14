@@ -47,9 +47,7 @@
 <script setup lang="ts">
 import type { CheckpointUiCardProps } from '~/modules/checkpoint/widgets/ui/card/checkpoint-ui-card.types';
 
-const { stage } = withDefaults(defineProps<CheckpointUiCardProps>(), {
-    type: 'stage',
-});
+const { stage, type = 'stage' } = defineProps<CheckpointUiCardProps>();
 
 const cardClass = computed((): string => {
     return stage.isCompleted ? 'card_completed' : '';
