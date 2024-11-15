@@ -32,7 +32,7 @@ export interface IBaseGameLevel {
     /**
      * Количество очков за каждый правильный ответ.
      */
-    pointsForAnswer: number;
+    pointsPerAnswer: number;
 
     /**
      * Максимальное количество времени, отведенного на запоминание (в секундах).

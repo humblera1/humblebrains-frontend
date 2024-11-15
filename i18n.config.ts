@@ -59,6 +59,7 @@ export default defineI18nConfig(() => ({
             scores: 'Очки и прогресс',
             accuracy: 'Точность ответов',
             gamesAmount: 'Количество игр',
+            targetCompleted: 'Цель достигнута!',
 
             // Matrix
             remember: 'Запомнил',
@@ -151,6 +152,7 @@ export default defineI18nConfig(() => ({
             scores: 'Points and progress',
             accuracy: 'Answer accuracy',
             gamesAmount: 'Number of games',
+            targetCompleted: 'Target completed!',
 
             // Matrix
             remember: 'Remember',

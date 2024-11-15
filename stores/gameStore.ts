@@ -239,6 +239,11 @@ export const useGameStore = defineStore('gameStorage', () => {
     const incorrectAnswerReactions = ref<{ id: number }[]>([]);
 
     /**
+     * Переменная, сигнализирующая о том, что пользователь выполнил цель в данной игре.
+     */
+    const isTargetCompleted = ref<boolean>(false);
+
+    /**
      * Переменная с результатом игры.
      */
     // let results: IGameResult | undefined;
@@ -264,13 +269,6 @@ export const useGameStore = defineStore('gameStorage', () => {
      */
     const isGameTimeOver = computed((): boolean => {
         return totalTimeLeft.value <= 0;
-    });
-
-    /**
-     * Переменная, сигнализирующая о том, что пользователь выполнил цель в данной игре.
-     */
-    const isTargetCompleted = computed((): boolean => {
-        return totalScore.value >= target.value;
     });
 
     /**
@@ -1009,6 +1007,18 @@ export const useGameStore = defineStore('gameStorage', () => {
         await startRoundTimer();
     };
 
+    const handleScoreUpdate = () => {
+        totalScore.value += currentLevel.value.pointsPerAnswer;
+
+        if (isTargetCompleted.value || totalScore.value <= target.value) {
+            return;
+        }
+
+        isTargetCompleted.value = true;
+        setTranslatableMessage('targetCompleted');
+        setTimeout(() => clearMessage(), 1500);
+    };
+
     /**
      * Обрабатывает верный ответ пользователя.
      */
@@ -1016,7 +1026,7 @@ export const useGameStore = defineStore('gameStorage', () => {
         correctAnswersOnRound++;
 
         if (isInGameMode()) {
-            totalScore.value += currentLevel.value.pointsForAnswer;
+            handleScoreUpdate();
         }
     };
 
@@ -1260,6 +1270,7 @@ export const useGameStore = defineStore('gameStorage', () => {
         incorrectAnswerReactions.value = [];
         previousState.value = undefined;
         totalScore.value = 0;
+        isTargetCompleted.value = false;
 
         accumulatedReactionTime = 0;
         reactionTimes.length = 0;
@@ -1427,6 +1438,7 @@ export const useGameStore = defineStore('gameStorage', () => {
         // Очки и цель
         totalScore,
         target,
+        isTargetCompleted,
 
         // Настройки разминочного режима
         maxWarmUpLevelsAmount,
