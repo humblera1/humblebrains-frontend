@@ -1,83 +1,109 @@
 <template>
     <div class="game-level">
         <div class="game-level__info">
-            <template v-if="game.isInWarmUpMode()">
-                <p class="game-level__title">{{ $t('warmUp') }}:</p>
-                <p class="game-level__level">{{ warmUp }}</p>
-            </template>
-            <template v-else>
-                <p class="game-level__title">{{ $t('level') }}:</p>
-                <p class="game-level__level">{{ level }}</p>
-            </template>
+            <p class="game-level__title">{{ $t(formattedTitle) }}:</p>
+            <p class="game-level__level">{{ formattedProgress }}</p>
         </div>
         <div class="game-level__container">
-            <template v-if="isProgressBarSeparated">
-                <div class="game-level__progress game-level__progress_separated">
-                    <div v-for="idx in correctAnswersBeforePromotion" :key="idx" class="game-level__bar" :class="getBarClass(idx)" />
-                </div>
+            <div class="game-level__progress">
                 <div
-                    v-for="reaction of game.incorrectAnswerReactions"
-                    :key="reaction.id"
-                    class="game-level__progress game-level__progress_separated"
-                >
-                    <div
-                        v-for="idx in correctAnswersBeforePromotion"
-                        :key="idx"
-                        class="game-level__bar game-level__bar_invalid"
-                        :class="getInvalidBarClass(idx)"
-                    />
-                </div>
-            </template>
-            <template v-else>
-                <div class="game-level__progress game-level__progress_solid">
-                    <div class="game-level__bars" :style="barsStyle" />
-                    <div
-                        v-for="reaction of game.incorrectAnswerReactions"
-                        :key="reaction.id"
-                        class="game-level__bars game-level__bars_invalid game-widget_invalid"
-                        :style="barsStyle"
-                    />
-                </div>
-            </template>
+                    :class="['game-level__line', 'game-level__line_success', { 'game-level__line_fade': isFaded }]"
+                    :style="successLineStyles"
+                />
+                <div
+                    :class="['game-level__line', 'game-level__line_fail', { 'game-level__line_fade': isFaded }]"
+                    :style="failedLineStyles"
+                />
+            </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-const MAX_SEPARATE_BARS_AMOUNT = 5;
+import { debounce } from 'lodash';
+import type { IBaseGameLevel } from '~/entities/interfaces/games/IBaseGameLevel';
 
 const game = useGameStore();
 
-const correctAnswersBeforePromotion = ref<number>(6);
-const successfulRoundsStreak = ref<number>(3);
+const level = ref<IBaseGameLevel>();
+const isFirstLevel = ref<boolean>(false);
+const isFinalLevel = ref<boolean>(false);
 
-const level = computed((): string => {
+const isFaded = ref(false);
+
+const isFailedStreakRunning = computed(() => {
+    return game.failedRoundsStreak > 0;
+});
+
+const roundsToPromoteLevel = computed((): number => {
+    return level.value ? level.value.successfulRoundsBeforePromotion : 1;
+});
+
+const roundsToDemoteLevel = computed((): number => {
+    return level.value ? level.value.failedRoundsBeforeDemotion : 1;
+});
+
+const computedIsFaded = computed((): boolean => {
+    if (game.isInWarmUpMode()) {
+        return game.playedWarmUpLevelsAmount === game.warmUpLevelsAmount;
+    }
+
+    if (isFailedStreakRunning.value) {
+        if (isFirstLevel.value) {
+            return false;
+        }
+
+        return game.failedRoundsStreak === roundsToDemoteLevel.value;
+    } else {
+        if (isFinalLevel.value) {
+            return false;
+        }
+
+        return game.successfulRoundsStreak === roundsToPromoteLevel.value;
+    }
+});
+
+const successLineStyles = computed(() => {
+    if (game.isInWarmUpMode()) {
+        return `width: ${(game.playedWarmUpLevelsAmount / game.warmUpLevelsAmount) * 100}%`;
+    }
+
+    return `width: ${(game.successfulRoundsStreak / roundsToPromoteLevel.value) * 100}%`;
+});
+
+const failedLineStyles = computed(() => {
+    return `width: ${(game.failedRoundsStreak / roundsToDemoteLevel.value) * 100}%`;
+});
+
+const formattedTitle = computed((): string => {
+    return game.isInWarmUpMode() ? 'warmUp' : 'level';
+});
+
+const formattedProgress = computed((): string => {
+    if (game.isInWarmUpMode()) {
+        return `${game.playedWarmUpLevelsAmount}/${game.warmUpLevelsAmount}`;
+    }
+
     return `${game.currentUserLevel}/${game.maxLevelNumber}`;
 });
 
-const warmUp = computed((): string => {
-    return `${game.playedWarmUpLevelsAmount}/${game.warmUpLevelsAmount}`;
-});
+watch(
+    computedIsFaded,
+    debounce((newValue) => {
+        isFaded.value = newValue;
+    }, 500),
+);
 
-const isBarActive = (barIndex: number): boolean => {
-    return barIndex <= successfulRoundsStreak.value;
-};
-
-const getBarClass = (barIndex: number) => {
-    return isBarActive(barIndex) ? 'game-level__bar_active' : '';
-};
-
-const getInvalidBarClass = (barIndex: number) => {
-    return isBarActive(barIndex) ? 'game-widget_invalid' : '';
-};
-
-const barsStyle = computed(() => {
-    return `width: ${(successfulRoundsStreak.value / correctAnswersBeforePromotion.value) * 100}%`;
-});
-
-const isProgressBarSeparated = computed((): boolean => {
-    return correctAnswersBeforePromotion.value <= MAX_SEPARATE_BARS_AMOUNT;
-});
+watch(
+    () => game.state,
+    () => {
+        if (game.isInLevelPreparingState()) {
+            level.value = game.currentLevel;
+            isFirstLevel.value = game.isFirstLevel;
+            isFinalLevel.value = game.isFinalLevel;
+        }
+    },
+);
 </script>
 
 <style scoped lang="scss" src="./game-ui-level.styles.scss"></style>
