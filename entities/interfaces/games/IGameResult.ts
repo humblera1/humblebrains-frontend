@@ -38,4 +38,9 @@ export interface IGameResult {
      * Количество очков.
      */
     score: number;
+
+    /**
+     * Была ли выполнена поставленная цель.
+     */
+    isTargetCompleted: boolean;
 }

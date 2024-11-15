@@ -105,12 +105,12 @@ export const useGameStore = defineStore('gameStorage', () => {
     /**
      * Количество раундов, в которых был дан правильный ответ, идущих подряд.
      */
-    let successfulRoundsStreak: number = 0;
+    const successfulRoundsStreak = ref<number>(0);
 
     /**
      * Количество раундов, в которых был дан неправильный ответ, идущих подряд.
      */
-    let unsuccessfulRoundsStreak: number = 0;
+    const failedRoundsStreak = ref<number>(0);
 
     /**
      * Количество неверных ответов в раунде.
@@ -206,6 +206,11 @@ export const useGameStore = defineStore('gameStorage', () => {
     const totalScore = ref<number>(0);
 
     /**
+     * Количество очков, которое пользователю необходимо набрать, чтобы выполнить цель
+     */
+    const target = ref<number>(0);
+
+    /**
      * Метка времени, в которое был осуществлен переход в состояние запоминания.
      */
     let startReactionTime: number;
@@ -262,6 +267,27 @@ export const useGameStore = defineStore('gameStorage', () => {
     });
 
     /**
+     * Переменная, сигнализирующая о том, что пользователь выполнил цель в данной игре.
+     */
+    const isTargetCompleted = computed((): boolean => {
+        return totalScore.value >= target.value;
+    });
+
+    /**
+     * Определяет, является ли текущий уровень максимальным уровнем в игре.
+     */
+    const isFinalLevel = computed((): boolean => {
+        return currentUserLevel.value === Number(Object.keys(levels.value).at(-1));
+    });
+
+    /**
+     * Определяет, является ли текущий уровень минимальным уровнем в игре.
+     */
+    const isFirstLevel = computed((): boolean => {
+        return currentUserLevel.value === Number(Object.keys(levels.value).at(0));
+    });
+
+    /**
      * Вспомогательная переменная для виджетов, связанных с временем, отведенным на раунд.
      */
     const showRoundTimeLine = computed((): boolean => {
@@ -284,31 +310,17 @@ export const useGameStore = defineStore('gameStorage', () => {
     };
 
     /**
-     * Определяет, является ли текущий уровень максимальным уровнем в игре.
-     */
-    const isFinalLevel = (): boolean => {
-        return currentUserLevel.value === Number(Object.keys(levels.value).at(-1));
-    };
-
-    /**
-     * Определяет, является ли текущий уровень минимальным уровнем в игре.
-     */
-    const isFirstLevel = (): boolean => {
-        return currentUserLevel.value === Number(Object.keys(levels.value).at(0));
-    };
-
-    /**
      * Определяет, следует ли повышать уровень игры.
      */
     const isTimeToPromoteLevel = (): boolean => {
-        return !isFinalLevel() && successfulRoundsStreak >= currentLevel.value.successfulRoundsBeforePromotion;
+        return !isFinalLevel.value && successfulRoundsStreak.value >= currentLevel.value.successfulRoundsBeforePromotion;
     };
 
     /**
      * Определяет, следует ли понижать уровень игры.
      */
     const isTimeToDemoteLevel = (): boolean => {
-        return !isFirstLevel() && unsuccessfulRoundsStreak >= currentLevel.value.failedRoundsBeforeDemotion;
+        return !isFirstLevel.value && failedRoundsStreak.value >= currentLevel.value.failedRoundsBeforeDemotion;
     };
 
     /**
@@ -926,10 +938,10 @@ export const useGameStore = defineStore('gameStorage', () => {
      * Осуществляет смену режима с разминки на игровой.
      */
     const handleModeSwitching = async () => {
-        setGameMode();
         setTranslatableMessage('warmUpCompleted');
-        await setPrompt('gameStartPrompt');
 
+        await setPrompt('gameStartPrompt');
+        setGameMode();
         clearMessage();
 
         if (isInDefaultRegime()) {
@@ -948,8 +960,8 @@ export const useGameStore = defineStore('gameStorage', () => {
      * Осуществляет переход в состояние подготовки уровня. Останавливает таймер на время смены уровня. Запускает обратный отсчёт.
      */
     const handleLevelPreparing = async () => {
-        successfulRoundsStreak = 0;
-        unsuccessfulRoundsStreak = 0;
+        successfulRoundsStreak.value = 0;
+        failedRoundsStreak.value = 0;
 
         clearMessage();
         stopTotalTimer();
@@ -1014,6 +1026,8 @@ export const useGameStore = defineStore('gameStorage', () => {
      */
     const handleIncorrectAnswering = () => {
         incorrectAnswersOnRound++;
+
+        addReaction();
     };
 
     /**
@@ -1042,8 +1056,8 @@ export const useGameStore = defineStore('gameStorage', () => {
      */
     const handleFailedRoundFinishing = () => {
         if (isInGameMode()) {
-            successfulRoundsStreak = 0;
-            unsuccessfulRoundsStreak++;
+            successfulRoundsStreak.value = 0;
+            failedRoundsStreak.value++;
         }
 
         setFailedRoundFinishingState();
@@ -1054,8 +1068,8 @@ export const useGameStore = defineStore('gameStorage', () => {
      */
     const handleSuccessfulRoundFinishing = () => {
         if (isInGameMode()) {
-            unsuccessfulRoundsStreak = 0;
-            successfulRoundsStreak++;
+            failedRoundsStreak.value = 0;
+            successfulRoundsStreak.value++;
         }
 
         setSuccessfulRoundFinishingState();
@@ -1169,6 +1183,7 @@ export const useGameStore = defineStore('gameStorage', () => {
             accuracy: calculateAccuracy(),
             correctAnswersAmount: totalCorrectAnswersAmount,
             score: totalScore.value,
+            isTargetCompleted: isTargetCompleted.value,
         };
     };
 
@@ -1206,8 +1221,9 @@ export const useGameStore = defineStore('gameStorage', () => {
     const setupLevels = async () => {
         const response: BaseResponse<IGameLevels<any>> = await service.fetchLevels();
 
-        maxUserLevel.value = response.data.maxLevel;
-        currentUserLevel.value = response.data.userLevel;
+        maxUserLevel.value = response.data.maxUserLevel;
+        currentUserLevel.value = response.data.lastUserLevel;
+        target.value = response.data.target;
         levels.value = response.data.levels;
     };
 
@@ -1234,8 +1250,8 @@ export const useGameStore = defineStore('gameStorage', () => {
      * Сбрасывает основные переменные, используемые стором.
      */
     const resetState = () => {
-        successfulRoundsStreak = 0;
-        unsuccessfulRoundsStreak = 0;
+        successfulRoundsStreak.value = 0;
+        failedRoundsStreak.value = 0;
         totalCorrectAnswersAmount = 0;
         totalIncorrectAnswersAmount = 0;
         withinSession.value = false;
@@ -1409,6 +1425,10 @@ export const useGameStore = defineStore('gameStorage', () => {
         isFinalLevel,
         isFirstLevel,
 
+        // Очки и цель
+        totalScore,
+        target,
+
         // Настройки разминочного режима
         maxWarmUpLevelsAmount,
         warmUpLevelsAmount,
@@ -1422,6 +1442,9 @@ export const useGameStore = defineStore('gameStorage', () => {
         isRoundFailed,
         incorrectAnswerReactions,
         markRoundAsFailed,
+
+        successfulRoundsStreak,
+        failedRoundsStreak,
 
         gameData,
 
