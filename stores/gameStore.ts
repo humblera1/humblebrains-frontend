@@ -1003,7 +1003,6 @@ export const useGameStore = defineStore('gameStorage', () => {
      * Осуществляет переход в состояние ответа.
      */
     const handleInteractive = async (): Promise<void> => {
-        stopRoundTimer();
         setRoundTime(currentLevel.value.timeToAnswer);
         setInteractiveState();
 
