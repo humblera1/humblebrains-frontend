@@ -16,7 +16,7 @@ export interface IMatrixLevel extends IBaseGameLevel {
      * Следует ли дополнительно проверять соответствие порядка открытия ячеек порядку их показа пользователю.
      *
      */
-    hasDirection: boolean;
+    hasOrder: boolean;
 
     /**
      * Количество поворотов.

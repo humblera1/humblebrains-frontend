@@ -32,7 +32,11 @@
     &__front {
         background-color: var(--matrix-cell);
         transition: background-color 200ms ease-in-out;
+        font-size: 18px;
 
+        @include mobile {
+            font-size: 14px;
+        }
     }
 
     &__back {
@@ -79,6 +83,11 @@
         object-fit: contain;
         visibility: hidden;
         opacity: 0;
+        font-size: 18px;
+
+        @include mobile {
+            font-size: 14px;
+        }
 
         &_visible {
             visibility: visible;

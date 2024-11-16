@@ -1,11 +1,18 @@
 <template>
-    <div :class="cellClasses" @click="store.handleCellOpening(number)">
+    <div :class="cellClasses" @click="matrix.handleCellOpening(number)">
         <div class="cell__inner" :style="innerStyles">
-            <div class="cell__front" :style="frontStyles" />
+            <div class="cell__front" :style="frontStyles">
+                <span v-show="showCellFrontNumber">
+                    {{ cellOrderedNumber }}
+                </span>
+            </div>
             <div :class="backClasses">
                 <div :class="iconClasses" :style="iconStyles">
-                    <IconGameSuccess v-show="store.showCorrectlyOpenedCell(number)" />
-                    <IconGameError v-show="store.showIncorrectlyOpenedCell(number)" />
+                    <template v-if="matrix.showCorrectlyOpenedCell(number)">
+                        <span v-if="cellOrderedNumber !== -1"> {{ cellOrderedNumber }} </span>
+                        <IconGameSuccess v-else />
+                    </template>
+                    <IconGameError v-else-if="matrix.showIncorrectlyOpenedCell(number)" />
                 </div>
             </div>
         </div>
@@ -13,23 +20,35 @@
 </template>
 
 <script setup lang="ts">
-import { useMatrixStore } from '~/stores/matrixStore';
 import type { MatrixCellProps } from '~/widgets/games/matrix/cell/matrix-cell.types';
 
 const { number } = defineProps<MatrixCellProps>();
 
-const store = useMatrixStore();
+const game = useGameStore();
+const matrix = useMatrixStore();
 
 const frontStyles = computed(() => {
-    return store.showColorizedCell(number) ? `background-color: ${store.getCellColor(number)}` : '';
+    return matrix.showColorizedCell(number) ? `background-color: ${matrix.getCellColor(number)}` : '';
+});
+
+const cellOrderedNumber = computed((): number => {
+    return matrix.getCellOrder(number);
+});
+
+const showCellFrontNumber = computed((): boolean => {
+    if (game.isInContemplationState() || game.isInRoundPreparingState()) {
+        return cellOrderedNumber.value !== -1;
+    }
+
+    return false;
 });
 
 const cellClasses = computed(() => {
     return [
         'cell',
         {
-            cell_opened: store.isCellOpened(number),
-            cell_hidden: store.isCellHidden(number),
+            cell_opened: matrix.isCellOpened(number),
+            cell_hidden: matrix.isCellHidden(number),
         },
     ];
 });
@@ -38,9 +57,9 @@ const backClasses = computed(() => {
     return [
         'cell__back',
         {
-            cell__back_covered: store.coveredCells.includes(number),
-            cell__back_success: store.showCorrectlyOpenedCell(number),
-            cell__back_error: store.showIncorrectlyOpenedCell(number),
+            cell__back_covered: matrix.coveredCells.includes(number),
+            cell__back_success: matrix.showCorrectlyOpenedCell(number),
+            cell__back_error: matrix.showIncorrectlyOpenedCell(number),
         },
     ];
 });
@@ -49,17 +68,17 @@ const iconClasses = computed(() => {
     return [
         'cell__icon',
         {
-            cell__icon_visible: store.isCellOpened(number) && !store.isCellCovered(number),
+            cell__icon_visible: matrix.isCellOpened(number) && !matrix.isCellCovered(number),
         },
     ];
 });
 
 const innerStyles = computed(() => {
-    return store.isCellCovered(number) ? '' : 'transition: transform 350ms ease';
+    return matrix.isCellCovered(number) ? '' : 'transition: transform 350ms ease';
 });
 
 const iconStyles = computed(() => {
-    return `transform: rotate(${0 - store.rotationDegree}deg)`;
+    return `transform: rotate(${0 - matrix.rotationDegree}deg)`;
 });
 </script>
 

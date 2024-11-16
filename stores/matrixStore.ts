@@ -74,7 +74,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * Массив номеров ячеек, расположенных в порядке их показа пользователю.
      * Устанавливается в методе colorizeCells, который ответственен за показ ячеек.
      */
-    const orderedCells = ref<number[]>([]);
+    const orderedCells = ref<Map<string, number[]>>(new Map());
 
     /**
      * Массив ячеек, которым добавляется класс, плавно снижающий прозрачность.
@@ -165,13 +165,14 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * @param cellNumber
      */
     const isCellOrderCorrect = (cellNumber: number): boolean => {
-        if (currentLevel.value.hasDirection) {
-            const cellOrder = correctlyOpenedCells.value.size;
-
-            return orderedCells.value[cellOrder] === cellNumber;
+        if (!currentLevel.value.hasOrder) {
+            return true;
         }
 
-        return true;
+        const cells = orderedCells.value.get(activeRoundColor.value) as number[];
+        const cellOrder = correctlyOpenedCells.value.size;
+
+        return cells[cellOrder] === cellNumber;
     };
 
     /**
@@ -326,7 +327,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * Очищает массив, хранящий порядок показа ячеек в текущем раунде.
      */
     const clearOrderedCells = (): void => {
-        orderedCells.value = [];
+        orderedCells.value.clear();
     };
 
     /**
@@ -439,13 +440,49 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     };
 
     /**
+     * Возвращает номер ячейки в том порядке, в котором она была показана пользователю.
+     * @param cellNumber
+     */
+    const getCellOrder = (cellNumber: number): number => {
+        if (!colorizedCells.value.has(cellNumber)) {
+            return -1;
+        }
+
+        const color = colorizedCells.value.get(cellNumber) as string;
+        const cells = orderedCells.value.get(color) as number[];
+
+        if (!cells || !cells.includes(cellNumber)) {
+            return -1;
+        }
+
+        return cells.indexOf(cellNumber) + 1;
+    };
+
+    /**
+     * Заносит номер ячейки в массив с порядковыми номерами.
+     * @param color
+     * @param cellNumber
+     */
+    const putOrderedCell = (color: string, cellNumber: number) => {
+        if (!orderedCells.value.has(color)) {
+            orderedCells.value.set(color, []);
+        }
+
+        const cells = orderedCells.value.get(color);
+
+        if (cells) {
+            cells.push(cellNumber);
+        }
+    };
+
+    /**
      *
      * @param cellNumber
      * @param color
      */
     const colorizeCell = (color: string, cellNumber: number): void => {
-        if (color === activeRoundColor.value) {
-            orderedCells.value.push(cellNumber);
+        if (currentLevel.value.hasOrder) {
+            putOrderedCell(color, cellNumber);
         }
 
         colorizedCells.value.set(cellNumber, color);
@@ -713,6 +750,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
 
     return {
         isCellOpened,
+        isCellCorrect,
         isCellHidden,
         isCellCovered,
         showColorizedCell,
@@ -720,6 +758,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         showIncorrectlyOpenedCell,
 
         handleCellOpening,
+        getCellOrder,
         getCellColor,
         switchToInteractive,
 
