@@ -1,9 +1,11 @@
 <template>
     <div class="field">
-        <div class="field__grid" :style="fieldStyles">
-            <GameMatrixCell v-for="key in matrix.cellsAmount" :key="key" :number="key" />
+        <div class="field__field">
+            <GameMatrixColor />
+            <div class="field__grid" :style="fieldStyles">
+                <GameMatrixCell v-for="key in matrix.cellsAmount" :key="key" :number="key" />
+            </div>
         </div>
-        <br />
         <div class="field__controls">
             <UiButton :class="readyButtonClass" @click="matrix.switchToInteractive">{{ $t('remember') + '!' }}</UiButton>
         </div>

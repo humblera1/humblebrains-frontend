@@ -1,0 +1,72 @@
+.color {
+    cursor: pointer;
+    position: absolute;
+    left: 16px;
+    top: 42px;
+    width: 48px;
+    height: 48px;
+    opacity: 0;
+    perspective: 1000px;
+    visibility: hidden;
+    border-radius: 14px;
+    color: var(--matrix-cell);
+    border: 2px solid;
+
+    transition: color 250ms ease, opacity 500ms ease, visibility 500ms ease;
+
+    @include tablet {
+        position: relative;
+        top: unset;
+        left: unset;
+    }
+
+    @include mobile {
+        width: 36px;
+        height: 36px;
+    }
+
+    &_flipped {
+        .color__front {
+            transform: rotateY(-180deg);
+        }
+
+        .color__back {
+            transform: rotateY(0deg);
+        }
+    }
+
+    &_visible {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    &__front,
+    &__back {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        margin: auto;
+        backface-visibility: hidden;
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+
+        transition: transform 250ms ease;
+
+        @include mobile {
+            width: 28px;
+            height: 28px;
+        }
+    }
+
+    &__front {
+        background-color: var(--matrix-cell);
+        transform: rotateY(0deg);
+    }
+
+    &__back {
+        transform: rotateY(180deg);
+    }
+}
