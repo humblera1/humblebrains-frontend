@@ -2,7 +2,6 @@ import { defineStore } from 'pinia';
 import { mean } from 'lodash';
 import { GameStateEnum } from '~/entities/enums/games/GameStateEnum';
 import type { IGameLevels } from '~/entities/interfaces/games/IGameLevels';
-import type { BaseResponse } from '~/entities/interfaces/responses/BaseResponse';
 import type { IGameLevel } from '~/entities/interfaces/games/IGameLevel';
 import type { IBaseGameLevel } from '~/entities/interfaces/games/IBaseGameLevel';
 import type { IGameResult } from '~/entities/interfaces/games/IGameResult';
@@ -37,6 +36,11 @@ export const useGameStore = defineStore('gameStorage', () => {
     const page = useGamePageStore();
 
     /**
+     * Переведенное название игры.
+     */
+    const gameName = ref<string>('');
+
+    /**
      * Текущий режим игры.
      */
     const regime = ref<GameRegimeEnum>(GameRegimeEnum.default);
@@ -64,12 +68,13 @@ export const useGameStore = defineStore('gameStorage', () => {
     /**
      * Время, отведённое на игру.
      */
-    const totalTime = ref<number>(90);
+    // const totalTime = ref<number>(90);
+    const totalTime = ref<number>(10);
 
     /**
      * Оставшееся игровое время.
      */
-    const totalTimeLeft = ref<number>(90);
+    const totalTimeLeft = ref<number>(10);
 
     /**
      * Идентификатор таймера, ответственного за уменьшение переменной totalTimeLeft.
@@ -248,7 +253,11 @@ export const useGameStore = defineStore('gameStorage', () => {
      */
     // let results: IGameResult | undefined;
 
-    const gameData: { name: string; results: IGameResult | undefined } = { name: '', results: undefined };
+    const gameData: { name: string; results: IGameResult | undefined; successfullySaved: boolean } = {
+        name: '',
+        results: undefined,
+        successfullySaved: true,
+    };
 
     /**
      * Текущий уровень игры.
@@ -1141,13 +1150,22 @@ export const useGameStore = defineStore('gameStorage', () => {
      * Осуществляет завершение игры.
      */
     const handleGameFinishingState = async () => {
-        generateResults();
+        try {
+            setGameFinishingState();
+            setTranslatableMessage('gameSaving');
+            generateResults();
 
-        if (gameData.results) {
-            await service.saveResults(gameData.results);
+            if (gameData.results) {
+                await service.saveResults(gameData.results);
+            }
+
+            page.selectResultTab();
+        } catch (error) {
+            // error handling logic here...
+            gameData.successfullySaved = false;
+        } finally {
+            page.selectResultTab();
         }
-
-        page.selectResultTab();
     };
 
     /** **************************************************************************************************************** Сбор статистики  */
@@ -1155,19 +1173,19 @@ export const useGameStore = defineStore('gameStorage', () => {
     /**
      * Подсчитывает среднюю точность за игру.
      */
-    const calculateAccuracy = (): number => {
+    const calculateAccuracy = (): string => {
         const accuracy = (totalCorrectAnswersAmount / (totalCorrectAnswersAmount + totalIncorrectAnswersAmount)) * 100;
 
-        return Number(accuracy.toFixed(1));
+        return accuracy.toFixed(1);
     };
 
     /**
      * Подсчитывает среднее время реакции за игру.
      */
-    const calculateMeanReactionTime = (): number => {
+    const calculateMeanReactionTime = (): string => {
         const meanSec = mean(reactionTimes) / 1000;
 
-        return Number(meanSec.toFixed(2));
+        return meanSec.toFixed(2);
     };
 
     /** ********************************************************************************************************** Вспомогательные методы */
@@ -1198,10 +1216,8 @@ export const useGameStore = defineStore('gameStorage', () => {
      * Формирует результаты игры.
      */
     const generateResults = (): void => {
-        // todo:
         gameData.results = {
-            game: page.game as string,
-            finishedAtTheLevel: currentUserLevel.value,
+            finishedAtLevel: currentUserLevel.value,
             maxUnlockedLevel: maxUserLevel.value,
             withinSession: withinSession.value,
             meanReactionTime: calculateMeanReactionTime(),
@@ -1213,6 +1229,7 @@ export const useGameStore = defineStore('gameStorage', () => {
     };
 
     const resetResults = (): void => {
+        gameData.successfullySaved = true;
         gameData.results = undefined;
     };
 
@@ -1222,34 +1239,22 @@ export const useGameStore = defineStore('gameStorage', () => {
      * Получает информацию о текущей игре с сервера: название, набор уровней и прогресс пользователя.
      */
     const setupGame = async () => {
-        // gameData.name = 'Матрица';
-        resetResults();
+        const data: IGameLevels<IBaseGameLevel> = await service.fetchLevels();
 
-        // todo:
-        // gameData.results = {
-        //     game: 'matrix',
-        //     finishedAtTheLevel: 3,
-        //     maxUnlockedLevel: 4,
-        //     withinSession: true,
-        //     meanReactionTime: 2.81,
-        //     accuracy: 79.5,
-        //     totalCorrectAnswersAmount: 10,
-        //     score: 10,
-        // };
+        gameName.value = data.game;
+        maxUserLevel.value = data.maxUserLevel;
+        currentUserLevel.value = data.lastUserLevel;
+        target.value = data.target;
 
-        await setupLevels();
+        setTotalTime(data.time);
+        setLevels(data.levels);
     };
 
     /**
      * Устанавливает набор уровней текущей игры, обращаясь к серверу.
      */
-    const setupLevels = async () => {
-        const response: BaseResponse<IGameLevels<any>> = await service.fetchLevels();
-
-        maxUserLevel.value = response.data.maxUserLevel;
-        currentUserLevel.value = response.data.lastUserLevel;
-        target.value = response.data.target;
-        levels.value = response.data.levels;
+    const setLevels = (levelsToSet: IGameLevels<IBaseGameLevel>) => {
+        levels.value = levelsToSet;
     };
 
     /**
@@ -1298,19 +1303,10 @@ export const useGameStore = defineStore('gameStorage', () => {
      * Инициализация стора.
      */
     const $setup = async () => {
-        // results = {
-        //     game: page.game as string,
-        //     finishedAtTheLevel: currentUserLevel.value,
-        //     maxUnlockedLevel: maxUserLevel.value,
-        //     withinSession: withinSession.value,
-        //     meanReactionTime: calculateMeanReactionTime(),
-        //     accuracy: calculateAccuracy(),
-        // };
-
-        // resetResults();
+        resetResults();
         setGamePreparingState();
+
         await setupGame();
-        setTotalTime(90); // implement logic to get game duration from backend
     };
 
     /**
@@ -1474,6 +1470,7 @@ export const useGameStore = defineStore('gameStorage', () => {
         failedRoundsStreak,
 
         gameData,
+        gameName,
 
         $setup,
         $reset,

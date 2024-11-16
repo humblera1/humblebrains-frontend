@@ -1,26 +1,31 @@
 <template>
     <div class="result">
-        <header class="result__header">
-            <h1 class="title">{{ $t('gameCompleted') }}</h1>
-            <div class="result__score">
-                <IconStar />
-                <p>{{ $t('score') + ': ' + score }}</p>
+        <template v-if="game.gameData.successfullySaved">
+            <header class="result__header">
+                <h1 class="title">{{ $t('gameCompleted') }}</h1>
+                <div class="result__score">
+                    <IconStar />
+                    <p>{{ $t('score') + ': ' + score }}</p>
+                </div>
+            </header>
+            <div class="result__body">
+                <section class="result__games">
+                    <WidgetGameTabResultCard :title="game.gameName" :score="score" />
+                    <WidgetGameTabResultCard :title="solitary.label" :current="solitary.userLevel" :max="solitary.maxLevel" />
+                </section>
+                <section class="result__section" :class="achievementsClass" @animationend="handleAchievementsAnimationEnd">
+                    <h2 class="result__subtitle">{{ $t('totalAchievements') }}</h2>
+                    <WidgetGameTabResultAchievements @rendered="handleAchievementsRendered" />
+                </section>
+                <section class="result__section" :class="statisticsClass">
+                    <h2 class="result__subtitle">{{ $t('gameStatistics') }}</h2>
+                    <WidgetGameTabResultStatistics />
+                </section>
             </div>
-        </header>
-        <div class="result__body">
-            <section class="result__games">
-                <WidgetGameTabResultCard :title="game.gameData.name" :score="score" />
-                <WidgetGameTabResultCard :title="solitary.label" :current="solitary.userLevel" :max="solitary.maxLevel" />
-            </section>
-            <section class="result__section" :class="achievementsClass" @animationend="handleAchievementsAnimationEnd">
-                <h2 class="result__subtitle">{{ $t('totalAchievements') }}</h2>
-                <WidgetGameTabResultAchievements @rendered="handleAchievementsRendered" />
-            </section>
-            <section class="result__section" :class="statisticsClass">
-                <h2 class="result__subtitle">{{ $t('gameStatistics') }}</h2>
-                <WidgetGameTabResultStatistics />
-            </section>
-        </div>
+        </template>
+        <template>
+            saving error
+        </template>
     </div>
 </template>
 
@@ -61,10 +66,6 @@ const handleAchievementsAnimationEnd = () => {
         console.log('session/program modal');
     }, 5000);
 };
-
-onMounted(() => {
-    game.$setup();
-});
 </script>
 
 <style scoped lang="scss" src="./game-result.styles.scss" />

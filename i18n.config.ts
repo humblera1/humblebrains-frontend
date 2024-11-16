@@ -60,6 +60,7 @@ export default defineI18nConfig(() => ({
             accuracy: 'Точность ответов',
             gamesAmount: 'Количество игр',
             targetCompleted: 'Цель достигнута!',
+            gameSaving: 'Сохраняем результаты игры...',
 
             // Matrix
             remember: 'Запомнил',
@@ -153,6 +154,7 @@ export default defineI18nConfig(() => ({
             accuracy: 'Answer accuracy',
             gamesAmount: 'Number of games',
             targetCompleted: 'Target completed!',
+            gameSaving: 'Saving the game results...',
 
             // Matrix
             remember: 'Remember',

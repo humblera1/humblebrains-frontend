@@ -622,6 +622,13 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     const handleRoundFinishing = async () => {
         await game.checkMode();
 
+        if (game.isTimeToChangeLevel() && game.isGameTimeOver) {
+            game.handleLevelChanging();
+            await finishGame();
+
+            return;
+        }
+
         if (game.isGameTimeOver) {
             await finishGame();
 
@@ -677,8 +684,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * Вызывается для завершения игры
      */
     const finishGame = async () => {
-        await destroyField();
-        await game.handleGameFinishingState();
+        await Promise.all([destroyField(), game.handleGameFinishingState()]);
     };
 
     const resetCoveringTimer = () => {

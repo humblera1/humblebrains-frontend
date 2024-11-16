@@ -1,13 +1,8 @@
 export interface IGameResult {
     /**
-     * Название игры.
-     */
-    game: string;
-
-    /**
      * Уровень, на котором была завершена игра.
      */
-    finishedAtTheLevel: number;
+    finishedAtLevel: number;
 
     /**
      * Максимальный открытый уровень.
@@ -17,12 +12,12 @@ export interface IGameResult {
     /**
      * Среднее время реакции.
      */
-    meanReactionTime: number;
+    meanReactionTime: string;
 
     /**
      * Точность ответов (отношение правильных ответов к их общему числу в процентах).
      */
-    accuracy: number;
+    accuracy: string;
 
     /**
      * Количество верных ответов, данных за всю игру.

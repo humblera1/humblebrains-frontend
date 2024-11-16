@@ -2,7 +2,7 @@
     <div class="statistics">
         <div class="statistics__content">
             <template v-if="status === 'success'">
-                <WidgetGameTabResultReaction :reaction="123.45" />
+                <WidgetGameTabResultReaction :reaction="game.gameData.results.meanReactionTime" />
                 <WidgetGameUiChart :data="accuracyData" :title="$t('accuracy')" theme="purple" />
                 <WidgetGameUiChart :data="scoreData" :title="$t('scores')" />
             </template>
@@ -22,6 +22,7 @@ import type { IGameStatistics } from '~/entities/interfaces/games/IGameStatistic
 const { $api } = useNuxtApp();
 
 const page = useGamePageStore();
+const game = useGameStore();
 
 const { status, data: statistics } = await useLazyAsyncData('statistics', async () => {
     const response = await $api<BaseResponse<IGameStatistics>>(`/v1/games/${page.game}/statistics`, {
