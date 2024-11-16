@@ -125,6 +125,14 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         return game.currentLevel as IMatrixLevel;
     });
 
+    const hasManyColors = computed((): boolean => {
+        if (currentLevel.value) {
+            return currentLevel.value.colorsAmount > 1;
+        }
+
+        return false;
+    });
+
     /** ************************************************************************************************************************ Проверки */
 
     /**
@@ -446,9 +454,6 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     /**
      * Раскрашиваем ячейки: с интервалом TIME_TO_COLORIZE_CELL добавляем в colorizedCells номер ячейки в качестве ключа
      * и цвет ячейки под этим номером в виде значения.
-     *
-     * todo: ошибка при наличии нескольких цветов
-     * @error
      */
     const colorizeCells = (): Promise<void> => {
         return new Promise((resolve) => {
@@ -464,7 +469,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
                 let numberIterations = 0;
                 for (const number of shuffledNumbers) {
                     if (numberIterations >= currentLevel.value.correctAnswersBeforeFinish) {
-                        shuffledNumbers.slice(0, numberIterations);
+                        shuffledNumbers.splice(0, numberIterations);
                         continue;
                     }
 
@@ -726,5 +731,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
         $reset,
 
         coveredCells,
+        hasManyColors,
+        activeRoundColor,
     };
 });

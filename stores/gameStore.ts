@@ -951,6 +951,10 @@ export const useGameStore = defineStore('gameStorage', () => {
      * Осуществляет переход в состояние подготовки игры.
      */
     const handleGamePreparing = async () => {
+        if (isInPauseState()) {
+            await getPausePromise();
+        }
+
         await handleLevelPreparing();
     };
 
@@ -964,6 +968,10 @@ export const useGameStore = defineStore('gameStorage', () => {
         clearMessage();
         stopTotalTimer();
         setLevelPreparingState();
+
+        if (isInPauseState()) {
+            await getPausePromise();
+        }
 
         await startCountdown();
 
@@ -991,6 +999,10 @@ export const useGameStore = defineStore('gameStorage', () => {
      * Осуществляет переход в состояние запоминания.
      */
     const handleContemplation = async (): Promise<void> => {
+        if (isInPauseState()) {
+            await getPausePromise();
+        }
+
         setContemplationState();
         startReactionTimer();
 
@@ -1001,6 +1013,10 @@ export const useGameStore = defineStore('gameStorage', () => {
      * Осуществляет переход в состояние ответа.
      */
     const handleInteractive = async (): Promise<void> => {
+        if (isInPauseState()) {
+            await getPausePromise();
+        }
+
         setRoundTime(currentLevel.value.timeToAnswer);
         setInteractiveState();
 
