@@ -2,13 +2,17 @@
     <div class="statistics">
         <div class="statistics__content">
             <template v-if="status === 'success'">
-                <WidgetGameTabResultReaction :reaction="game.gameData.results.meanReactionTime" />
-                <WidgetGameUiChart :data="accuracyData" :title="$t('accuracy')" theme="purple" />
-                <WidgetGameUiChart :data="scoreData" :title="$t('scores')" />
+                <WidgetGameTabResultBlock type="reaction" />
+                <template v-if="isEnoughData">
+                    <WidgetGameUiChart :data="accuracyData" :title="$t('accuracy')" theme="purple" />
+                    <WidgetGameUiChart :data="scoreData" :title="$t('scores')" />
+                </template>
+                <template v-else>
+                    <WidgetGameTabResultBlock type="accuracy" />
+                    <WidgetGameTabResultBlock type="score" />
+                </template>
             </template>
-            <template v-else>
-                loading...
-            </template>
+            <UiPreloader v-else />
         </div>
     </div>
 </template>
@@ -17,12 +21,9 @@
 import type { BaseResponse } from '~/entities/interfaces/responses/BaseResponse';
 import type { IGameStatistics } from '~/entities/interfaces/games/IGameStatistics';
 
-// todo: reaction time from checkpoint
-
 const { $api } = useNuxtApp();
 
 const page = useGamePageStore();
-const game = useGameStore();
 
 const { status, data: statistics } = await useLazyAsyncData('statistics', async () => {
     const response = await $api<BaseResponse<IGameStatistics>>(`/v1/games/${page.game}/statistics`, {
@@ -30,6 +31,14 @@ const { status, data: statistics } = await useLazyAsyncData('statistics', async 
     });
 
     return response.data;
+});
+
+const isEnoughData = computed((): boolean => {
+    if (statistics.value && statistics.value.games) {
+        return statistics.value.games.length > 1;
+    }
+
+    return false;
 });
 
 const scoreData = computed(() => {
