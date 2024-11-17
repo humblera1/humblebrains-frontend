@@ -25,6 +25,7 @@ import { WidgetModalTutorial } from '#components';
 const { openModal } = useHumbleModal();
 
 const page = useGamePageStore();
+const game = useGameStore();
 
 const isUserReady = ref<boolean>(false);
 
@@ -37,6 +38,10 @@ const showTutorial = () => {
 const startGame = () => {
     isUserReady.value = true;
 };
+
+onUnmounted(() => {
+    game.$reset();
+});
 </script>
 
 <style scoped lang="scss" src="./game-field.styles.scss" />

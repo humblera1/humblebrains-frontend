@@ -1,4 +1,6 @@
 .result {
+    height: 100%;
+
     &__header {
         display: flex;
         flex-direction: column;
@@ -54,6 +56,48 @@
         &_hidden {
             opacity: 0;
             visibility: hidden;
+        }
+    }
+
+    &__error {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+
+        &-message {
+            @include mainFont(500, 20, var(--primary-subtitle));
+            margin-bottom: 60px;
+            text-align: center;
+
+            @include tablet {
+                font-size: 16px;
+                margin-bottom: 48px;
+            }
+
+            @include mobile {
+                font-size: 14px;
+                margin-bottom: 36px;
+            }
+        }
+    }
+
+    &__exclamation {
+        width: 70px;
+        height: 67px;
+        margin-bottom: 24px;
+        color: var(--primary-subtitle);
+
+        @include tablet {
+            width: 60px;
+            height: 57px;
+        }
+
+        @include mobile {
+            width: 40px;
+            height: 38px;
+            margin-bottom: 16px;
         }
     }
 

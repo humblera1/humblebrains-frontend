@@ -23,14 +23,26 @@
                 </section>
             </div>
         </template>
-        <template>
-            saving error
+        <template v-else>
+            <div class="result__error">
+                <IconExclamationTriangle class="result__exclamation" />
+                <p class="result__error-message">
+                    {{ $t('gameSavingError') }}
+                </p>
+                <UiButton @click="resendResults">
+                    <template #leading>
+                        <IconRepeat />
+                    </template>
+                    {{ $t('repeat') }}
+                </UiButton>
+            </div>
         </template>
     </div>
 </template>
 
 <script setup lang="ts">
 const game = useGameStore();
+const service = useGameService();
 
 const isAchievementsVisible = ref<boolean>(false);
 const isStatisticsVisible = ref<boolean>(false);
@@ -56,6 +68,18 @@ const statisticsClass = computed((): string => {
 
 const handleAchievementsRendered = () => {
     isAchievementsVisible.value = true;
+};
+
+const resendResults = async () => {
+    try {
+        if (game.gameData.results) {
+            await service.saveResults(game.gameData.results);
+        }
+
+        game.gameData.successfullySaved = true;
+    } catch (error) {
+        game.gameData.successfullySaved = false;
+    }
 };
 
 const handleAchievementsAnimationEnd = () => {

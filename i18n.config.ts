@@ -61,6 +61,10 @@ export default defineI18nConfig(() => ({
             gamesAmount: 'Количество игр',
             targetCompleted: 'Цель достигнута!',
             gameSaving: 'Сохраняем результаты игры...',
+            gameSavingError: 'Не удалось сохранить результаты',
+            yourAccuracy: 'Ваша точность',
+            yourReaction: 'Среднее время вашей реакции',
+            yourScore: 'Очки, заработанные за игру',
 
             // Matrix
             remember: 'Запомнил',
@@ -148,13 +152,16 @@ export default defineI18nConfig(() => ({
             repeat: 'Repeat',
             nextOne: 'Next One',
             gameStatistics: 'Statistics',
-            meanReactionTime: 'Average reaction time per game',
             ms: 'ms',
             scores: 'Points and progress',
             accuracy: 'Answer accuracy',
             gamesAmount: 'Number of games',
             targetCompleted: 'Target completed!',
             gameSaving: 'Saving the game results...',
+            gameSavingError: 'Failed to save results',
+            yourAccuracy: 'Your accuracy',
+            yourReaction: 'Your average reaction time',
+            yourScore: 'Points earned for the game',
 
             // Matrix
             remember: 'Remember',
