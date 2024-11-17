@@ -69,12 +69,12 @@ export const useGameStore = defineStore('gameStorage', () => {
      * Время, отведённое на игру.
      */
     // const totalTime = ref<number>(90);
-    const totalTime = ref<number>(10);
+    const totalTime = ref<number>(0);
 
     /**
      * Оставшееся игровое время.
      */
-    const totalTimeLeft = ref<number>(10);
+    const totalTimeLeft = ref<number>(0);
 
     /**
      * Идентификатор таймера, ответственного за уменьшение переменной totalTimeLeft.
@@ -994,13 +994,6 @@ export const useGameStore = defineStore('gameStorage', () => {
      */
     const handleRoundPreparing = (): void => {
         setRoundTime(currentLevel.value.timeToContemplate);
-
-        if (isInGameMode() && isInDefaultRegime()) {
-            totalCorrectAnswersAmount += correctAnswersOnRound;
-            totalIncorrectAnswersAmount += incorrectAnswersOnRound;
-        }
-
-        resetRoundAnswers();
         setRoundPreparingState();
     };
 
@@ -1069,7 +1062,11 @@ export const useGameStore = defineStore('gameStorage', () => {
      */
     const handleRoundFinishing = () => {
         if (isInGameMode() && isInDefaultRegime()) {
+            totalCorrectAnswersAmount += correctAnswersOnRound;
+            totalIncorrectAnswersAmount += incorrectAnswersOnRound;
+
             storeAndResetReactionTime();
+            resetRoundAnswers();
         }
 
         stopRoundTimer();
@@ -1149,7 +1146,7 @@ export const useGameStore = defineStore('gameStorage', () => {
     /**
      * Осуществляет завершение игры.
      */
-    const handleGameFinishingState = async () => {
+    const handleGameFinishing = async () => {
         try {
             setGameFinishingState();
             setTranslatableMessage('gameSaving');
@@ -1158,8 +1155,6 @@ export const useGameStore = defineStore('gameStorage', () => {
             if (gameData.results) {
                 await service.saveResults(gameData.results);
             }
-
-            page.selectResultTab();
         } catch (error) {
             // error handling logic here...
             gameData.successfullySaved = false;
@@ -1217,6 +1212,7 @@ export const useGameStore = defineStore('gameStorage', () => {
      */
     const generateResults = (): void => {
         gameData.results = {
+            game: page.game as string,
             finishedAtLevel: currentUserLevel.value,
             maxUnlockedLevel: maxUserLevel.value,
             withinSession: withinSession.value,
@@ -1253,7 +1249,7 @@ export const useGameStore = defineStore('gameStorage', () => {
     /**
      * Устанавливает набор уровней текущей игры, обращаясь к серверу.
      */
-    const setLevels = (levelsToSet: IGameLevels<IBaseGameLevel>) => {
+    const setLevels = (levelsToSet: IGameLevel<IBaseGameLevel>) => {
         levels.value = levelsToSet;
     };
 
@@ -1399,7 +1395,7 @@ export const useGameStore = defineStore('gameStorage', () => {
         handleInteractive,
         handleRoundFinishing,
         handleLevelChanging,
-        handleGameFinishingState,
+        handleGameFinishing,
         handleCorrectAnswering,
         handleIncorrectAnswering,
 

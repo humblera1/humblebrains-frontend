@@ -602,8 +602,11 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     const finishRound = async () => {
         game.handleRoundFinishing();
 
-        await Promise.all([clearRoundData(), handleRoundFinishing()]);
-        await startNewRound();
+        const [shouldStartNewRound] = await Promise.all([handleRoundFinishing(), clearRoundData()]);
+
+        if (shouldStartNewRound) {
+            await startNewRound();
+        }
     };
 
     /**
@@ -619,25 +622,22 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     /**
      * Обрабатывает события смены режима, уровня и завершения игры.
      */
-    const handleRoundFinishing = async () => {
+    const handleRoundFinishing = async (): Promise<boolean> => {
         await game.checkMode();
 
-        if (game.isTimeToChangeLevel() && game.isGameTimeOver) {
-            game.handleLevelChanging();
-            await finishGame();
-
-            return;
+        switch (true) {
+            case game.isTimeToChangeLevel() && game.isGameTimeOver:
+                game.handleLevelChanging();
+                await finishGame();
+                return false;
+            case game.isGameTimeOver:
+                await finishGame();
+                return false;
+            case game.isTimeToChangeLevel():
+                await changeLevel();
         }
 
-        if (game.isGameTimeOver) {
-            await finishGame();
-
-            return;
-        }
-
-        if (game.isTimeToChangeLevel()) {
-            await changeLevel();
-        }
+        return true;
     };
 
     /**
@@ -684,7 +684,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
      * Вызывается для завершения игры
      */
     const finishGame = async () => {
-        await Promise.all([destroyField(), game.handleGameFinishingState()]);
+        await Promise.all([destroyField(), game.handleGameFinishing()]);
     };
 
     const resetCoveringTimer = () => {
@@ -750,8 +750,6 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
 
         destroyedCells.value = [];
         coveredCells.value = [];
-
-        game.$reset();
     };
 
     return {
