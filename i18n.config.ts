@@ -65,6 +65,7 @@ export default defineI18nConfig(() => ({
             yourAccuracy: 'Ваша точность',
             yourReaction: 'Среднее время вашей реакции',
             yourScore: 'Очки, заработанные за игру',
+            notEnoughDataForSelectedPeriod: 'Отсутствует информация за выбранный период...',
 
             // Matrix
             remember: 'Запомнил',
@@ -162,6 +163,7 @@ export default defineI18nConfig(() => ({
             yourAccuracy: 'Your accuracy',
             yourReaction: 'Your average reaction time',
             yourScore: 'Points earned for the game',
+            notEnoughDataForSelectedPeriod: 'There is no information for selected period...',
 
             // Matrix
             remember: 'Remember',

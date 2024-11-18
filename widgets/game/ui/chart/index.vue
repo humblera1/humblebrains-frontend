@@ -18,7 +18,13 @@
             <WidgetGameUiCalendar v-if="withFilter" v-model="selectedPeriod" />
         </div>
         <div class="chart__body">
-            <div ref="chart" class="chart__chart" />
+            <div v-if="isEnoughData" ref="chart" class="chart__chart" />
+            <div v-else class="chart__placeholder">
+                <IconSearch />
+                <span>
+                    {{ $t('notEnoughDataForSelectedPeriod') }}
+                </span>
+            </div>
         </div>
     </div>
 </template>
@@ -28,6 +34,7 @@ import * as echarts from 'echarts';
 import type { EChartsType } from 'echarts';
 import type { GameUiChartTypes } from '~/widgets/game/ui/chart/game-ui-chart.types';
 import { PeriodEnum } from '~/entities/enums/PeriodEnum';
+import type { ChartData } from '~/entities/types/ChartData';
 
 const { data, withFilter = false, theme = 'blue' } = defineProps<GameUiChartTypes>();
 
@@ -37,6 +44,10 @@ const selectedPeriod = defineModel<PeriodEnum>();
 
 const chart = ref<HTMLElement | null>(null);
 let statsChart: EChartsType;
+
+const isEnoughData = computed((): boolean => {
+    return data.xAsis.length > 1;
+});
 
 const color = computed((): string => {
     if (colorMode.value === 'dark') {
@@ -121,6 +132,15 @@ const initChart = () => {
     }
 };
 
+const updateChart = (data: ChartData) => {
+    if (chart.value && chart.value.clientWidth && isEnoughData.value) {
+        chartOptions.xAxis.data = data.xAsis;
+        chartOptions.series[0].data = data.yAsis;
+
+        statsChart.setOption(chartOptions);
+    }
+};
+
 const handleResize = () => {
     if (statsChart && !statsChart.isDisposed()) {
         statsChart.resize();
@@ -150,7 +170,7 @@ watch(
     async () => {
         if (data) {
             await nextTick();
-            initChart();
+            updateChart(data);
         }
     },
 );

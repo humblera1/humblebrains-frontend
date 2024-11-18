@@ -6,4 +6,9 @@
         flex-wrap: wrap;
         gap: 16px;
     }
+
+    &__chart {
+        max-width: 450px;
+        min-width: 300px;
+    }
 }

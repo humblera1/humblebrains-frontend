@@ -4,8 +4,8 @@
             <template v-if="status === 'success'">
                 <WidgetGameTabResultBlock type="reaction" />
                 <template v-if="isEnoughData">
-                    <WidgetGameUiChart :data="accuracyData" :title="$t('accuracy')" theme="purple" />
-                    <WidgetGameUiChart :data="scoreData" :title="$t('scores')" />
+                    <WidgetGameUiChart :data="accuracyData" :title="$t('accuracy')" theme="purple" class="statistics__chart" />
+                    <WidgetGameUiChart :data="scoreData" :title="$t('scores')" class="statistics__chart" />
                 </template>
                 <template v-else>
                     <WidgetGameTabResultBlock type="accuracy" />
