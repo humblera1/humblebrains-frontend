@@ -4,11 +4,11 @@ import { GameStateEnum } from '~/entities/enums/games/GameStateEnum';
 import type { IGameLevels } from '~/entities/interfaces/games/IGameLevels';
 import type { IGameLevel } from '~/entities/interfaces/games/IGameLevel';
 import type { IBaseGameLevel } from '~/entities/interfaces/games/IBaseGameLevel';
-import type { IGameResult } from '~/entities/interfaces/games/IGameResult';
 import { GameModeEnum } from '~/entities/enums/games/GameModeEnum';
 import { GameRegimeEnum } from '~/entities/enums/games/GameRegimeEnum';
 import type { GameMessage } from '~/entities/types/GameMessage';
 import type { GamePrompt } from '~/entities/types/GamePrompt';
+import type { IFinishedGame } from '~/entities/interfaces/games/IFinishedGame';
 
 /**
  * Базовый стор, отвечающий за операции, свойственные всем играм: переключением модов и режимов, запуск таймеров, сбор статистик и сохранение результатов.
@@ -253,10 +253,11 @@ export const useGameStore = defineStore('gameStorage', () => {
      */
     // let results: IGameResult | undefined;
 
-    const gameData: { name: string; results: IGameResult | undefined; successfullySaved: boolean } = {
-        name: '',
+    const gameData: IFinishedGame = {
         results: undefined,
-        successfullySaved: true,
+        successfullySaved: false,
+        hasGameCompletedSession: false,
+        hasGameCompletedProgram: false,
     };
 
     /**
@@ -1153,11 +1154,14 @@ export const useGameStore = defineStore('gameStorage', () => {
             generateResults();
 
             if (gameData.results) {
-                await service.saveResults(gameData.results);
+                const { hasGameCompletedSession, hasGameCompletedProgram } = await service.saveResults(gameData.results);
+
+                gameData.successfullySaved = true;
+                gameData.hasGameCompletedSession = hasGameCompletedSession;
+                gameData.hasGameCompletedProgram = hasGameCompletedProgram;
             }
         } catch (error) {
             // error handling logic here...
-            gameData.successfullySaved = false;
         } finally {
             page.selectResultTab();
         }
@@ -1225,7 +1229,9 @@ export const useGameStore = defineStore('gameStorage', () => {
     };
 
     const resetResults = (): void => {
-        gameData.successfullySaved = true;
+        gameData.successfullySaved = false;
+        gameData.hasGameCompletedSession = false;
+        gameData.hasGameCompletedProgram = false;
         gameData.results = undefined;
     };
 
