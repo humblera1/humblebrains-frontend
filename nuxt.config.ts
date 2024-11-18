@@ -25,6 +25,11 @@ export default defineNuxtConfig({
             api: process.env.API_URL ?? '',
         },
     },
+    googleFonts: {
+        families: {
+            Ubuntu: [400, 500, 600, 700],
+        },
+    },
     i18n: {
         strategy: 'prefix_except_default',
         defaultLocale: 'ru',
@@ -39,5 +44,9 @@ export default defineNuxtConfig({
                 },
             },
         },
+    },
+    eslint: {
+        // Disable automatic config generation
+        config: false,
     },
 });
