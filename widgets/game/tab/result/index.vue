@@ -42,6 +42,7 @@
 
 <script setup lang="ts">
 import { WidgetModalCompletion } from '#components';
+import { CompletionModalTypeEnum } from '~/entities/enums/games/CompletionModalTypeEnum';
 
 const game = useGameStore();
 const service = useGameService();
@@ -91,11 +92,11 @@ const handleAchievementsAnimationEnd = () => {
 
     if (game.gameData.hasGameCompletedSession) {
         setTimeout(() => {
-            openModal(WidgetModalCompletion, { type: 'session' });
+            openModal(WidgetModalCompletion, { type: CompletionModalTypeEnum.session });
         }, 5000);
     } else if (game.gameData.hasGameCompletedProgram) {
         setTimeout(() => {
-            openModal(WidgetModalCompletion, { type: 'program' });
+            openModal(WidgetModalCompletion, { type: CompletionModalTypeEnum.program });
         }, 5000);
     }
 };

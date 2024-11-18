@@ -10,6 +10,7 @@ export default defineI18nConfig(() => ({
             no: 'Нет',
             description: 'Описание',
             filters: 'Фильтры',
+            goTo: 'Перейти',
 
             // Sidebar:
             home: 'Главная',
@@ -66,6 +67,10 @@ export default defineI18nConfig(() => ({
             yourReaction: 'Среднее время вашей реакции',
             yourScore: 'Очки, заработанные за игру',
             notEnoughDataForSelectedPeriod: 'Отсутствует информация за выбранный период...',
+            sessionCompleted: 'Сессия завершена!',
+            programCompleted: 'Программа завершена!',
+            sessionCompletedInfo: 'Вы завершили текущую сессию вашей программы! Перейдите в профиль, чтобы посмотреть новые упражнения',
+            programCompletedInfo: 'Вы завершили текущую программу! Перейдите в раздел оценки, чтобы пройти контрольную точку.',
 
             // Matrix
             remember: 'Запомнил',
@@ -109,6 +114,7 @@ export default defineI18nConfig(() => ({
             no: 'No',
             description: 'Description',
             filters: 'Filters',
+            goTo: 'Go to',
 
             // Sidebar:
             home: 'Home',
@@ -164,6 +170,10 @@ export default defineI18nConfig(() => ({
             yourReaction: 'Your average reaction time',
             yourScore: 'Points earned for the game',
             notEnoughDataForSelectedPeriod: 'There is no information for selected period...',
+            sessionCompleted: 'Session completed!',
+            programCompleted: 'Program completed!',
+            sessionCompletedInfo: 'You have completed the current session of your program! Go to the profile to see new exercises.',
+            programCompletedInfo: 'You have completed the current program! Go to the assessment section to take the checkpoint.',
 
             // Matrix
             remember: 'Remember',
