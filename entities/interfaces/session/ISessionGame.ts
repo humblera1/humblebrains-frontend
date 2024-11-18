@@ -1,7 +1,11 @@
 export interface ISessionGame {
-    id: number;
-    name: string;
-    label: string;
-    iconImage: string;
+    game: {
+        id: number;
+        name: string;
+        label: string;
+        image: string;
+        maxLevel: number;
+        userLevel: number;
+    };
     isCompleted: boolean;
 }

@@ -1,4 +1,4 @@
-import type { IProgramPreview } from '~/entities/interfaces/program/IProgramPreview';
+import type { IProgram } from '~/entities/interfaces/program/IProgram';
 import type { ICheckpoint } from '~/modules/checkpoint/entities/interfaces/ICheckpoint';
 
 export interface IGameFinishingResponseContent {
@@ -19,5 +19,5 @@ export interface IGameFinishingResponseContent {
      * Ключ будет присутствовать только в случае, если сохранялась игра, сыгранная в рамках сессии.
      * В противном случае не требуется обновления состояния пользователя, связанного с программой.
      */
-    program?: IProgramPreview;
+    program?: IProgram;
 }

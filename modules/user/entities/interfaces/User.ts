@@ -1,5 +1,6 @@
 import type { UserPersonalData } from '~/modules/user/entities/interfaces/UserPersonalData';
 import type { ICheckpoint } from '~/modules/checkpoint/entities/interfaces/ICheckpoint';
+import type { IProgram } from '~/entities/interfaces/program/IProgram';
 
 export interface User {
     // top-level properties common to all users,
@@ -11,4 +12,7 @@ export interface User {
 
     // checkpoint data
     checkpoint: ICheckpoint;
+
+    // program data
+    program?: IProgram;
 }
