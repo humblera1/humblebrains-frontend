@@ -5,6 +5,11 @@ export interface IGameResult {
     game: string;
 
     /**
+     * Уровень, с которого была начата игра.
+     */
+    startedFromLevel: number;
+
+    /**
      * Уровень, на котором была завершена игра.
      */
     finishedAtLevel: number;

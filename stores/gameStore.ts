@@ -143,6 +143,11 @@ export const useGameStore = defineStore('gameStorage', () => {
     const currentUserLevel = ref<number>(0);
 
     /**
+     * Изначальный уровень пользователя. Не меняется в течение игры.
+     */
+    let initialUserLevel = 0;
+
+    /**
      * Максимальное допустимое количество разминочных раундов, доступное для выбора пользователем.
      */
     const maxWarmUpLevelsAmount: number = 3;
@@ -1217,6 +1222,7 @@ export const useGameStore = defineStore('gameStorage', () => {
     const generateResults = (): void => {
         gameData.results = {
             game: page.game as string,
+            startedFromLevel: initialUserLevel,
             finishedAtLevel: currentUserLevel.value,
             maxUnlockedLevel: maxUserLevel.value,
             withinSession: withinSession.value,
@@ -1246,6 +1252,7 @@ export const useGameStore = defineStore('gameStorage', () => {
         gameName.value = data.game;
         maxUserLevel.value = data.maxUserLevel;
         currentUserLevel.value = data.lastUserLevel;
+        initialUserLevel = data.lastUserLevel;
         target.value = data.target;
 
         setTotalTime(data.time);
@@ -1275,6 +1282,7 @@ export const useGameStore = defineStore('gameStorage', () => {
     const resetLevels = () => {
         maxUserLevel.value = 0;
         currentUserLevel.value = 0;
+        initialUserLevel = 0;
         levels.value = {};
     };
 
