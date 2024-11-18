@@ -41,8 +41,12 @@
 </template>
 
 <script setup lang="ts">
+import { WidgetModalCompletion } from '#components';
+
 const game = useGameStore();
 const service = useGameService();
+
+const { openModal } = useHumbleModal();
 
 const isAchievementsVisible = ref<boolean>(false);
 const isStatisticsVisible = ref<boolean>(false);
@@ -85,10 +89,15 @@ const resendResults = async () => {
 const handleAchievementsAnimationEnd = () => {
     isStatisticsVisible.value = true;
 
-    setTimeout(() => {
-        // todo: modal window
-        console.log('session/program modal');
-    }, 5000);
+    if (game.gameData.hasGameCompletedSession) {
+        setTimeout(() => {
+            openModal(WidgetModalCompletion, { type: 'session' });
+        }, 5000);
+    } else if (game.gameData.hasGameCompletedProgram) {
+        setTimeout(() => {
+            openModal(WidgetModalCompletion, { type: 'program' });
+        }, 5000);
+    }
 };
 </script>
 
