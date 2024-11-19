@@ -1,10 +1,6 @@
 <template>
     <NuxtLayout>
-        <div>
-            <UiButton to="/checkpoint/memory"> memory </UiButton>
-            <UiButton to="/checkpoint/logic"> logic </UiButton>
-            <UiButton to="/checkpoint/attention"> attention </UiButton>
-        </div>
+        <WidgetProgress />
     </NuxtLayout>
 </template>
 
