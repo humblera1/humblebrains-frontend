@@ -1,6 +1,18 @@
 @use "../collection/_mixins.scss" as mixins;
 @use "../collection/_medias.scss" as medias;
 
+:root {
+    .swiper-pagination-bullet {
+        background-color: var(--blue-badge);
+        opacity: 1;
+    }
+
+    .swiper-pagination-bullet-active {
+        background-color: var(--blue);
+        opacity: 1;
+    }
+}
+
 body {
     background-color: var(--secondary-bg);
     @include mixins.mainFont(500, 16, black);
