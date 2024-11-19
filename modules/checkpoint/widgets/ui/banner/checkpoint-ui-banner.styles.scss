@@ -1,0 +1,104 @@
+.banner {
+    position: relative;
+    display: flex;
+    width: 100%;
+    border-radius: 36px;
+    padding: 48px 60px 48px 180px;
+    overflow: hidden;
+    background-color: var(--blue);
+
+    @include mainShadow();
+
+    @include tablet {
+        justify-content: center;
+        max-width: 720px;
+        padding: 32px 48px 32px 120px;
+    }
+
+    @include mobile {
+        flex-direction: column;
+        gap: 32px;
+        max-width: 360px;
+        padding: 24px 36px;
+    }
+
+    &__icon {
+        width: fit-content;
+
+        @include mobile {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        svg {
+            min-width: 160px;
+            max-width: 160px;
+            min-height: 160px;
+            max-height: 160px;
+            position: absolute;
+            bottom: -10px;
+            left: -10px;
+            object-fit: contain;
+            width: 100%;
+            height: 100%;
+            color: rgba(255, 255, 255, 0.2);
+
+            @include tablet {
+                min-width: unset;
+                max-width: 110px;
+                min-height: unset;
+                max-height: 110px;
+            }
+
+            @include mobile {
+                position: relative;
+                bottom: unset;
+                left: unset;
+                max-height: 80px;
+                max-width: 80px;
+
+                color: var(--accent-white);
+            }
+        }
+    }
+
+    &__info {
+        display: flex;
+        flex-direction: column;
+        gap: 36px;
+
+        @include tablet {
+            gap: 24px;
+        }
+
+        @include mobile {
+            gap: 16px;
+        }
+    }
+
+    &__title {
+        @include mainFont(500, 20, var(--accent-white));
+
+        @include tablet {
+            font-size: 18px;
+        }
+
+        @include mobile {
+            text-align: center;
+        }
+    }
+
+    &__text {
+        max-width: 480px;
+        @include mainFont(400, 16, rgba(255, 255, 255, 0.5));
+
+        @include tablet {
+            font-size: 14px;
+        }
+
+        @include mobile {
+            text-align: center;
+        }
+    }
+}

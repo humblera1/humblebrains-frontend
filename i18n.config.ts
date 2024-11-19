@@ -75,7 +75,7 @@ export default defineI18nConfig(() => ({
             // Matrix
             remember: 'Запомнил',
 
-            // Tests
+            // Checkpoint
             checkpoint: 'Контрольная точка',
             step: 'Шаг',
             warmUpPrompt: 'Вам будет представлено несколько разминочных раундов',
@@ -86,6 +86,10 @@ export default defineI18nConfig(() => ({
             result: 'Результат',
             restAndContinue: 'Дайте себе 5 минут отдыха прежде, чем приступать к следующему',
             restAndCompleteCheckpoint: 'Все этапы завершены!\n' + 'Завершите контрольную точку и выберите новую программу',
+            welcomeToCheckpoint: 'Добро пожаловать на контрольную точку!',
+            checkpointBannerDescription:
+                'Мы используем контрольные точки, чтобы отслеживать ваш прогресс и корректировать программы развития.\n' +
+                'Завершите все этапы, чтобы мы могли создать вам новый план!',
 
             'thorndike:findNumbers': 'Найдите следующие числа:',
 
@@ -178,7 +182,7 @@ export default defineI18nConfig(() => ({
             // Matrix
             remember: 'Remember',
 
-            // Tests
+            // Checkpoint
             checkpoint: 'Checkpoint',
             step: 'Step',
             warmUpPrompt: '',
@@ -189,6 +193,10 @@ export default defineI18nConfig(() => ({
             result: 'Result',
             restAndContinue: 'Give yourself 5 minutes of rest before starting the next one',
             restAndCompleteCheckpoint: 'All stages completed!\n' + 'Complete the checkpoint and select a new program',
+            welcomeToCheckpoint: 'Welcome to the checkpoint!',
+            checkpointBannerDescription:
+                'We use checkpoints to track your progress and adjust programs.\n' +
+                'Complete all stages so we can create a new plan for you!',
 
             'thorndike:findNumbers': 'Find the following numbers:',
 
