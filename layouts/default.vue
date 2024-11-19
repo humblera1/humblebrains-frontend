@@ -29,7 +29,7 @@
     min-height: 100dvh;
     height: 100dvh;
 
-    @include tablet {
+    @include small-desktop {
         grid-template-columns: 100vw;
     }
 
@@ -42,9 +42,12 @@
 
         @include mainShadow();
 
+        @include small-desktop {
+            border-radius: 0;
+        }
+
         @include tablet {
             padding: 16px;
-            border-radius: 0;
         }
     }
 
@@ -61,7 +64,7 @@
         width: 25vw;
         max-width: 400px;
 
-        @include tablet {
+        @include small-desktop {
             display: none;
         }
     }
