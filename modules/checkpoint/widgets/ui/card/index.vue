@@ -29,8 +29,8 @@
                 </div>
             </div>
             <div v-else class="card__controls">
-                <UiButton v-if="type === 'stage'"> Пройти </UiButton>
-                <UiButton v-else>
+                <UiButton v-if="type === 'stage'" :to="to"> Пройти </UiButton>
+                <UiButton v-else :to="to">
                     К следующему
                     <template #trailing>
                         <IconArrowLeft />
@@ -49,12 +49,18 @@ import type { CheckpointUiCardProps } from '~/modules/checkpoint/widgets/ui/card
 
 const { stage, type = 'stage' } = defineProps<CheckpointUiCardProps>();
 
+const localePath = useLocalePath();
+
 const cardClass = computed((): string => {
     return stage.isCompleted ? 'card_completed' : '';
 });
 
 const imageSrc = computed((): string => {
     return `/images/categories/${stage.category.name}.png`;
+});
+
+const to = computed((): string => {
+    return localePath(`/checkpoint/${stage.category.name}`);
 });
 </script>
 
