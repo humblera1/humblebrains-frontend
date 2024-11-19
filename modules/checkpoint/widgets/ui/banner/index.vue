@@ -1,8 +1,6 @@
 <template>
     <div class="banner">
-        <div class="banner__icon">
-            <IconBlankWithPencil />
-        </div>
+        <IconBlankWithPencil />
         <div class="banner__info">
             <p class="banner__title">
                 {{ $t('welcomeToCheckpoint') }}
@@ -14,7 +12,5 @@
         <div class="banner__progress"></div>
     </div>
 </template>
-
-<script setup lang="ts"></script>
 
 <style scoped lang="scss" src="./checkpoint-ui-banner.styles.scss" />

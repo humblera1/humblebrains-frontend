@@ -1,9 +1,12 @@
 .banner {
     position: relative;
     display: flex;
+    justify-content: center;
+    align-items: center;
     width: 100%;
+    height: 100%;
     border-radius: 36px;
-    padding: 48px 60px 48px 180px;
+    padding: 36px 60px;
     overflow: hidden;
     background-color: var(--blue);
 
@@ -12,7 +15,7 @@
     @include tablet {
         justify-content: center;
         max-width: 720px;
-        padding: 32px 48px 32px 120px;
+        padding: 48px 60px;
     }
 
     @include mobile {
@@ -22,44 +25,28 @@
         padding: 24px 36px;
     }
 
-    &__icon {
-        width: fit-content;
+    svg {
+        width: 160px;
+        height: 160px;
+        position: absolute;
+        bottom: -10px;
+        left: -10px;
+        object-fit: contain;
+        color: rgba(255, 255, 255, 0.1);
 
-        @include mobile {
-            display: flex;
-            justify-content: center;
-            width: 100%;
+        @include tablet {
+            width: 110px;
+            height: 110px;
         }
 
-        svg {
-            min-width: 160px;
-            max-width: 160px;
-            min-height: 160px;
-            max-height: 160px;
-            position: absolute;
-            bottom: -10px;
-            left: -10px;
-            object-fit: contain;
-            width: 100%;
-            height: 100%;
-            color: rgba(255, 255, 255, 0.2);
+        @include mobile {
+            position: relative;
+            bottom: unset;
+            left: unset;
+            width: 75px;
+            height: 75px;
 
-            @include tablet {
-                min-width: unset;
-                max-width: 110px;
-                min-height: unset;
-                max-height: 110px;
-            }
-
-            @include mobile {
-                position: relative;
-                bottom: unset;
-                left: unset;
-                max-height: 80px;
-                max-width: 80px;
-
-                color: var(--accent-white);
-            }
+            color: var(--accent-white);
         }
     }
 
@@ -78,9 +65,13 @@
     }
 
     &__title {
-        @include mainFont(500, 20, var(--accent-white));
+        @include mainFont(500, 24, var(--accent-white));
 
         @include tablet {
+            font-size: 20px;
+        }
+
+        @include mobile {
             font-size: 18px;
         }
 
@@ -90,10 +81,14 @@
     }
 
     &__text {
-        max-width: 480px;
-        @include mainFont(400, 16, rgba(255, 255, 255, 0.5));
+        max-width: 600px;
+        @include mainFont(400, 18, rgba(255, 255, 255, 0.65));
 
         @include tablet {
+            font-size: 16px;
+        }
+
+        @include mobile {
             font-size: 14px;
         }
 
