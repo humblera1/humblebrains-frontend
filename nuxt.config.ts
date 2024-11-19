@@ -11,6 +11,7 @@ export default defineNuxtConfig({
         'nuxt-humble-modal',
         'nuxt-lodash',
         '@nuxtjs/device',
+        'nuxt-swiper',
     ],
     components: [
         { path: '~/shared/ui', prefix: 'Ui', extensions: ['.vue'] },
