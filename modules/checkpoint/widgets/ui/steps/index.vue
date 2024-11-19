@@ -76,13 +76,7 @@ const initChart = () => {
     }
 };
 
-const handleResize = () => {
-    if (stepsChart && !stepsChart.isDisposed()) {
-        stepsChart.resize();
-    }
-};
-
-watch(colorMode, () => {
+const updateChart = () => {
     if (stepsChart && !stepsChart.isDisposed()) {
         option.series[0].data = Array.from(user.stages, (stage) => ({
             value: 1,
@@ -93,7 +87,20 @@ watch(colorMode, () => {
 
         stepsChart.setOption(option);
     }
-});
+};
+
+const handleResize = () => {
+    if (stepsChart && !stepsChart.isDisposed()) {
+        stepsChart.resize();
+    }
+};
+
+watch(colorMode, () => updateChart());
+
+watch(
+    () => user.stages,
+    () => updateChart(),
+);
 
 onMounted(() => {
     initChart();
