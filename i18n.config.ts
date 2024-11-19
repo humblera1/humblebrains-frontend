@@ -11,6 +11,11 @@ export default defineI18nConfig(() => ({
             description: 'Описание',
             filters: 'Фильтры',
             goTo: 'Перейти',
+            confirm: 'Подтвердить',
+            finish: 'Завершить',
+            selectCategory: 'Выберите категорию',
+            selectOption: 'Выберите значение',
+            saved: 'Сохранено!',
 
             // Sidebar:
             home: 'Главная',
@@ -90,6 +95,10 @@ export default defineI18nConfig(() => ({
             checkpointBannerDescription:
                 'Мы используем контрольные точки, чтобы отслеживать ваш прогресс и корректировать программы развития.\n' +
                 'Завершите все этапы, чтобы мы могли создать вам новый план!',
+            choosePriority: 'Выберите приоритет ',
+            choosePriorityDescription: 'Вы набрали одинаковые баллы в разных категориях и можете выбрать приоритет самостоятельно',
+            yourPriorityIs: 'Приоритет развития',
+            yourPriorityIsDescription: 'Вы можете подтвердить выбор или выбрать другой приоритет самостоятельно',
 
             'thorndike:findNumbers': 'Найдите следующие числа:',
 
@@ -119,6 +128,11 @@ export default defineI18nConfig(() => ({
             description: 'Description',
             filters: 'Filters',
             goTo: 'Go to',
+            confirm: 'Confirm',
+            finish: 'Finish',
+            selectCategory: 'Select category',
+            selectOption: 'Select option',
+            saved: 'Saved!',
 
             // Sidebar:
             home: 'Home',
@@ -197,6 +211,10 @@ export default defineI18nConfig(() => ({
             checkpointBannerDescription:
                 'We use checkpoints to track your progress and adjust programs.\n' +
                 'Complete all stages so we can create a new plan for you!',
+            choosePriority: 'Choose priority',
+            choosePriorityDescription: 'You have scored equally in different categories and can choose the priority yourself',
+            yourPriorityIs: 'Development priority',
+            yourPriorityIsDescription: 'You can confirm the choice or select another priority yourself',
 
             'thorndike:findNumbers': 'Find the following numbers:',
 
