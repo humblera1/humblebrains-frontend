@@ -3,6 +3,7 @@ import type { IUserProxyContext } from '~/modules/user/entities/interfaces/IUser
 import { useUserStore } from '~/modules/user/stores/userStore';
 import type { UserPersonalData } from '~/modules/user/entities/interfaces/UserPersonalData';
 import type { ICheckpoint } from '~/modules/checkpoint/entities/interfaces/ICheckpoint';
+import type { IProgram } from '~/entities/interfaces/program/IProgram';
 
 export class UserProxy implements IUserProxyContext {
     username!: ComputedRef<string>;
@@ -13,6 +14,7 @@ export class UserProxy implements IUserProxyContext {
     isRunCheckpoint!: ComputedRef<boolean>;
     isRunProgram!: ComputedRef<boolean>;
     checkpoint!: ComputedRef<ICheckpoint | undefined>;
+    program!: ComputedRef<IProgram | undefined>;
 
     constructor() {
         const store = useUserStore();
@@ -46,7 +48,7 @@ export class UserProxy implements IUserProxyContext {
          * Данное свойство сигнализирует о том, что пользователь проходит контрольную точку.
          */
         this.isRunCheckpoint = computed((): boolean => {
-            if (this.checkpoint.value) {
+            if (this.checkpoint && this.checkpoint.value) {
                 return !this.checkpoint.value.isCompleted;
             }
 
@@ -58,6 +60,10 @@ export class UserProxy implements IUserProxyContext {
          * Данное свойство сигнализирует о том, что пользователь ещё не завершил программу и не может быть допущен к выполнению контрольной точки.
          */
         this.isRunProgram = computed((): boolean => {
+            if (this.program && this.program.value) {
+                return !this.program.value.isCompleted;
+            }
+
             // todo: method logic
             return false;
         });

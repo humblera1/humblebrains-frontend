@@ -1,9 +1,21 @@
 import { RequestMethodEnum } from '~/entities/enums/RequestMethodEnum';
 import type { CognitiveCategoryEnum } from '~/entities/enums/cognitiveCategoryEnum';
 import type { Icon } from '~/modules/checkpoint/entities/types/Icon';
+import type { BaseResponse } from '~/entities/interfaces/responses/BaseResponse';
+import type { IProgram } from '~/entities/interfaces/program/IProgram';
 
 export const useCheckpointService = () => {
     const { $api } = useNuxtApp();
+
+    const finishCheckpoint = async (category: CognitiveCategoryEnum) => {
+        const response = await $api<BaseResponse<IProgram>>('/v1/checkpoint/finish-checkpoint', {
+            method: RequestMethodEnum.post,
+            credentials: 'include',
+            body: {
+                category,
+            },
+        });
+    };
 
     const sendStageResults = async (category: CognitiveCategoryEnum, score: number) => {
         return await $api<void>('/v1/checkpoint/finish-stage', {
@@ -40,5 +52,5 @@ export const useCheckpointService = () => {
         return await blob.text();
     };
 
-    return { sendStageResults, fetchIcons, fetchWords, fetchRawSvgContent };
+    return { finishCheckpoint, sendStageResults, fetchIcons, fetchWords, fetchRawSvgContent };
 };

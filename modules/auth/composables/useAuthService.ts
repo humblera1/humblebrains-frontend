@@ -2,6 +2,7 @@ import type { User } from '~/modules/user/entities/interfaces/User';
 import type { ILoginFormFields } from '~/entities/interfaces/forms/login/ILoginFormFields';
 import type { IRegisterFormFields } from '~/entities/interfaces/forms/register/IRegisterFormFields';
 import { RequestMethodEnum } from '~/entities/enums/RequestMethodEnum';
+import type { BaseResponse } from '~/entities/interfaces/responses/BaseResponse';
 
 export const useAuthService = () => {
     const config = useRuntimeConfig();
@@ -43,8 +44,8 @@ export const useAuthService = () => {
         return useCookie('XSRF-TOKEN').value === undefined;
     };
 
-    const fetchUser = async (): Promise<User> => {
-        return await $api<User>('/v1/users/me', {
+    const fetchUser = async (): Promise<BaseResponse<User>> => {
+        return await $api<BaseResponse<User>>('/v1/users/me', {
             method: RequestMethodEnum.post,
             credentials: 'include',
         });
