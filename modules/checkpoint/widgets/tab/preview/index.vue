@@ -9,10 +9,6 @@
 import { useCheckpointPageStore } from '~/modules/checkpoint/stores/checkpointPageStore';
 
 const page = useCheckpointPageStore();
-
-onMounted(() => {
-    page.setupStore();
-});
 </script>
 
 <style scoped lang="scss">

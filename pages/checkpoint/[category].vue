@@ -7,7 +7,9 @@
 <script setup lang="ts">
 import { CheckpointTabEnum } from '~/entities/enums/checkpoint/CheckpointTabEnum';
 import { WidgetCheckpointTabConclusion, WidgetCheckpointTabGameplay, WidgetCheckpointTabPreview } from '#components';
+import { useCheckpointPageStore } from '~/modules/checkpoint/stores/checkpointPageStore';
 
+const page = useCheckpointPageStore();
 const currentTab = useState<CheckpointTabEnum>('checkpoint', () => CheckpointTabEnum.preview);
 
 const currentTabComponent = computed(() => {
@@ -21,8 +23,13 @@ const currentTabComponent = computed(() => {
     }
 });
 
+onMounted(() => {
+    page.setupStore();
+});
+
 onUnmounted(() => {
     currentTab.value = CheckpointTabEnum.preview;
+    page.destroyStore();
 });
 </script>
 

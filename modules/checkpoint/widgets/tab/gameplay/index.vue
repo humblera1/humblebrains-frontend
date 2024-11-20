@@ -1,30 +1,21 @@
 <template>
-    <WidgetCheckpointUiLayout>
-        <template v-if="page.isPreviewTabSelected()">
-            <WidgetCheckpointTestPreview />
-        </template>
-        <template v-else-if="page.isGameplayTabSelected()">
-            <component
-                :is="page.currentTestComponent.component"
-                v-if="page.currentTestComponent?.component"
-                :key="page.currentTestComponent.name"
-            />
-        </template>
-    </WidgetCheckpointUiLayout>
+    <template v-if="page.currentTestComponent">
+        <WidgetCheckpointUiLayout>
+            <template v-if="page.isPreviewTabSelected()">
+                <WidgetCheckpointTabGameplayInfo />
+            </template>
+            <template v-else-if="page.isGameplayTabSelected()">
+                <component :is="page.currentTestComponent.component" :key="page.currentTestComponent.name" />
+            </template>
+        </WidgetCheckpointUiLayout>
+    </template>
+    <UiInDevelopment v-else />
 </template>
 
 <script setup lang="ts">
 import { useCheckpointPageStore } from '~/modules/checkpoint/stores/checkpointPageStore';
 
 const page = useCheckpointPageStore();
-
-page.setupStore();
-
-onUnmounted(() => {
-    page.destroyStore();
-    console.log('destroying page store');
-    // Производить сброс стора checkpoint здесь или в дочерних сторах?
-});
 </script>
 
 <style scoped lang="scss"></style>

@@ -18,26 +18,27 @@ export const useCheckpointPageStore = defineStore('checkpointPageStorage', () =>
 
     const componentsChain: ChainComponent[] = [];
 
-    const currentChainIndex = ref<number>(0);
+    const currentChainIndex = ref<number | undefined>(undefined);
 
-    // todo: error
     const currentTestComponent = computed((): ChainComponent | undefined => {
-        return componentsChain.at(currentChainIndex.value);
+        if (currentChainIndex.value !== undefined) {
+            return componentsChain.at(currentChainIndex.value);
+        }
+
+        return undefined;
     });
 
     /**
      * Осуществляет переход к следующему компоненту в цепочке
      */
     const moveChain = async () => {
-        if (++currentChainIndex.value >= getNumberOfSteps()) {
+        if (currentChainIndex.value && ++currentChainIndex.value >= getNumberOfSteps()) {
             const checkpointTab = useState('checkpoint');
 
             if (currentCategory.value) {
                 await service.sendStageResults(currentCategory.value, checkpoint.getTotal());
 
                 checkpointTab.value = CheckpointTabEnum.conclusion;
-
-                checkpoint.$reset();
             }
         }
     };
@@ -72,8 +73,6 @@ export const useCheckpointPageStore = defineStore('checkpointPageStorage', () =>
 
     /**
      * https://github.com/vitejs/vite/pull/5491/commits
-     *
-     * todo: default value
      */
     const getComponents = (): Record<string, { default: Component }> | null => {
         switch (currentCategory.value) {
@@ -89,7 +88,11 @@ export const useCheckpointPageStore = defineStore('checkpointPageStorage', () =>
     };
 
     const getStep = (): number => {
-        return currentChainIndex.value + 1;
+        if (currentChainIndex.value !== undefined) {
+            return currentChainIndex.value + 1;
+        }
+
+        return 0;
     };
 
     const getNumberOfSteps = (): number => {
@@ -154,7 +157,7 @@ export const useCheckpointPageStore = defineStore('checkpointPageStorage', () =>
 
     const destroyStore = () => {
         componentsChain.length = 0;
-        currentChainIndex.value = 0;
+        currentChainIndex.value = undefined;
         currentCategory.value = undefined;
 
         selectPreviewTab();
