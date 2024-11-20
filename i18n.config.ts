@@ -100,6 +100,25 @@ export default defineI18nConfig(() => ({
             yourPriorityIs: 'Приоритет развития',
             yourPriorityIsDescription: 'Вы можете подтвердить выбор или выбрать другой приоритет самостоятельно',
 
+            'checkpoint:memoryDescription':
+                'Память — это когнитивная функция, которая позволяет нам сохранять, удерживать и извлекать информацию. Она играет ключевую роль в обучении и повседневной жизни, помогая нам запоминать важные события, навыки и знания.\n' +
+                '\n' +
+                'Память необходима для выполнения повседневных задач, таких как запоминание маршрута до работы, выполнение рабочих обязанностей, изучение нового материала и даже для общения с другими людьми.\n' +
+                '\n' +
+                'Развивать память можно с помощью различных упражнений, таких как запоминание списков, изучение новых языков, решение головоломок и регулярные тренировки мозга.',
+            'checkpoint:logicDescription':
+                'Логика — это способность рассуждать, анализировать информацию и делать выводы. Она помогает решать проблемы и принимать обоснованные решения.\n' +
+                '\n' +
+                'Логика важна для решения повседневных проблем, таких как планирование бюджета, принятие решений на работе, анализ информации и даже для участия в дискуссиях.\n' +
+                '\n' +
+                'Развивать логику можно с помощью решения математических задач, участия в дебатах, изучения шахмат и других стратегических игр, а также выполнения логических головоломок.',
+            'checkpoint:attentionDescription':
+                'Внимание — это способность сосредотачиваться на определенной задаче, игнорируя отвлекающие факторы. Эта когнитивная способность имеет важное значение, потому что мы используем её ежедневно.\n' +
+                '\n' +
+                'Внимание необходимо для выполнения задач, требующих концентрации, таких как вождение автомобиля, чтение, работа с документами и участие в совещаниях.\n' +
+                '\n' +
+                'Развивать внимание можно с помощью медитации, выполнения упражнений на концентрацию, таких как чтение с пониманием, и игр, требующих сосредоточенности.',
+
             'thorndike:findNumbers': 'Найдите следующие числа:',
 
             'symbols:rememberSymbols': 'Запомните показанные символы',
@@ -215,6 +234,25 @@ export default defineI18nConfig(() => ({
             choosePriorityDescription: 'You have scored equally in different categories and can choose the priority yourself',
             yourPriorityIs: 'Development priority',
             yourPriorityIsDescription: 'You can confirm the choice or select another priority yourself',
+
+            'checkpoint:memoryDescription':
+                'Memory is a cognitive function that allows us to store, retain, and retrieve information. It plays a crucial role in learning and everyday life, helping us remember important events, skills, and knowledge.\n' +
+                '\n' +
+                'Memory is essential for performing daily tasks such as remembering the route to work, fulfilling job responsibilities, learning new material, and even communicating with others.\n' +
+                '\n' +
+                'Memory can be developed through various exercises such as memorizing lists, learning new languages, solving puzzles, and regular brain training.',
+            'checkpoint:logicDescription':
+                'Logic is the ability to reason, analyze information, and draw conclusions. It helps solve problems and make informed decisions.\n' +
+                '\n' +
+                'Logic is important for solving everyday problems such as budgeting, making decisions at work, analyzing information, and even participating in discussions.\n' +
+                '\n' +
+                'Logic can be developed by solving mathematical problems, participating in debates, studying chess and other strategic games, and completing logical puzzles.',
+            'checkpoint:attentionDescription':
+                'Attention is the ability to focus on a specific task while ignoring distractions. This cognitive ability is important because we use it daily.\n' +
+                '\n' +
+                'Attention is necessary for tasks that require concentration, such as driving, reading, working with documents, and attending meetings.\n' +
+                '\n' +
+                'Attention can be developed through meditation, concentration exercises such as reading comprehension, and games that require focus.',
 
             'thorndike:findNumbers': 'Find the following numbers:',
 
