@@ -100,6 +100,14 @@ export const useCheckpointPageStore = defineStore('checkpointPageStorage', () =>
         return currentCategory.value ?? '';
     };
 
+    const getComponentName = (): string => {
+        if (currentTestComponent.value) {
+            return currentTestComponent.value.name;
+        }
+
+        return '';
+    };
+
     const initCategory = () => {
         const route = useRoute();
         const category = route.params.category;
@@ -167,6 +175,7 @@ export const useCheckpointPageStore = defineStore('checkpointPageStorage', () =>
         getStep,
         getNumberOfSteps,
         getCategory,
+        getComponentName,
 
         componentsChain,
 
