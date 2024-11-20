@@ -1,7 +1,7 @@
 <template>
     <div class="points">
         <div class="points__field" :style="fieldStyles">
-            <WidgetCheckpointMemoryPointsCell v-for="key in store.getCellsAmount()" :key="key" :number="key" />
+            <WidgetCheckpointAttentionPointsCell v-for="key in store.getCellsAmount()" :key="key" :number="key" />
         </div>
         <div class="points__control" :class="controlsClass">
             <UiButton @click="store.finishRound"> Продолжить </UiButton>

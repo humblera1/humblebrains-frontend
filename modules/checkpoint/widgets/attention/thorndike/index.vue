@@ -1,10 +1,10 @@
 <template>
     <div class="thorndike">
         <div class="thorndike__header">
-            <WidgetCheckpointMemoryThorndikeItem v-for="number in thorndike.numbersToFind" :key="number" :number="number" with-badge />
+            <WidgetCheckpointAttentionThorndikeItem v-for="number in thorndike.numbersToFind" :key="number" :number="number" with-badge />
         </div>
         <div class="thorndike__field">
-            <WidgetCheckpointMemoryThorndikeItem v-for="number in thorndike.numbers" :key="number" :number="number" />
+            <WidgetCheckpointAttentionThorndikeItem v-for="number in thorndike.numbers" :key="number" :number="number" />
         </div>
         <div class="thorndike__control" :class="controlsClass">
             <UiButton @click="thorndike.finishLevel"> Продолжить </UiButton>

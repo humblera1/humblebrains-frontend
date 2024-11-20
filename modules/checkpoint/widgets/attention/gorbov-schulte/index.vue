@@ -1,9 +1,9 @@
 <template>
     <div class="gorbov-schulte">
-        <WidgetCheckpointMemoryGorbovSchulteRule />
+        <WidgetCheckpointAttentionGorbovSchulteRule />
         <div class="gorbov-schulte__field">
             <div v-for="i in gorbovSchulte.dimension" :key="i" class="gorbov-schulte__row">
-                <WidgetCheckpointMemoryGorbovSchulteCell
+                <WidgetCheckpointAttentionGorbovSchulteCell
                     v-for="j in gorbovSchulte.dimension"
                     :key="i * gorbovSchulte.dimension - j + 1"
                     :number="i * gorbovSchulte.dimension - j + 1"
