@@ -17,6 +17,8 @@ export default defineI18nConfig(() => ({
             selectOption: 'Выберите значение',
             saved: 'Сохранено!',
             ready: 'Готов',
+            sectionInDevelopment: 'Раздел находится в разработке',
+            goHome: 'На главную',
 
             // Sidebar:
             home: 'Главная',
@@ -185,6 +187,8 @@ export default defineI18nConfig(() => ({
             selectOption: 'Select option',
             saved: 'Saved!',
             ready: 'Ready',
+            sectionInDevelopment: 'Section is under development',
+            goHome: 'Home',
 
             // Sidebar:
             home: 'Home',
