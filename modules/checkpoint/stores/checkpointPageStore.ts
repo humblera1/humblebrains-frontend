@@ -3,18 +3,16 @@ import type { Component } from 'vue';
 import { CheckpointTestTabEnum } from '~/entities/enums/checkpoint/CheckpointTestTabEnum';
 import { CognitiveCategoryEnum } from '~/entities/enums/cognitiveCategoryEnum';
 import type { ChainComponent } from '~/modules/checkpoint/entities/types/ChainComponent';
+import { useUserStore } from '~/modules/user/stores/userStore';
+import type { ICheckpointStage } from '~/modules/checkpoint/entities/interfaces/ICheckpointStage';
 import { CheckpointTabEnum } from '~/entities/enums/checkpoint/CheckpointTabEnum';
-import { useCheckpointStore } from '~/modules/checkpoint/stores/checkpointStore';
-import { useCheckpointService } from '~/modules/checkpoint/composables/useCheckpointService';
 
 export const useCheckpointPageStore = defineStore('checkpointPageStorage', () => {
-    const checkpoint = useCheckpointStore();
-
-    const service = useCheckpointService();
+    const user = useUserStore();
 
     const currentTab = ref<CheckpointTestTabEnum>(CheckpointTestTabEnum.preview);
 
-    const currentCategory = ref<CognitiveCategoryEnum>();
+    const currentCategory = ref<string>();
 
     const componentsChain: ChainComponent[] = [];
 
@@ -28,19 +26,27 @@ export const useCheckpointPageStore = defineStore('checkpointPageStorage', () =>
         return undefined;
     });
 
+    const isNextComponentExists = computed((): boolean => {
+        if (currentChainIndex.value === undefined) {
+            return false;
+        }
+
+        return currentChainIndex.value + 1 < getNumberOfSteps();
+    });
+
     /**
      * Осуществляет переход к следующему компоненту в цепочке
      */
-    const moveChain = async () => {
-        if (currentChainIndex.value && ++currentChainIndex.value >= getNumberOfSteps()) {
-            const checkpointTab = useState('checkpoint');
-
-            if (currentCategory.value) {
-                await service.sendStageResults(currentCategory.value, checkpoint.getTotal());
-
-                checkpointTab.value = CheckpointTabEnum.conclusion;
-            }
+    const moveChain = () => {
+        if (currentChainIndex.value === undefined) {
+            return;
         }
+
+        if (currentChainIndex.value + 1 >= getNumberOfSteps()) {
+            return;
+        }
+
+        ++currentChainIndex.value;
     };
 
     const selectTab = (tab: CheckpointTestTabEnum): void => {
@@ -65,10 +71,6 @@ export const useCheckpointPageStore = defineStore('checkpointPageStorage', () =>
 
     const isGameplayTabSelected = (): boolean => {
         return isTabSelected(CheckpointTestTabEnum.gameplay);
-    };
-
-    const isCategoryEnum = (value: any): value is CognitiveCategoryEnum => {
-        return Object.values(CognitiveCategoryEnum).includes(value);
     };
 
     /**
@@ -111,14 +113,32 @@ export const useCheckpointPageStore = defineStore('checkpointPageStorage', () =>
         return '';
     };
 
-    const initCategory = () => {
+    const throwNotFoundError = () => {
+        throw createError({
+            statusCode: 404,
+            statusMessage: 'Unrecognized category',
+        });
+    };
+
+    const initCategory = async () => {
         const route = useRoute();
         const category = route.params.category;
 
-        if (typeof category === 'string' && isCategoryEnum(category)) {
-            currentCategory.value = category;
-        } else {
-            // todo: недопустимая категория
+        await user.getSetupPromise(); // Дожидаемся установки стора пользователя
+        const availableCategories = user.stages.map((stage) => stage.category.name);
+
+        if (typeof category !== 'string' || !availableCategories.includes(category)) {
+            throwNotFoundError();
+        }
+
+        currentCategory.value = category as string;
+
+        const stage = user.stages.find((stage) => stage.category.name === category) as ICheckpointStage;
+
+        if (stage.isCompleted) {
+            const checkpointTab = useState('checkpoint');
+
+            checkpointTab.value = CheckpointTabEnum.conclusion;
         }
     };
 
@@ -149,8 +169,8 @@ export const useCheckpointPageStore = defineStore('checkpointPageStorage', () =>
         currentChainIndex.value = 0;
     };
 
-    const setupStore = () => {
-        initCategory();
+    const setupStore = async () => {
+        await initCategory();
         initComponentsChain();
         initChainIndex();
     };
@@ -171,6 +191,7 @@ export const useCheckpointPageStore = defineStore('checkpointPageStorage', () =>
 
         selectGameplayTab,
         isGameplayTabSelected,
+        isNextComponentExists,
 
         setupStore,
         destroyStore,

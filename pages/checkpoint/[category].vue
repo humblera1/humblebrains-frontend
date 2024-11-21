@@ -1,6 +1,7 @@
 <template>
     <NuxtLayout>
-        <component :is="currentTabComponent" key="checkpointTab" />
+        <component :is="currentTabComponent" v-if="page.getCategory()" key="checkpointTab" />
+        <UiPreloader v-else />
     </NuxtLayout>
 </template>
 
