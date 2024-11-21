@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia';
+import { difference, intersection, range, shuffle } from 'lodash';
 import type { PointsLevel } from '~/modules/checkpoint/entities/types/points/PointsLevel';
 import type { ITestLevels } from '~/modules/checkpoint/entities/interfaces/ITestLevels';
 import { useCheckpointStore } from '~/modules/checkpoint/stores/checkpointStore';
-import { useCheckpointPageStore } from '~/modules/checkpoint/stores/checkpointPageStore';
 
 /**
  * Тест 'Запомни и расставь точки'
@@ -10,7 +10,7 @@ import { useCheckpointPageStore } from '~/modules/checkpoint/stores/checkpointPa
 export const usePointsStore = defineStore('pointsStorage', () => {
     const CELLS_AMOUNT = 16;
 
-    const TIME_TO_GIVE_ANSWER = 30;
+    const TOTAL_TIME = 30000;
 
     /**
      * Время, отведённое на запоминание расположения точек на поле
@@ -23,8 +23,6 @@ export const usePointsStore = defineStore('pointsStorage', () => {
     const TIME_FOR_TOGGLE_VISIBILITY = 1000;
 
     const checkpoint = useCheckpointStore();
-
-    const page = useCheckpointPageStore();
 
     /**
      * Массив номеров ячеек, которые содержат точки.
@@ -61,9 +59,9 @@ export const usePointsStore = defineStore('pointsStorage', () => {
         1: {
             points: 1,
         },
-        2: {
-            points: 2,
-        },
+        // 2: {
+        //     points: 2,
+        // },
     };
 
     /**
@@ -73,12 +71,12 @@ export const usePointsStore = defineStore('pointsStorage', () => {
         1: {
             points: 1,
         },
-        2: {
-            points: 2,
-        },
-        3: {
-            points: 5,
-        },
+        // 2: {
+        //     points: 2,
+        // },
+        // 3: {
+        //     points: 5,
+        // },
     };
 
     const currentLevel = computed((): PointsLevel => {
@@ -89,7 +87,7 @@ export const usePointsStore = defineStore('pointsStorage', () => {
      * Возвращает массив всех допустимых номеров ячеек в порядке возрастания, основываясь на значении CELLS_AMOUNT.
      */
     const getAvailableNumbers = (): number[] => {
-        return useRange(1, CELLS_AMOUNT + 1);
+        return range(1, CELLS_AMOUNT + 1);
     };
 
     const getCellsAmount = (): number => {
@@ -159,7 +157,7 @@ export const usePointsStore = defineStore('pointsStorage', () => {
      * Случайным образом выбирает номера ячеек, в которые будут помещены точки
      */
     const setPointedNumbers = () => {
-        const shuffledAvailableNumbers = useShuffle(getAvailableNumbers());
+        const shuffledAvailableNumbers = shuffle(getAvailableNumbers());
 
         pointedNumbers.value = shuffledAvailableNumbers.slice(0, currentLevel.value.points);
     };
@@ -191,7 +189,7 @@ export const usePointsStore = defineStore('pointsStorage', () => {
             await toggleCellsVisibility();
 
             if (checkpoint.isInWarmUpMode()) {
-                checkpoint.setMessage('Откройте все ячейки, где ранее находились точки');
+                checkpoint.setMessage('points:openCells');
             }
 
             checkpoint.startTimer();
@@ -236,29 +234,17 @@ export const usePointsStore = defineStore('pointsStorage', () => {
 
         checkpoint.promoteLevel();
 
-        if (checkpoint.finishedLevelsAmount >= checkpoint.levelsAmount) {
-            if (checkpoint.isInWarmUpMode()) {
-                await handleModeSwitching();
-            } else {
-                finishTest();
+        if (checkpoint.isTimeToFinishTest()) {
+            await checkpoint.finishTest(subtotals);
 
-                return;
-            }
+            return;
+        }
+
+        if (checkpoint.isTimeToSwitchMode()) {
+            await checkpoint.handleModeSwitching(Object.keys(levels).length);
         }
 
         await startLevel();
-    };
-
-    const finishTest = () => {
-        saveTotal();
-        checkpoint.setTestFinishingState();
-        checkpoint.setMessage('Отлично! Готовим следующий этап...');
-
-        page.moveChain();
-    };
-
-    const saveTotal = () => {
-        checkpoint.saveTestContribution(subtotals);
     };
 
     const saveSubtotal = () => {
@@ -266,8 +252,8 @@ export const usePointsStore = defineStore('pointsStorage', () => {
             return;
         }
 
-        const correctAnswers = useIntersection(openedNumbers.value, pointedNumbers.value);
-        const incorrectAnswers = useDifference(openedNumbers.value, pointedNumbers.value);
+        const correctAnswers = intersection(openedNumbers.value, pointedNumbers.value);
+        const incorrectAnswers = difference(openedNumbers.value, pointedNumbers.value);
 
         const points = correctAnswers.length - incorrectAnswers.length;
         const percent = points > 0 ? (points * 100) / pointedNumbers.value.length : 0;
@@ -278,6 +264,7 @@ export const usePointsStore = defineStore('pointsStorage', () => {
     const setupStore = async () => {
         checkpoint.setTestPreparingState();
 
+        checkpoint.setTotalTime(TOTAL_TIME);
         checkpoint.setLevelsAmount(Object.keys(levelsToWarmUp).length);
         checkpoint.setWarmUpMode();
 
@@ -286,21 +273,6 @@ export const usePointsStore = defineStore('pointsStorage', () => {
         showCells();
 
         await startLevel();
-    };
-
-    const handleModeSwitching = async (): Promise<void> => {
-        checkpoint.setMessage('Разминка завершена!');
-        hideCells();
-
-        await checkpoint.showPrompt('gameStartPrompt');
-
-        checkpoint.setLevelPreparingState();
-        checkpoint.clearMessage();
-
-        showCells();
-        checkpoint.setGameMode();
-        checkpoint.setLevelsAmount(Object.keys(levels).length);
-        checkpoint.resetProgress();
     };
 
     const $reset = () => {

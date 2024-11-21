@@ -118,6 +118,7 @@ export default defineI18nConfig(() => ({
                 'Внимание необходимо для выполнения задач, требующих концентрации, таких как вождение автомобиля, чтение, работа с документами и участие в совещаниях.\n' +
                 'Развивать внимание можно с помощью медитации, выполнения упражнений на концентрацию, таких как чтение с пониманием, и игр, требующих сосредоточенности.',
 
+            'points:openCells': 'Откройте все ячейки, где ранее находились точки',
             'points:instruction':
                 'В следующем упражнении вам будет представлено игровое поле, состоящее из 16 клеток. \n' +
                 'На первом этапе в произвольных клетках данного поля на короткое время появятся точки.\n' +
@@ -288,6 +289,7 @@ export default defineI18nConfig(() => ({
                 'Attention is necessary for tasks that require concentration, such as driving, reading, working with documents, and attending meetings.\n' +
                 'Attention can be developed through meditation, concentration exercises such as reading comprehension, and games that require focus.',
 
+            'points:openCells': 'Open all cells where points were located',
             'points:instruction':
                 'In the next exercise, you will be presented with a game board consisting of 16 cells.\n' +
                 'In the first stage, dots will appear in random cells of this board for a short time.\n' +

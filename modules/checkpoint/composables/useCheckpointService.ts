@@ -8,8 +8,8 @@ import type { ICheckpointStage } from '~/modules/checkpoint/entities/interfaces/
 export const useCheckpointService = () => {
     const { $api } = useNuxtApp();
 
-    const finishCheckpoint = async (category: CognitiveCategoryEnum) => {
-        const response = await $api<BaseResponse<IProgram>>('/v1/checkpoint/finish-checkpoint', {
+    const finishCheckpoint = async (category: CognitiveCategoryEnum): Promise<BaseResponse<IProgram>> => {
+        return await $api<BaseResponse<IProgram>>('/v1/checkpoint/finish-checkpoint', {
             method: RequestMethodEnum.post,
             credentials: 'include',
             body: {

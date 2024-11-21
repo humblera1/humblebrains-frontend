@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia';
+import { difference, random, shuffle } from 'lodash';
 import { useCheckpointStore } from '~/modules/checkpoint/stores/checkpointStore';
 import type { ITestLevels } from '~/modules/checkpoint/entities/interfaces/ITestLevels';
 import type { ThorndikeLevel } from '~/modules/checkpoint/entities/types/thorndike/ThorndikeLevel';
-import { useCheckpointPageStore } from '~/modules/checkpoint/stores/checkpointPageStore';
 import { thorndikeAssessmentTable } from '~/modules/checkpoint/data/thorndikeAssessmentTable';
 
 /**
@@ -13,7 +13,7 @@ export const useThorndikeStore = defineStore('thorndikeStorage', () => {
     /**
      *
      */
-    const TOTAL_TIME = 350;
+    const TOTAL_TIME = 350000;
 
     /**
      * Интервал, с которым появляются новые числа при формировании игрового поля.
@@ -26,8 +26,6 @@ export const useThorndikeStore = defineStore('thorndikeStorage', () => {
     const TIME_TO_ADD_NEW_NUMBER_TO_FIND = 250;
 
     const checkpoint = useCheckpointStore();
-
-    const page = useCheckpointPageStore();
 
     /**
      * Массив, содержащий числа фонового материала.
@@ -67,8 +65,8 @@ export const useThorndikeStore = defineStore('thorndikeStorage', () => {
      */
     const levelsToWarmUp: ITestLevels<ThorndikeLevel> = {
         1: {
-            numbersAmount: 40,
-            numbersToFindAmount: 5,
+            numbersAmount: 1,
+            numbersToFindAmount: 1,
         },
     };
 
@@ -77,8 +75,8 @@ export const useThorndikeStore = defineStore('thorndikeStorage', () => {
      */
     const levels: ITestLevels<ThorndikeLevel> = {
         1: {
-            numbersAmount: 100,
-            numbersToFindAmount: 10,
+            numbersAmount: 1,
+            numbersToFindAmount: 1,
         },
     };
 
@@ -131,7 +129,7 @@ export const useThorndikeStore = defineStore('thorndikeStorage', () => {
 
         // формируем коллекцию из 100 уникальных трёхзначных чисел
         while (randomNumbers.size < numbersAmount) {
-            randomNumbers.add(useRandom(100, 999));
+            randomNumbers.add(random(100, 999));
         }
 
         // преобразуем коллекцию в массив
@@ -162,7 +160,7 @@ export const useThorndikeStore = defineStore('thorndikeStorage', () => {
 
     const selLevelNumbersToFind = (): Promise<void> => {
         const numbersAmount = currentLevel.value.numbersToFindAmount;
-        const availableNumbers = useShuffle(numbers.value);
+        const availableNumbers = shuffle(numbers.value);
 
         return new Promise((resolve) => {
             numberToFindTimerId = setTimeout(async () => {
@@ -193,20 +191,20 @@ export const useThorndikeStore = defineStore('thorndikeStorage', () => {
     };
 
     const finishLevel = async () => {
+        checkpoint.setFailedLevelFinishingState();
         saveSubtotal();
-
-        checkpoint.finishLevel();
-
         flushNumbers();
 
-        if (checkpoint.isTimeToFinishTest()) {
-            if (checkpoint.isInWarmUpMode()) {
-                await handleModeSwitching();
-            } else {
-                finishTest();
+        checkpoint.promoteLevel();
 
-                return;
-            }
+        if (checkpoint.isTimeToFinishTest()) {
+            await checkpoint.finishTest(subtotals);
+
+            return;
+        }
+
+        if (checkpoint.isTimeToSwitchMode()) {
+            await checkpoint.handleModeSwitching(Object.keys(levels).length);
         }
 
         await startLevel();
@@ -236,27 +234,6 @@ export const useThorndikeStore = defineStore('thorndikeStorage', () => {
         clearNumberToFindTimer();
     };
 
-    const handleModeSwitching = async () => {
-        checkpoint.setMessage('Разминка завершена!');
-
-        await checkpoint.showPrompt('gameStartPrompt');
-
-        checkpoint.setLevelPreparingState();
-        checkpoint.clearMessage();
-
-        checkpoint.setGameMode();
-        checkpoint.setLevelsAmount(Object.keys(levels).length);
-        checkpoint.resetProgress();
-    };
-
-    const finishTest = () => {
-        saveTotal();
-        checkpoint.setTestFinishingState();
-        checkpoint.setMessage('Отлично! Готовим следующий этап...');
-
-        page.moveChain();
-    };
-
     const saveSubtotal = () => {
         if (checkpoint.isInWarmUpMode()) {
             return;
@@ -267,12 +244,14 @@ export const useThorndikeStore = defineStore('thorndikeStorage', () => {
             return;
         }
 
-        const time = checkpoint.totalTime - checkpoint.time;
+        const timeMs = checkpoint.totalTime - checkpoint.time;
 
-        if (time > TOTAL_TIME) {
+        if (timeMs > TOTAL_TIME) {
             subtotals.push(0);
             return;
         }
+
+        const time = timeMs / 1000;
 
         const maxAssessment = thorndikeAssessmentTable.at(0);
         const maxPoints = maxAssessment?.point ?? 19;
@@ -283,7 +262,7 @@ export const useThorndikeStore = defineStore('thorndikeStorage', () => {
 
         const point = currentAssessment?.point ?? 0;
 
-        const wrongNumbers = useDifference(numbersToFind.value, selectedNumbers.value);
+        const wrongNumbers = difference(numbersToFind.value, selectedNumbers.value);
 
         const totalPoints = point - wrongNumbers.length * 2;
 
@@ -295,10 +274,6 @@ export const useThorndikeStore = defineStore('thorndikeStorage', () => {
         const totalPercent = (totalPoints * 100) / maxPoints;
 
         subtotals.push(totalPercent);
-    };
-
-    const saveTotal = () => {
-        checkpoint.saveTestContribution(subtotals);
     };
 
     const $setup = async () => {
