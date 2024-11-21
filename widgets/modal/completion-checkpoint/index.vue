@@ -16,7 +16,7 @@
                                 <NuxtImg v-else :src="priorityStageImage" :alt="priorityStage.category.label" />
                             </div>
                             <div class="completion-checkpoint__info">
-                                <p class="completion-checkpoint__title">{{ $t(title) }}</p>
+                                <p class="completion-checkpoint__title">{{ $t(title) + ': ' + priorityStage.category.label }}</p>
                                 <p class="completion-checkpoint__subtitle">{{ $t(subtitle) }}</p>
                             </div>
                             <div class="completion-checkpoint__select">
@@ -57,14 +57,14 @@ const selectedOption = ref<SelectOption>();
 const defaultOption = ref<SelectOption>();
 
 const hasDuplicateScores = computed((): boolean => {
-    const scores = [];
+    const scores: number[] = [];
 
     for (const stage of user.stages) {
-        scores.push(stage.score);
-
         if (scores.includes(stage.score)) {
             return true;
         }
+
+        scores.push(stage.score);
     }
 
     return false;
@@ -98,7 +98,7 @@ const title = computed((): string => {
         return 'choosePriority';
     }
 
-    return 'yourPriorityIs' + ': ' + priorityStage.value.category.label;
+    return 'yourPriorityIs';
 });
 
 const subtitle = computed((): string => {
@@ -120,8 +120,8 @@ const handleConfirm = async () => {
         try {
             const response = await service.finishCheckpoint(selectedOption.value.value as CognitiveCategoryEnum);
 
-            user.setProgramData(response.data);
-            user.completeCheckpoint();
+            user.setProgramData(response.data.program);
+            user.completeCheckpoint(response.data.time);
 
             isSuccess.value = true;
             isPending.value = false;
@@ -138,7 +138,7 @@ const handleConfirm = async () => {
 };
 
 onMounted(() => {
-    if (!hasDuplicateScores) {
+    if (!hasDuplicateScores.value) {
         const option: SelectOption = {
             value: priorityStage.value.category.name,
             label: `${priorityStage.value.category.label} — ${priorityStage.value.score}%`,

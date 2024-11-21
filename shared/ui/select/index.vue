@@ -43,12 +43,17 @@ const handleClickOutside = (event: MouseEvent) => {
     }
 };
 
+watch(
+    () => defaultOption,
+    () => {
+        if (defaultOption) {
+            selectedOption.value = defaultOption;
+        }
+    },
+);
+
 onMounted(() => {
     document.addEventListener('click', handleClickOutside);
-
-    if (defaultOption) {
-        selectedOption.value = defaultOption;
-    }
 });
 
 onBeforeUnmount(() => {
