@@ -39,28 +39,4 @@ onUnmounted(() => {
 });
 </script>
 
-<style scoped lang="scss">
-.points {
-    display: flex;
-    flex-direction: column;
-    gap: 48px;
-
-    &__field {
-        display: grid;
-        gap: 4px;
-    }
-
-    &__control {
-        display: flex;
-        justify-content: center;
-        transition: opacity 500ms ease, visibility 500ms ease;
-        visibility: hidden;
-        opacity: 0;
-
-        &_visible {
-            visibility: visible;
-            opacity: 1;
-        }
-    }
-}
-</style>
+<style scoped lang="scss" src="./points.styles.scss" />

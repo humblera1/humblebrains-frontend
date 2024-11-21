@@ -1,0 +1,27 @@
+.points {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 48px;
+
+    &__field {
+        display: grid;
+        gap: 4px;
+        width: fit-content;
+    }
+
+    &__control {
+        display: flex;
+        justify-content: center;
+        transition:
+                opacity 500ms ease,
+                visibility 500ms ease;
+        visibility: hidden;
+        opacity: 0;
+
+        &_visible {
+            visibility: visible;
+            opacity: 1;
+        }
+    }
+}

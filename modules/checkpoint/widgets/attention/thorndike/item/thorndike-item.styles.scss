@@ -18,6 +18,7 @@
         padding: 6px 12px;
         border-radius: 8px;
         background-color: var(--badge-bg);
+        overflow: hidden;
 
         @include mainFont(500, 18, var(--primary-title));
 
