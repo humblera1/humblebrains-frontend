@@ -7,6 +7,8 @@ import type { ICheckpointStage } from '~/modules/checkpoint/entities/interfaces/
 export const useUserStore = defineStore('userStorage', () => {
     const user = ref<User>({} as User);
 
+    const setupPromise = ref<Promise<void> | null>(null);
+
     const authService = useAuthService();
 
     const stages = computed((): ICheckpointStage[] => {
@@ -21,6 +23,14 @@ export const useUserStore = defineStore('userStorage', () => {
         user.value.checkpoint = checkpointData;
     };
 
+    const setCheckpointStageData = (stageData: ICheckpointStage) => {
+        const stageIndex = stages.value.findIndex((stage) => stage.id === stageData.id);
+
+        if (stageIndex !== -1) {
+            user.value.checkpoint.stages[stageIndex] = stageData;
+        }
+    };
+
     const setProgramData = (programData: IProgram) => {
         user.value.program = programData;
     };
@@ -31,5 +41,23 @@ export const useUserStore = defineStore('userStorage', () => {
         setUserData(user.data);
     };
 
-    return { setUser, setUserData, setCheckpointData, setProgramData, user, stages };
+    const setSetupPromise = (promise: Promise<void>) => {
+        setupPromise.value = promise;
+    };
+
+    const getSetupPromise = () => {
+        return setupPromise.value;
+    };
+
+    return {
+        setSetupPromise,
+        getSetupPromise,
+        setUser,
+        setUserData,
+        setCheckpointData,
+        setCheckpointStageData,
+        setProgramData,
+        user,
+        stages,
+    };
 });
