@@ -58,12 +58,19 @@ const option = {
             label: {
                 show: false,
             },
-            data: Array.from(user.stages, (stage) => ({
-                value: 1,
-                itemStyle: {
-                    color: stage.isCompleted ? completedStageColor.value : stageColor.value,
-                },
-            })),
+            data: Array.from(
+                user.stages.sort((a, b) => {
+                    if (a.isCompleted && !b.isCompleted) return -1;
+                    if (!a.isCompleted && b.isCompleted) return 1;
+                    return 0;
+                }),
+                (stage) => ({
+                    value: 1,
+                    itemStyle: {
+                        color: stage.isCompleted ? completedStageColor.value : stageColor.value,
+                    },
+                }),
+            ),
         },
     ],
 };
@@ -78,12 +85,19 @@ const initChart = () => {
 
 const updateChart = () => {
     if (stepsChart && !stepsChart.isDisposed()) {
-        option.series[0].data = Array.from(user.stages, (stage) => ({
-            value: 1,
-            itemStyle: {
-                color: stage.isCompleted ? completedStageColor.value : stageColor.value,
-            },
-        }));
+        option.series[0].data = Array.from(
+            user.stages.sort((a, b) => {
+                if (a.isCompleted && !b.isCompleted) return -1;
+                if (!a.isCompleted && b.isCompleted) return 1;
+                return 0;
+            }),
+            (stage) => ({
+                value: 1,
+                itemStyle: {
+                    color: stage.isCompleted ? completedStageColor.value : stageColor.value,
+                },
+            }),
+        );
 
         stepsChart.setOption(option);
     }
