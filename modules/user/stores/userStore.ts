@@ -15,6 +15,20 @@ export const useUserStore = defineStore('userStorage', () => {
         return user.value.checkpoint?.stages ?? [];
     });
 
+    const isCheckpointCompleted = computed((): boolean => {
+        if (user.value.checkpoint) {
+            return user.value.checkpoint.isCompleted;
+        }
+
+        return false;
+    });
+
+    const completeCheckpoint = () => {
+        if (user.value.checkpoint) {
+            user.value.checkpoint.isCompleted = true;
+        }
+    };
+
     const setUserData = (userData: User) => {
         user.value = userData;
     };
@@ -50,6 +64,8 @@ export const useUserStore = defineStore('userStorage', () => {
     };
 
     return {
+        completeCheckpoint,
+
         setSetupPromise,
         getSetupPromise,
         setUser,
@@ -59,5 +75,6 @@ export const useUserStore = defineStore('userStorage', () => {
         setProgramData,
         user,
         stages,
+        isCheckpointCompleted,
     };
 });

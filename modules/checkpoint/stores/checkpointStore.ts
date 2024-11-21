@@ -521,6 +521,8 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
             const response = await service.sendStageResults(category, getTotal());
 
             user.setCheckpointStageData(response.data);
+
+            resetResults();
         } catch {
             console.log('failed to save stage...');
         }
@@ -528,10 +530,6 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
 
     const resetResults = () => {
         testContributions.length = 0;
-    };
-
-    const $setup = () => {
-        resetResults();
     };
 
     const $reset = () => {
@@ -621,7 +619,6 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         isInPromptState,
         isInPauseState,
 
-        $setup,
         $reset,
 
         saveResults,

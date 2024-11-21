@@ -116,16 +116,24 @@ const handleSelect = (option: SelectOption) => {
 const handleConfirm = async () => {
     if (selectedOption.value) {
         isPending.value = true;
-        await service.finishCheckpoint(selectedOption.value.value as CognitiveCategoryEnum);
 
-        isPending.value = false;
-        isSuccess.value = true;
+        try {
+            const response = await service.finishCheckpoint(selectedOption.value.value as CognitiveCategoryEnum);
 
-        setTimeout(() => {
-            if (isOpen.value) {
-                closeModal();
-            }
-        }, 2000);
+            user.setProgramData(response.data);
+            user.completeCheckpoint();
+
+            isSuccess.value = true;
+            isPending.value = false;
+
+            setTimeout(() => {
+                if (isOpen.value) {
+                    closeModal();
+                }
+            }, 2000);
+        } catch {
+            console.log('error');
+        }
     }
 };
 

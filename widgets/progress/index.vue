@@ -1,16 +1,20 @@
 <template>
     <div class="progress">
-        <template v-if="$user.isRunCheckpoint">
-            <WidgetProgressCheckpoint />
-        </template>
-        <template v-else>
-            <WidgetProgressProgram />
-        </template>
+        <Transition name="fade" mode="out-in">
+            <template v-if="user.isCheckpointCompleted">
+                <WidgetProgressProgram />
+            </template>
+            <template v-else>
+                <WidgetProgressCheckpoint />
+            </template>
+        </Transition>
     </div>
 </template>
 
 <script setup lang="ts">
+import { useUserStore } from '~/modules/user/stores/userStore';
 
+const user = useUserStore();
 </script>
 
 <style scoped lang="scss">
