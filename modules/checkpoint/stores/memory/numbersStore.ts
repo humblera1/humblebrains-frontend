@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { random, shuffle } from 'lodash';
 import { useCheckpointStore } from '~/modules/checkpoint/stores/checkpointStore';
 import type { ITestLevels } from '~/modules/checkpoint/entities/interfaces/ITestLevels';
 import type { NumbersLevel } from '~/modules/checkpoint/entities/types/numbers/NumbersLevel';
@@ -37,8 +38,6 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
     const device = useDevice();
 
     const checkpoint = useCheckpointStore();
-
-    const page = useCheckpointPageStore();
 
     /**
      * Массив номеров, которые будут использоваться в тесте.
@@ -254,7 +253,7 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
             checkpoint.promoteLevel();
 
             if (checkpoint.isTimeToFinishTest()) {
-                finishTest();
+                await checkpoint.finishTest(subtotals);
 
                 return;
             }
@@ -294,24 +293,13 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
     };
 
     /**
-     * Завершает тестовое упражнение. Осуществляет сохранение итогового результата, переход к следующему компоненту.
-     */
-    const finishTest = () => {
-        saveTotal();
-        checkpoint.setTestFinishingState();
-        checkpoint.setMessage('Отлично! Готовим следующий этап...');
-
-        page.moveChain();
-    };
-
-    /**
      * Генерирует необходимое количество уникальных двухзначных чисел и устанавливает их в переменную numbers.
      */
     const setNumbers = (): void => {
         const randomNumbers: Set<number> = new Set();
 
         while (randomNumbers.size < totalNumbersAmount.value) {
-            randomNumbers.add(useRandom(10, 99));
+            randomNumbers.add(random(10, 99));
         }
 
         numbers = Array.from(randomNumbers);
@@ -333,10 +321,10 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
         const initialVariants: Set<number> = new Set(numbers);
 
         while (initialVariants.size < totalVariants) {
-            initialVariants.add(useRandom(10, 99));
+            initialVariants.add(random(10, 99));
         }
 
-        variants.value = useShuffle(Array.from(initialVariants));
+        variants.value = shuffle(Array.from(initialVariants));
     };
 
     /**
@@ -636,13 +624,6 @@ export const useNumbersStore = defineStore('numbersStorage', () => {
         const totalPercent = (correctAnsweredNumbers * 100) / len;
 
         subtotals.push(totalPercent);
-    };
-
-    /**
-     * Сохраняет итоговый результат.
-     */
-    const saveTotal = () => {
-        checkpoint.saveTestContribution(subtotals);
     };
 
     /**

@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { sample, shuffle } from 'lodash';
 import { useCheckpointStore } from '~/modules/checkpoint/stores/checkpointStore';
 import { useCheckpointPageStore } from '~/modules/checkpoint/stores/checkpointPageStore';
 import type { Icon } from '~/modules/checkpoint/entities/types/Icon';
@@ -8,11 +9,11 @@ import type { ITestLevels } from '~/modules/checkpoint/entities/interfaces/ITest
 import type { LuriaLevel } from '~/modules/checkpoint/entities/types/luria/LuriaLevel';
 
 /**
- * Стор предоставляет основной функционал для реализации теста Лурия.
+ * Стор предоставляет основной функционал для реализации теста Лурии.
  * Данный тест используется для исследования таких процессов памяти, как запоминание, сохранение и воспроизведение.
  * Суть теста заключается в следующем: на первом этапе испытуемому демонстрируется набор символов или слов, которые ему предстоит запомнить.
  * Слова/символы показываются последовательно, с интервалом в ITEM_SHOWING_TIME.
- * На втором этапе испытуемому предстоит по памяти воспроизвести показанные ранее элементы. В данном случаем, пользователю будет показан другой ряд,
+ * На втором этапе испытуемому предстоит по памяти воспроизвести показанные ранее элементы. В данном случае, пользователю будет показан другой ряд,
  * относительно каждого элемента в котором он должен предоставить ответ: был элемент показан на первом этапе или нет.
  */
 export const useLuriaStore = defineStore('luriaStorage', () => {
@@ -27,8 +28,6 @@ export const useLuriaStore = defineStore('luriaStorage', () => {
     const ITEM_SHOWING_TIME = 2000;
 
     const checkpoint = useCheckpointStore();
-
-    const page = useCheckpointPageStore();
 
     const service = useCheckpointService();
 
@@ -191,7 +190,7 @@ export const useLuriaStore = defineStore('luriaStorage', () => {
         checkpoint.promoteLevel();
 
         if (checkpoint.isTimeToFinishTest()) {
-            finishTest();
+            await checkpoint.finishTest(subtotals);
 
             return;
         }
@@ -202,17 +201,6 @@ export const useLuriaStore = defineStore('luriaStorage', () => {
 
         await preloadData();
         await startLevel();
-    };
-
-    /**
-     * Завершает тестовое упражнение. Осуществляет сохранение итогового результата, переход к следующему компоненту.
-     */
-    const finishTest = () => {
-        saveTotal();
-        checkpoint.setTestFinishingState();
-        checkpoint.setMessage('Отлично! Готовим следующий этап...');
-
-        page.moveChain();
     };
 
     /**
@@ -326,7 +314,7 @@ export const useLuriaStore = defineStore('luriaStorage', () => {
      */
     const setItemsToRemember = () => {
         if (currentLevel.value) {
-            const items = useShuffle([...availableItems]);
+            const items = shuffle([...availableItems]);
 
             itemsToRemember.push(...items.slice(0, currentLevel.value.totalItemsToRemember));
         }
@@ -347,7 +335,7 @@ export const useLuriaStore = defineStore('luriaStorage', () => {
      */
     const setItemsToGuess = () => {
         if (currentLevel.value) {
-            const items = useShuffle([...availableItems]);
+            const items = shuffle([...availableItems]);
 
             itemsToGuess.push(...items.slice(0, currentLevel.value.totalItemsToGuess));
         }
@@ -490,7 +478,7 @@ export const useLuriaStore = defineStore('luriaStorage', () => {
      * Вспомогательный метод для генерации цвета элемента.
      */
     const generateItemColor = (): string => {
-        return useSample(colorPool) as string;
+        return sample(colorPool) as string;
     };
 
     /**
@@ -537,13 +525,6 @@ export const useLuriaStore = defineStore('luriaStorage', () => {
      */
     const clearTimers = () => {
         clearItemToRememberShowingTimer();
-    };
-
-    /**
-     * Сохраняет итоговый результат.
-     */
-    const saveTotal = () => {
-        checkpoint.saveTestContribution(subtotals);
     };
 
     /**

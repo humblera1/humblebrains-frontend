@@ -1,10 +1,22 @@
 import { defineStore } from 'pinia';
+import { mean } from 'lodash';
 import { TestModeEnum } from '~/modules/checkpoint/entities/enums/TestModeEnum';
 import { TestStateEnum } from '~/modules/checkpoint/entities/enums/TestStateEnum';
+import { useCheckpointPageStore } from '~/modules/checkpoint/stores/checkpointPageStore';
+import { useCheckpointService } from '~/modules/checkpoint/composables/useCheckpointService';
+import type { CognitiveCategoryEnum } from '~/entities/enums/cognitiveCategoryEnum';
+import { useUserStore } from '~/modules/user/stores/userStore';
+import { CheckpointTabEnum } from '~/entities/enums/checkpoint/CheckpointTabEnum';
 
 // Базовый стор, отвечающий за действия, свойственные всем тестам
 export const useCheckpointStore = defineStore('checkpointStorage', () => {
     const COUNTDOWN_INITIAL_VALUE = 3;
+
+    const service = useCheckpointService();
+
+    const user = useUserStore();
+
+    const page = useCheckpointPageStore();
 
     /**
      * Текущий режим теста
@@ -104,8 +116,8 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
     const testContributions: number[] = [];
 
     const saveTestContribution = (subtotals: number[]) => {
-        const mean = useMean(subtotals);
-        const contribution = parseFloat(mean.toFixed(2));
+        const meanValue = mean(subtotals);
+        const contribution = parseFloat(meanValue.toFixed(2));
 
         testContributions.push(contribution);
     };
@@ -470,7 +482,7 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
     };
 
     const getTotal = (): number => {
-        return Math.round(useMean(testContributions));
+        return Math.round(mean(testContributions));
     };
 
     /**
@@ -482,6 +494,44 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         resetTimer();
         clearMessage();
         promoteLevel();
+    };
+
+    const finishTest = async (subtotals: number[]) => {
+        saveTestContribution(subtotals);
+
+        setTestFinishingState();
+        setMessage('preparingNextStep');
+
+        if (page.isNextComponentExists) {
+            page.selectPreviewTab();
+
+            page.moveChain();
+        } else {
+            const checkpointTab = useState('checkpoint');
+
+            await saveResults();
+
+            checkpointTab.value = CheckpointTabEnum.conclusion;
+        }
+    };
+
+    const saveResults = async () => {
+        try {
+            const category = page.getCategory() as CognitiveCategoryEnum;
+            const response = await service.sendStageResults(category, getTotal());
+
+            user.setCheckpointStageData(response.data);
+        } catch {
+            console.log('failed to save stage...');
+        }
+    };
+
+    const resetResults = () => {
+        testContributions.length = 0;
+    };
+
+    const $setup = () => {
+        resetResults();
     };
 
     const $reset = () => {
@@ -523,6 +573,7 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         isTimeToFinishTest,
         isTimeToSwitchMode,
         finishLevel,
+        finishTest,
 
         // Паузы
         getPausePromise,
@@ -570,7 +621,10 @@ export const useCheckpointStore = defineStore('checkpointStorage', () => {
         isInPromptState,
         isInPauseState,
 
+        $setup,
         $reset,
+
+        saveResults,
 
         // Результат тестовых упражнений
         getTotal,

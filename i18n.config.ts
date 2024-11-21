@@ -103,6 +103,7 @@ export default defineI18nConfig(() => ({
             yourPriorityIs: 'Приоритет развития',
             yourPriorityIsDescription: 'Вы можете подтвердить выбор или выбрать другой приоритет самостоятельно',
             instruction: 'Инструкция',
+            preparingNextStep: 'Отлично! Готовим следующий этап...',
 
             'checkpoint:memoryDescription':
                 'Память — это когнитивная функция, которая позволяет нам сохранять, удерживать и извлекать информацию. Она играет ключевую роль в обучении и повседневной жизни, помогая нам запоминать важные события, навыки и знания.\n' +
@@ -249,6 +250,7 @@ export default defineI18nConfig(() => ({
             sessionCompletedInfo: 'You have completed the current session of your program! Go to the profile to see new exercises.',
             programCompletedInfo: 'You have completed the current program! Go to the assessment section to take the checkpoint.',
             instruction: 'Instructions',
+            preparingNextStep: '',
 
             // Matrix
             remember: 'Remember',

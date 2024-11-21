@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
+import { map, max } from 'lodash';
 import { useCheckpointStore } from '~/modules/checkpoint/stores/checkpointStore';
-import { useCheckpointPageStore } from '~/modules/checkpoint/stores/checkpointPageStore';
 import type { ITestLevels } from '~/modules/checkpoint/entities/interfaces/ITestLevels';
 import type { SymbolsLevel } from '~/modules/checkpoint/entities/types/symbols/symbolsLevel';
 import type { Icon } from '~/modules/checkpoint/entities/types/Icon';
@@ -37,8 +37,6 @@ export const useSymbolsStore = defineStore('symbolsStorage', () => {
     const service = useCheckpointService();
 
     const checkpoint = useCheckpointStore();
-
-    const page = useCheckpointPageStore();
 
     /**
      * Массив иконок, которые будут использоваться на уровне.
@@ -156,9 +154,9 @@ export const useSymbolsStore = defineStore('symbolsStorage', () => {
      * Берётся максимальное значение поля totalVariants из всех возможных уровней.
      */
     const iconsAmountToFetch = computed((): number => {
-        const variantsArray = [...useMap(levelsToWarmUp, 'totalVariants'), ...useMap(levels, 'totalVariants')];
+        const variantsArray = [...map(levelsToWarmUp, 'totalVariants'), ...map(levels, 'totalVariants')];
 
-        return useMax(variantsArray) || 0;
+        return max(variantsArray) || 0;
     });
 
     /**
@@ -288,7 +286,7 @@ export const useSymbolsStore = defineStore('symbolsStorage', () => {
             checkpoint.promoteLevel();
 
             if (checkpoint.isTimeToFinishTest()) {
-                finishTest();
+                await checkpoint.finishTest(subtotals);
 
                 return;
             }
@@ -325,17 +323,6 @@ export const useSymbolsStore = defineStore('symbolsStorage', () => {
 
             checkpoint.setInteractiveState();
         }
-    };
-
-    /**
-     * Завершает тестовое упражнение. Осуществляет сохранение итогового результата, переход к следующему компоненту.
-     */
-    const finishTest = () => {
-        saveTotal();
-        checkpoint.setTestFinishingState();
-        checkpoint.setMessage('Отлично! Готовим следующий этап...');
-
-        page.moveChain();
     };
 
     /**
@@ -708,13 +695,6 @@ export const useSymbolsStore = defineStore('symbolsStorage', () => {
         const totalPercent = (correctAnsweredNumbers * 100) / len;
 
         subtotals.push(totalPercent);
-    };
-
-    /**
-     * Сохраняет итоговый результат.
-     */
-    const saveTotal = () => {
-        checkpoint.saveTestContribution(subtotals);
     };
 
     /**

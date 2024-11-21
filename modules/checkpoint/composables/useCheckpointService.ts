@@ -3,6 +3,7 @@ import type { CognitiveCategoryEnum } from '~/entities/enums/cognitiveCategoryEn
 import type { Icon } from '~/modules/checkpoint/entities/types/Icon';
 import type { BaseResponse } from '~/entities/interfaces/responses/BaseResponse';
 import type { IProgram } from '~/entities/interfaces/program/IProgram';
+import type { ICheckpointStage } from '~/modules/checkpoint/entities/interfaces/ICheckpointStage';
 
 export const useCheckpointService = () => {
     const { $api } = useNuxtApp();
@@ -17,8 +18,8 @@ export const useCheckpointService = () => {
         });
     };
 
-    const sendStageResults = async (category: CognitiveCategoryEnum, score: number) => {
-        return await $api<void>('/v1/checkpoint/finish-stage', {
+    const sendStageResults = async (category: CognitiveCategoryEnum, score: number): Promise<BaseResponse<ICheckpointStage>> => {
+        return await $api<BaseResponse<ICheckpointStage>>('/v1/checkpoint/finish-stage', {
             method: RequestMethodEnum.post,
             credentials: 'include',
             body: {
