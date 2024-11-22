@@ -19,6 +19,8 @@ export default defineI18nConfig(() => ({
             ready: 'Готов',
             sectionInDevelopment: 'Раздел находится в разработке',
             goHome: 'На главную',
+            currentProgram: 'Текущая программа',
+            youAreHere: 'Вы здесь!',
 
             // Sidebar:
             home: 'Главная',
@@ -191,6 +193,8 @@ export default defineI18nConfig(() => ({
             ready: 'Ready',
             sectionInDevelopment: 'Section is under development',
             goHome: 'Home',
+            currentProgram: 'Current program',
+            youAreHere: 'You are here!',
 
             // Sidebar:
             home: 'Home',

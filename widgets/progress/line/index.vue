@@ -33,6 +33,9 @@
                     class="progress-line__connector"
                     :class="{ 'progress-line__connector_active': isCompleted(index) || isActive(index + 1) }"
                 />
+                <div class="progress-line__footer">
+                    <span v-if="isActive(index)" class="progress-line__title">{{ $t('youAreHere') }}</span>
+                </div>
             </div>
         </template>
     </div>
@@ -71,8 +74,7 @@ const getItemType = (index: number): string => {
 
 const isCompleted = (index: number): boolean => {
     if (user.program) {
-        return ++index < 2;
-        // return ++index < user.program.completedSessionsAmount;
+        return ++index < user.program.completedSessionsAmount;
     }
 
     return false;
@@ -80,8 +82,7 @@ const isCompleted = (index: number): boolean => {
 
 const isFinal = (index: number): boolean => {
     if (user.program) {
-        return ++index === 3;
-        // return ++index === user.program.sessionsAmount;
+        return ++index === user.program.sessionsAmount;
     }
 
     return false;
@@ -89,113 +90,11 @@ const isFinal = (index: number): boolean => {
 
 const isActive = (index: number): boolean => {
     if (user.program) {
-        return index === 1;
-        // return index === user.program.completedSessionsAmount;
+        return index === user.program.completedSessionsAmount;
     }
 
     return false;
 };
 </script>
 
-<style scoped lang="scss">
-.progress-line {
-    display: flex;
-    justify-content: center;
-
-    &__container {
-        position: relative;
-        display: flex;
-        align-items: center;
-    }
-
-    &__item {
-        position: relative;
-        cursor: pointer;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 80px;
-        height: 80px;
-        border-radius: 100px;
-        background-color: var(--blue-badge);
-        color: var(--primary-subtitle);
-
-        &_completed {
-            background-color: var(--blue);
-            color: var(--accent-white);
-        }
-
-        &_active {
-            position: relative;
-            width: 90px;
-            height: 90px;
-            background-color: transparent;
-            color: var(--accent-white);
-            border: 3px solid var(--blue);
-        }
-
-        svg {
-            width: 28px;
-            height: 20px;
-        }
-    }
-
-    &__inner {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 75px;
-        height: 75px;
-        transform: translate(-50%, -50%);
-        border-radius: 100px;
-        background-color: var(--blue);
-    }
-
-    &__connector {
-        width: 48px;
-        height: 3px;
-        background-color: var(--blue-badge);
-
-        &_active {
-            background-color: var(--blue);
-        }
-    }
-
-    &-node {
-        z-index: 10;
-        position: absolute;
-        top: 50%;
-        width: 15px;
-        height: 15px;
-        border-radius: 100px;
-        background-color: var(--primary-bg);
-        transform: translate(-50%, -50%);
-
-        &__content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 10px;
-            height: 10px;
-            border-radius: 100px;
-            background-color: var(--blue-badge);
-            transform: translate(-50%, -50%);
-
-            &_active {
-                background-color: var(--blue);
-            }
-        }
-
-        &_left {
-            left: 0;
-        }
-
-        &_right {
-            left: 100%;
-        }
-    }
-}
-</style>
+<style scoped lang="scss" src="./progress-line.styles.scss" />

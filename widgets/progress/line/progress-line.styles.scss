@@ -1,0 +1,190 @@
+.progress-line {
+    display: flex;
+    max-width: 650px;
+    padding-bottom: 32px;
+    overflow-x: auto;
+    overflow-y: visible;
+
+    @include tablet {
+        max-width: 450px;
+    }
+
+    @include mobile {
+        flex-direction: column-reverse;
+        width: fit-content;
+        max-width: unset;
+        overflow-x: visible;
+        padding-bottom: unset;
+    }
+
+    &__container {
+        position: relative;
+        display: flex;
+        align-items: center;
+
+        @include mobile {
+            flex-direction: column-reverse;
+        }
+    }
+
+    &__footer {
+        position: absolute;
+        left: 0;
+        top: 100%;
+        width: 90px;
+        max-width: 90px;
+        display: flex;
+        justify-content: center;
+
+        margin-top: 8px;
+
+        @include mobile {
+            left: 100%;
+            top: unset;
+            justify-content: start;
+            align-items: center;
+            height: 90px;
+            margin-top: unset;
+            margin-left: 8px;
+        }
+    }
+
+    &__item {
+        position: relative;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 80px;
+        height: 80px;
+        border-radius: 100px;
+        background-color: var(--blue-badge);
+        color: var(--primary-subtitle);
+
+        &_completed {
+            background-color: var(--blue);
+            color: var(--accent-white);
+        }
+
+        &_active {
+            position: relative;
+            width: 90px;
+            height: 90px;
+            background-color: transparent;
+            color: var(--accent-white);
+            border: 3px solid var(--blue);
+
+            .progress-line-node {
+                background-color: transparent;
+
+                &_left {
+                    left: calc(0% - 2px);
+
+                    @include mobile {
+                        top: calc(100% + 1px);
+                        left: 50%;
+                    }
+                }
+
+                &_right {
+                    left: calc(100% + 1px);
+
+                    @include mobile {
+                        top: calc(0% - 2px);
+                        left: 50%;
+                    }
+                }
+            }
+        }
+
+        svg {
+            width: 28px;
+            height: 20px;
+        }
+    }
+
+    &__inner {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 75px;
+        height: 75px;
+        transform: translate(-50%, -50%);
+        border-radius: 100px;
+        background-color: var(--blue);
+    }
+
+    &__connector {
+        width: 60px;
+        height: 3px;
+        background-color: var(--blue-badge);
+
+        &_active {
+            background-color: var(--blue);
+        }
+
+        @include tablet {
+            width: 48px;
+        }
+
+        @include mobile {
+            width: 3px;
+            height: 48px;
+        }
+    }
+
+    &-node {
+        z-index: 10;
+        position: absolute;
+        top: 50%;
+        width: 15px;
+        height: 15px;
+        border-radius: 100px;
+        background-color: var(--primary-bg);
+        transform: translate(-50%, -50%);
+
+        &__content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 11px;
+            height: 11px;
+            border-radius: 100px;
+            background-color: var(--blue-badge);
+            transform: translate(-50%, -50%);
+
+            &_active {
+                background-color: var(--blue);
+            }
+        }
+
+        &_left {
+            left: 0;
+
+            @include mobile {
+                top: 100%;
+                left: 50%;
+            }
+        }
+
+        &_right {
+            left: 100%;
+
+            @include mobile {
+                top: 0;
+                left: 50%;
+            }
+        }
+    }
+
+    &__title {
+        @include mainFont(500, 16, var(--primary-title));
+
+        @include mobile {
+            @include mainFont(500, 14, var(--primary-title));
+        }
+    }
+}
