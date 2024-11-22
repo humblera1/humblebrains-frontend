@@ -9,7 +9,6 @@ export default defineNuxtConfig({
         '@nuxtjs/i18n',
         '@pinia/nuxt',
         'nuxt-humble-modal',
-        'nuxt-lodash',
         '@nuxtjs/device',
         'nuxt-swiper',
     ],
