@@ -2,8 +2,8 @@ import { RequestMethodEnum } from '~/entities/enums/RequestMethodEnum';
 import type { CognitiveCategoryEnum } from '~/entities/enums/cognitiveCategoryEnum';
 import type { Icon } from '~/modules/checkpoint/entities/types/Icon';
 import type { BaseResponse } from '~/entities/interfaces/responses/BaseResponse';
-import type { IProgram } from '~/entities/interfaces/program/IProgram';
 import type { ICheckpointStage } from '~/modules/checkpoint/entities/interfaces/ICheckpointStage';
+import type { IProgram } from '~/entities/interfaces/program/IProgram';
 
 export const useCheckpointService = () => {
     const { $api } = useNuxtApp();

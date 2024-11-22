@@ -3,6 +3,7 @@ import type { User } from '~/modules/user/entities/interfaces/User';
 import type { ICheckpoint } from '~/modules/checkpoint/entities/interfaces/ICheckpoint';
 import type { IProgram } from '~/entities/interfaces/program/IProgram';
 import type { ICheckpointStage } from '~/modules/checkpoint/entities/interfaces/ICheckpointStage';
+import type { ISessionGame } from '~/entities/interfaces/session/ISessionGame';
 
 export const useUserStore = defineStore('userStorage', () => {
     const user = ref<User>({} as User);
@@ -10,6 +11,14 @@ export const useUserStore = defineStore('userStorage', () => {
     const setupPromise = ref<Promise<void> | null>(null);
 
     const authService = useAuthService();
+
+    const program = computed((): IProgram | undefined => {
+        return user.value.program;
+    });
+
+    const games = computed((): ISessionGame[] => {
+        return user.value.program?.currentSession?.games ?? [];
+    });
 
     const stages = computed((): ICheckpointStage[] => {
         return user.value.checkpoint?.stages ?? [];
@@ -20,7 +29,7 @@ export const useUserStore = defineStore('userStorage', () => {
             return user.value.checkpoint.isCompleted;
         }
 
-        return false;
+        return true;
     });
 
     const completeCheckpoint = () => {
@@ -74,6 +83,8 @@ export const useUserStore = defineStore('userStorage', () => {
         setCheckpointStageData,
         setProgramData,
         user,
+        program,
+        games,
         stages,
         isCheckpointCompleted,
     };

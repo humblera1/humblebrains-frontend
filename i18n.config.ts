@@ -21,6 +21,10 @@ export default defineI18nConfig(() => ({
             goHome: 'На главную',
             currentProgram: 'Текущая программа',
             youAreHere: 'Вы здесь!',
+            latestAssessment: 'Последняя оценка',
+            sessionsToNextAssessment: 'Сессий до следующей оценки',
+            programProgress: 'Прогресс в программе',
+            sessionProgress: 'Прогресс в сессии',
 
             // Sidebar:
             home: 'Главная',
@@ -195,6 +199,10 @@ export default defineI18nConfig(() => ({
             goHome: 'Home',
             currentProgram: 'Current program',
             youAreHere: 'You are here!',
+            latestAssessment: 'Latest assessment',
+            sessionsToNextAssessment: 'Sessions to next assessment',
+            programProgress: 'Program progress',
+            sessionProgress: 'Session progress',
 
             // Sidebar:
             home: 'Home',
