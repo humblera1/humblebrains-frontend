@@ -120,8 +120,8 @@ const handleConfirm = async () => {
         try {
             const response = await service.finishCheckpoint(selectedOption.value.value as CognitiveCategoryEnum);
 
-            user.setProgramData(response.data.program);
-            user.completeCheckpoint(response.data.time);
+            user.setProgramData(response.data);
+            user.completeCheckpoint();
 
             isSuccess.value = true;
             isPending.value = false;
