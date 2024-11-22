@@ -1,0 +1,94 @@
+.row {
+    position: relative;
+    display: block;
+    width: 100%;
+    overflow: hidden;
+
+    @include mobile {
+        width: calc(100% + 32px);
+        margin: 0 -16px;
+    }
+
+    &__controls {
+        z-index: 11;
+        position: absolute;
+        top: 50%;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    &__arrow {
+        cursor: pointer;
+        z-index: 11;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 25px;
+        height: 25px;
+        margin: auto;
+        border-radius: 100px;
+        color: var(--accent-white);
+        background-color: var(--blue);
+
+        transition: all 250ms ease;
+
+        @include tablet {
+            top: unset;
+        }
+
+        &_prev {
+            left: 0;
+            rotate: 90deg;
+
+            @include tablet {
+                margin-left: 25%;
+            }
+
+            @include mobile {
+                margin-left: 32px;
+            }
+        }
+
+        &_next {
+            right: 0;
+            rotate: -90deg;
+
+            @include tablet {
+                margin-right: 25%;
+            }
+
+            @include mobile {
+                margin-right: 32px;
+            }
+        }
+
+        &_disabled {
+            cursor: unset;
+            background-color: var(--gray-absence);
+            //color: var(--gray-absence);
+        }
+
+        &:hover {
+            background-color: var(--blue-hovered);
+        }
+    }
+}
+
+.swiper {
+    margin: 0 32px;
+    padding: 36px 32px;
+    width: auto;
+    height: 100%;
+
+    @include tablet {
+        margin: unset;
+    }
+}
+
+.swiper-slide {
+    width: fit-content;
+}

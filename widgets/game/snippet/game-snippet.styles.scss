@@ -1,0 +1,75 @@
+.snippet {
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    max-width: 115px;
+    max-height: 115px;
+    border-radius: 36px;
+    padding: 24px;
+    background-color: var(--badge-bg);
+
+    @include mainShadow();
+
+    @include tablet {
+        max-width: 110px;
+        max-height: 110px;
+        border-radius: 32px;
+        padding: 20px;
+    }
+
+    @include mobile {
+        max-width: 90px;
+        max-height: 90px;
+        border-radius: 28px;
+        padding: 16px;
+    }
+
+    &_completed {
+        background-color: transparent;
+        box-shadow: unset;
+        border: 1px solid var(--border-primary);
+
+        .snippet__image {
+            opacity: 0.75;
+        }
+    }
+
+    &__image {
+        img {
+            object-fit: contain;
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    &__check {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100%;
+        height: 100%;
+        max-width: 24px;
+        max-height: 24px;
+        color: var(--green);
+
+        @include tablet {
+            max-width: 20px;
+            max-height: 20px;
+        }
+
+        @include mobile {
+            max-width: 18px;
+            max-height: 18px;
+        }
+
+        @include mobile {
+            width: 90px;
+            height: 90px;
+            border-radius: 28px;
+        }
+    }
+}
