@@ -1,6 +1,7 @@
 <template>
     <div ref="cropper" class="cropper">
         <div class="cropper__overlay">
+            <canvas id="canvas" ref="canvas" style="display: none"></canvas>
             <div
                 ref="cropArea"
                 class="cropper__area"
@@ -12,6 +13,8 @@
                 }"
                 @mousedown="startDrag"
                 @touchstart="startDrag"
+                @mouseup="endCrop"
+                @touchend="endCrop"
             >
                 <div class="cropper__circle"></div>
                 <div
@@ -36,7 +39,7 @@
                 ></div>
             </div>
         </div>
-        <img v-if="image" :src="image" alt="Uploaded Image" />
+        <img v-if="image" ref="imageElem" :src="image" alt="Uploaded Image" />
     </div>
 </template>
 
@@ -44,10 +47,13 @@
 import { ref, onMounted } from 'vue';
 import type { CropperProps } from '~/shared/ui/cropper/cropper.types';
 
-defineProps<CropperProps>();
+const { image } = defineProps<CropperProps>();
+const emit = defineEmits(['cropped']);
 
+const canvas = ref<HTMLCanvasElement | null>(null);
 const cropper = ref<HTMLDivElement | null>(null);
 const cropArea = ref<HTMLDivElement | null>(null);
+const imageElem = ref<HTMLImageElement | null>(null);
 
 const handleSize = 8 / 2;
 
@@ -62,6 +68,85 @@ const getEventCoordinates = (event: MouseEvent | TouchEvent) => {
         return { x: touch.clientX, y: touch.clientY };
     }
     return { x: 0, y: 0 };
+};
+
+const mimeType = computed((): string => {
+    let type = 'image/png';
+
+    if (imageElem.value) {
+        const originalFormat = imageElem.value.src.split('.').pop()?.toLowerCase();
+
+        if (originalFormat === 'jpg' || originalFormat === 'jpeg') {
+            type = 'image/jpeg';
+        }
+    }
+
+    return type;
+});
+
+const endCrop = (event: MouseEvent | TouchEvent) => {
+    event.preventDefault();
+
+    if (canvas.value && imageElem.value) {
+        const ctx = canvas.value.getContext('2d');
+
+        if (ctx) {
+            // Get the actual dimensions of the image
+            const naturalWidth = imageElem.value.naturalWidth;
+            const naturalHeight = imageElem.value.naturalHeight;
+
+            console.log('w:', naturalWidth, 'h:', naturalHeight);
+
+            // Get the displayed dimensions of the image
+            const displayedWidth = imageElem.value.clientWidth;
+            const displayedHeight = imageElem.value.clientHeight;
+
+            // Calculate the scaling factors
+            const scaleX = naturalWidth / displayedWidth;
+            const scaleY = naturalHeight / displayedHeight;
+
+            // Determine the effective scale based on object-fit: cover
+            const effectiveScale = Math.min(scaleX, scaleY);
+
+            // Calculate the offset introduced by object-fit: cover
+            const offsetX = (naturalWidth - displayedWidth * effectiveScale) / 2;
+            const offsetY = (naturalHeight - displayedHeight * effectiveScale) / 2;
+
+            // Adjust the crop position and size according to the effective scale
+            const cropX = cropPosition.value.x * effectiveScale + offsetX;
+            const cropY = cropPosition.value.y * effectiveScale + offsetY;
+
+            const cropSizeScaled = cropSize.value.width * effectiveScale;
+
+            // console.log('Effective Scale:', effectiveScale);
+            // console.log('CropX:', cropX, 'CropY:', cropY);
+            console.log('cropSizeScaled:', cropSizeScaled);
+            // console.log('w:', cropSize.value.width, 'h:', cropSize.value.height);
+
+            // Set the canvas size to the desired crop size (square)
+            canvas.value.width = cropSize.value.width;
+            canvas.value.height = cropSize.value.height;
+
+            // Draw the cropped image on the canvas
+            ctx.drawImage(
+                imageElem.value, // Source image element
+                cropX, // X coordinate of the top-left corner of the source image to start cropping
+                cropY, // Y coordinate of the top-left corner of the source image to start cropping
+                cropSizeScaled, // Width of the source image to crop
+                cropSizeScaled, // Height of the source image to crop
+                0, // X coordinate on the canvas to place the cropped image
+                0, // Y coordinate on the canvas to place the cropped image
+                cropSize.value.width, // Width of the cropped image on the canvas
+                cropSize.value.height, // Height of the cropped image on the canvas
+            );
+
+            canvas.value.toBlob((blob) => {
+                if (blob) {
+                    emit('cropped', blob);
+                }
+            }, mimeType.value);
+        }
+    }
 };
 
 const startResize = (event: MouseEvent | TouchEvent, corner: string) => {
