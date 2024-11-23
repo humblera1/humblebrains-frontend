@@ -25,6 +25,12 @@ export default defineI18nConfig(() => ({
             sessionsToNextAssessment: 'Сессий до следующей оценки',
             programProgress: 'Прогресс в программе',
             sessionProgress: 'Прогресс в сессии',
+            dragOrUploadFile: 'Перетащите изображение сюда или выберите файл для загрузки',
+            uploading: 'Загрузка...',
+            saveAfterEditing: 'Нажмите, когда будете готовы сохранить изменения',
+            saving: 'Сохраняем...',
+            select: 'Выбрать',
+            save: 'Сохранить',
 
             // Sidebar:
             home: 'Главная',
@@ -203,6 +209,12 @@ export default defineI18nConfig(() => ({
             sessionsToNextAssessment: 'Sessions to next assessment',
             programProgress: 'Program progress',
             sessionProgress: 'Session progress',
+            dragOrUploadFile: 'Drag the image here or select a file to upload',
+            uploading: 'Uploading...',
+            saveAfterEditing: 'Click when you are ready to save changes',
+            saving: 'Saving...',
+            select: 'Select',
+            save: 'Save',
 
             // Sidebar:
             home: 'Home',

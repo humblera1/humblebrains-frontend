@@ -12,8 +12,8 @@
                 <IconArrowRounded :filled="isDragOver" class="avatar-uploader__arrow" />
             </div>
             <div class="avatar-uploader__footer">
-                <p class="avatar-uploader__message">Выберите изображение</p>
-                <UiButton @click="triggerFileInput">Выбрать</UiButton>
+                <p class="avatar-uploader__message">{{ $t(uploader.message) }}</p>
+                <UiButton @click="triggerFileInput">{{ uploader.isEditingState() ? $t('save') : $t('select') }}</UiButton>
             </div>
             <input ref="fileInput" type="file" accept="image/*" style="display: none" @change="onFileChange" />
         </div>
@@ -126,6 +126,22 @@ onUnmounted(() => {
         @include tablet {
             width: 32px;
             height: 37px;
+        }
+    }
+
+    &__message {
+        text-align: center;
+        max-width: 340px;
+
+        @include mainFont(400, 20, var(--primary-subtitle));
+
+        @include tablet {
+            font-size: 18px;
+        }
+
+        @include mobile {
+            max-width: 300px;
+            font-size: 16px;
         }
     }
 }
