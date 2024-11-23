@@ -39,16 +39,17 @@
                 ></div>
             </div>
         </div>
-        <img v-if="image" ref="imageElem" :src="image" alt="Uploaded Image" />
+        <img v-if="imageSrc" ref="imageElem" :src="imageSrc" alt="Uploaded Image" />
     </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import type { CropperProps } from '~/shared/ui/cropper/cropper.types';
+import type { CroppedEvent, CropperExposedMethods, CropperProps } from '~/shared/ui/cropper/cropper.types';
 
-const { image } = defineProps<CropperProps>();
-const emit = defineEmits(['cropped']);
+const { image, saveOriginalResolution = false, lazyEvaluation = false, returnAs = 'File' } = defineProps<CropperProps>();
+
+const emit = defineEmits<CroppedEvent>();
 
 const canvas = ref<HTMLCanvasElement | null>(null);
 const cropper = ref<HTMLDivElement | null>(null);
@@ -59,6 +60,27 @@ const handleSize = 8 / 2;
 
 const cropSize = ref({ width: 0, height: 0 });
 const cropPosition = ref({ x: 0, y: 0 });
+
+const imageSrc = ref<string | null>(null);
+
+const convertToSrc = (image: string | File | Blob): Promise<string> => {
+    if (typeof image === 'string') {
+        return Promise.resolve(image);
+    }
+
+    if (image instanceof File || image instanceof Blob) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = reject;
+
+            reader.readAsDataURL(image);
+        });
+    }
+
+    throw new Error('Unsupported image type');
+};
 
 const getEventCoordinates = (event: MouseEvent | TouchEvent) => {
     if (event instanceof MouseEvent) {
@@ -84,69 +106,84 @@ const mimeType = computed((): string => {
     return type;
 });
 
-const endCrop = (event: MouseEvent | TouchEvent) => {
+/**
+ * The effective scale based on object-fit: cover.
+ */
+const effectiveScale = computed((): number => {
+    if (imageElem.value) {
+        // Calculate the scaling factors: actual dimensions of the image / displayed dimensions of the image
+        const scaleX = imageElem.value.naturalWidth / imageElem.value.clientWidth;
+        const scaleY = imageElem.value.naturalHeight / imageElem.value.clientHeight;
+
+        return Math.min(scaleX, scaleY);
+    }
+
+    return 1; // Default scale if no image is loaded
+});
+
+/**
+ * Offset introduced by object-fit: cover.
+ */
+const offsetX = computed((): number => {
+    if (imageElem.value) {
+        return (imageElem.value.naturalWidth - imageElem.value.clientWidth * effectiveScale.value) / 2;
+    }
+
+    return 0;
+});
+
+/**
+ * Offset introduced by object-fit: cover.
+ */
+const offsetY = computed((): number => {
+    if (imageElem.value) {
+        return (imageElem.value.naturalHeight - imageElem.value.clientHeight * effectiveScale.value) / 2;
+    }
+
+    return 0;
+});
+
+/**
+ * X & Y coordinates of the top-left corner of the source image to start cropping.
+ */
+const cropCoordinates = computed((): { x: number; y: number } => {
+    if (imageElem.value) {
+        return {
+            x: cropPosition.value.x * effectiveScale.value + offsetX.value,
+            y: cropPosition.value.y * effectiveScale.value + offsetY.value,
+        };
+    }
+
+    return { x: 0, y: 0 };
+});
+
+/**
+ * Dimension of source image.
+ */
+const cropSizeScaled = computed((): number => {
+    return cropSize.value.width * effectiveScale.value;
+});
+
+const endCrop = async (event: MouseEvent | TouchEvent) => {
     event.preventDefault();
 
-    if (canvas.value && imageElem.value) {
-        const ctx = canvas.value.getContext('2d');
+    let output = null;
 
-        if (ctx) {
-            // Get the actual dimensions of the image
-            const naturalWidth = imageElem.value.naturalWidth;
-            const naturalHeight = imageElem.value.naturalHeight;
-
-            console.log('w:', naturalWidth, 'h:', naturalHeight);
-
-            // Get the displayed dimensions of the image
-            const displayedWidth = imageElem.value.clientWidth;
-            const displayedHeight = imageElem.value.clientHeight;
-
-            // Calculate the scaling factors
-            const scaleX = naturalWidth / displayedWidth;
-            const scaleY = naturalHeight / displayedHeight;
-
-            // Determine the effective scale based on object-fit: cover
-            const effectiveScale = Math.min(scaleX, scaleY);
-
-            // Calculate the offset introduced by object-fit: cover
-            const offsetX = (naturalWidth - displayedWidth * effectiveScale) / 2;
-            const offsetY = (naturalHeight - displayedHeight * effectiveScale) / 2;
-
-            // Adjust the crop position and size according to the effective scale
-            const cropX = cropPosition.value.x * effectiveScale + offsetX;
-            const cropY = cropPosition.value.y * effectiveScale + offsetY;
-
-            const cropSizeScaled = cropSize.value.width * effectiveScale;
-
-            // console.log('Effective Scale:', effectiveScale);
-            // console.log('CropX:', cropX, 'CropY:', cropY);
-            console.log('cropSizeScaled:', cropSizeScaled);
-            // console.log('w:', cropSize.value.width, 'h:', cropSize.value.height);
-
-            // Set the canvas size to the desired crop size (square)
-            canvas.value.width = cropSize.value.width;
-            canvas.value.height = cropSize.value.height;
-
-            // Draw the cropped image on the canvas
-            ctx.drawImage(
-                imageElem.value, // Source image element
-                cropX, // X coordinate of the top-left corner of the source image to start cropping
-                cropY, // Y coordinate of the top-left corner of the source image to start cropping
-                cropSizeScaled, // Width of the source image to crop
-                cropSizeScaled, // Height of the source image to crop
-                0, // X coordinate on the canvas to place the cropped image
-                0, // Y coordinate on the canvas to place the cropped image
-                cropSize.value.width, // Width of the cropped image on the canvas
-                cropSize.value.height, // Height of the cropped image on the canvas
-            );
-
-            canvas.value.toBlob((blob) => {
-                if (blob) {
-                    emit('cropped', blob);
-                }
-            }, mimeType.value);
+    if (!lazyEvaluation) {
+        switch (returnAs) {
+            case 'File':
+                output = await getFile();
+                break;
+            case 'Blob':
+                output = await getBlob();
+                break;
+            case 'Base64':
+                output = await getBase64();
+                break;
         }
     }
+
+    emit('cropped', output);
 };
 
 const startResize = (event: MouseEvent | TouchEvent, corner: string) => {
@@ -290,6 +327,103 @@ const startDrag = (event: MouseEvent | TouchEvent) => {
     document.addEventListener('touchmove', onMove);
     document.addEventListener('touchend', onEnd);
 };
+
+/**
+ *
+ */
+const getCanvasWithContext = (): HTMLCanvasElement | null => {
+    if (canvas.value && imageElem.value) {
+        const context = canvas.value.getContext('2d');
+
+        if (context) {
+            const croppedImageWidth = saveOriginalResolution ? cropSizeScaled.value : cropSize.value.width;
+            const croppedImageHeight = saveOriginalResolution ? cropSizeScaled.value : cropSize.value.height;
+
+            canvas.value.width = croppedImageWidth;
+            canvas.value.height = croppedImageHeight;
+
+            context.drawImage(
+                imageElem.value, // Source image element
+                cropCoordinates.value.x, // X coordinate of the top-left corner of the source image to start cropping
+                cropCoordinates.value.y, // Y coordinate of the top-left corner of the source image to start cropping
+                cropSizeScaled.value, // Width of the source image to crop
+                cropSizeScaled.value, // Height of the source image to crop
+                0, // X coordinate on the canvas to place the cropped image
+                0, // Y coordinate on the canvas to place the cropped image
+                croppedImageWidth, // Width of the cropped image on the canvas
+                croppedImageHeight, // Height of the cropped image on the canvas
+            );
+
+            return canvas.value;
+        }
+    }
+
+    return null;
+};
+
+/**
+ * The use of a Promise in the getBlob method is necessary because the process of converting a canvas to a Blob is asynchronous.
+ */
+const getBlob = (): Promise<Blob | null> => {
+    return new Promise((resolve) => {
+        const canvas = getCanvasWithContext();
+
+        if (canvas) {
+            canvas.toBlob((blob) => {
+                resolve(blob);
+            }, mimeType.value);
+        } else {
+            resolve(null);
+        }
+    });
+};
+
+const getFile = async (): Promise<File | null> => {
+    const blob = await getBlob();
+
+    if (blob) {
+        const fileName = 'cropped-image.' + mimeType.value.split('/')[1];
+
+        return new File([blob], fileName, { type: mimeType.value });
+    }
+
+    return null;
+};
+
+const getBase64 = async (): Promise<string | null> => {
+    const blob = await getBlob();
+
+    if (blob) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+
+            reader.onloadend = () => {
+                resolve(reader.result as string);
+            };
+
+            reader.readAsDataURL(blob);
+        });
+    }
+
+    return null;
+};
+
+// Watch for changes to the image prop and convert it to a src
+watch(
+    () => image,
+    async (newImage) => {
+        if (newImage) {
+            imageSrc.value = await convertToSrc(newImage);
+        }
+    },
+    { immediate: true },
+);
+
+defineExpose<CropperExposedMethods>({
+    getFile,
+    getBlob,
+    getBase64,
+});
 
 onMounted(() => {
     if (cropper.value) {
