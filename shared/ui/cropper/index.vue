@@ -29,12 +29,12 @@ import type { CropperProps } from '~/shared/ui/cropper/cropper.types';
 defineProps<CropperProps>();
 
 const cropper = ref<HTMLDivElement | null>(null);
-
 const cropArea = ref<HTMLDivElement | null>(null);
-const cropSize = ref({ width: 100, height: 100 });
-const cropPosition = ref({ x: 50, y: 40 });
 
 const handleSize = 8 / 2;
+
+const cropSize = ref({ width: 0, height: 0 });
+const cropPosition = ref({ x: 0, y: 0 });
 
 const startResize = (event: MouseEvent, corner: string) => {
     event.preventDefault();
@@ -59,31 +59,52 @@ const startResize = (event: MouseEvent, corner: string) => {
         switch (corner) {
             case 'top-left':
                 newSize = Math.max(startWidth - dx, startHeight - dy);
-                if (startLeft + startWidth - newSize < 0 || startTop + startHeight - newSize < 0) {
-                    newSize = Math.min(startWidth, startHeight);
+                if (startLeft + startWidth - newSize < handleSize) {
+                    newSize = startLeft + startWidth - handleSize;
+                }
+                if (startTop + startHeight - newSize < handleSize) {
+                    newSize = startTop + startHeight - handleSize;
                 }
                 cropPosition.value.x = startLeft + (startWidth - newSize);
                 cropPosition.value.y = startTop + (startHeight - newSize);
                 break;
             case 'top-right':
                 newSize = Math.max(startWidth + dx, startHeight - dy);
-                if (startTop + startHeight - newSize < 0 || startLeft + newSize > cropperWidth) {
-                    newSize = Math.min(startWidth, startHeight);
+
+                if (startTop + startHeight - newSize < handleSize) {
+                    newSize = startTop + startHeight - handleSize;
                 }
+
+                if (startLeft + newSize > cropperWidth - handleSize) {
+                    newSize = cropperWidth - startLeft - handleSize;
+                }
+
                 cropPosition.value.y = startTop + (startHeight - newSize);
+
                 break;
             case 'bottom-left':
                 newSize = Math.max(startWidth - dx, startHeight + dy);
-                if (startLeft + startWidth - newSize < 0 || startTop + newSize > cropperHeight) {
-                    newSize = Math.min(startWidth, startHeight);
+
+                if (startLeft + startWidth - newSize < handleSize) {
+                    newSize = startLeft + startWidth - handleSize;
                 }
+
+                if (startTop + newSize > cropperHeight - handleSize) {
+                    newSize = cropperHeight - startTop - handleSize;
+                }
+
                 cropPosition.value.x = startLeft + (startWidth - newSize);
+
                 break;
             case 'bottom-right':
                 newSize = Math.max(startWidth + dx, startHeight + dy);
 
-                if (startLeft + newSize > cropperWidth || startTop + newSize > cropperHeight) {
-                    newSize = Math.min(startWidth, startHeight);
+                if (startLeft + newSize > cropperWidth - handleSize) {
+                    newSize = cropperWidth - startLeft - handleSize;
+                }
+
+                if (startTop + newSize > cropperHeight - handleSize) {
+                    newSize = cropperHeight - startTop - handleSize;
                 }
 
                 break;
@@ -114,11 +135,6 @@ const startDrag = (event: MouseEvent) => {
     const cropperRect = cropper.value?.getBoundingClientRect();
     const cropperWidth = cropperRect?.width || 0;
     const cropperHeight = cropperRect?.height || 0;
-
-    // console.log('w: ' + cropperWidth);
-    // console.log('h: ' + cropperHeight);
-
-    // Size of the resize handles
 
     const onMouseMove = (moveEvent: MouseEvent) => {
         const dx = moveEvent.clientX - startX;
@@ -151,9 +167,17 @@ const startDrag = (event: MouseEvent) => {
 };
 
 onMounted(() => {
-    if (cropArea.value) {
-        cropPosition.value.x = cropArea.value.offsetLeft;
-        cropPosition.value.y = cropArea.value.offsetTop;
+    if (cropper.value) {
+        const cropperRect = cropper.value.getBoundingClientRect();
+
+        // Set cropSize to half of the smaller dimension of the cropper
+        const size = Math.min(cropperRect.width, cropperRect.height) / 2;
+        cropSize.value.width = size;
+        cropSize.value.height = size;
+
+        // Center the crop area within the cropper
+        cropPosition.value.x = (cropperRect.width - cropSize.value.width) / 2;
+        cropPosition.value.y = (cropperRect.height - cropSize.value.height) / 2;
     }
 });
 </script>
