@@ -1,10 +1,19 @@
 import { defineStore } from 'pinia';
+import { FetchError } from 'ofetch';
 import { UploaderStateEnum } from '~/entities/enums/UploaderStateEnum';
+import { useFileUploadingService } from '~/composables/useFileUploadingService';
+import { ResponseStatusCodeEnum } from '~/entities/enums/ResponseStatusCodeEnum';
+import type { IValidationErrorResponse } from '~/entities/interfaces/responses/auth/IValidationErrorResponse';
+import type { IFileValidationErrors } from '~/entities/interfaces/forms/file/IFileValidationErrors';
 
 export const useImageUploaderStore = defineStore('imageUploaderStore', () => {
+    const service = useFileUploadingService();
+
     const image = ref<string | undefined>(undefined);
 
     const state = ref<UploaderStateEnum>(UploaderStateEnum.Waiting);
+
+    const error = ref<string | undefined>(undefined);
 
     const message = computed((): string => {
         switch (state.value) {
@@ -24,7 +33,7 @@ export const useImageUploaderStore = defineStore('imageUploaderStore', () => {
         state.value = stateToSet;
     };
 
-    const isState = (stateToCheck: UploaderStateEnum) => {
+    const isInState = (stateToCheck: UploaderStateEnum) => {
         return state.value === stateToCheck;
     };
 
@@ -38,8 +47,8 @@ export const useImageUploaderStore = defineStore('imageUploaderStore', () => {
     /**
      * Проверяет, находится ли стор в состоянии ожидания загрузки.
      */
-    const isWaitingState = () => {
-        return isState(UploaderStateEnum.Waiting);
+    const isInWaitingState = () => {
+        return isInState(UploaderStateEnum.Waiting);
     };
 
     /**
@@ -52,8 +61,8 @@ export const useImageUploaderStore = defineStore('imageUploaderStore', () => {
     /**
      * Проверяет, находится ли файл в состоянии загрузки.
      */
-    const isUploadingState = () => {
-        return isState(UploaderStateEnum.Uploading);
+    const isInUploadingState = () => {
+        return isInState(UploaderStateEnum.Uploading);
     };
 
     /**
@@ -66,8 +75,8 @@ export const useImageUploaderStore = defineStore('imageUploaderStore', () => {
     /**
      * Проверяет, находится ли файл в состоянии редактирования.
      */
-    const isEditingState = () => {
-        return isState(UploaderStateEnum.Editing);
+    const isInEditingState = () => {
+        return isInState(UploaderStateEnum.Editing);
     };
 
     /**
@@ -80,8 +89,8 @@ export const useImageUploaderStore = defineStore('imageUploaderStore', () => {
     /**
      * Проверяет, находится ли файл в состоянии ошибок валидации.
      */
-    const isErrorState = () => {
-        return isState(UploaderStateEnum.Error);
+    const isInErrorState = () => {
+        return isInState(UploaderStateEnum.Error);
     };
 
     /**
@@ -94,19 +103,47 @@ export const useImageUploaderStore = defineStore('imageUploaderStore', () => {
     /**
      * Проверяет, находится ли файл в состоянии сохранения.
      */
-    const isSavingState = () => {
-        return isState(UploaderStateEnum.Saving);
+    const isInSavingState = () => {
+        return isInState(UploaderStateEnum.Saving);
     };
 
-    const uploadImage = (imageToUpload: File | undefined) => {
+    const setError = (content: string) => {
+        error.value = content;
+
+        setErrorState();
+    };
+
+    const uploadImage = async (imageToUpload: File | undefined) => {
         if (imageToUpload) {
-            const reader = new FileReader();
+            setUploadingState();
 
-            reader.onload = (e) => {
-                image.value = e.target?.result as string;
-            };
+            try {
+                const response = await service.validateFile(imageToUpload);
 
-            reader.readAsDataURL(imageToUpload);
+                if (response.data.success) {
+                    const reader = new FileReader();
+
+                    reader.onload = (e) => {
+                        image.value = e.target?.result as string;
+
+                        setEditingState();
+                    };
+
+                    reader.readAsDataURL(imageToUpload);
+                }
+            } catch (errorResponse) {
+                const unknownResponse = errorResponse as FetchError;
+
+                if (unknownResponse.statusCode === ResponseStatusCodeEnum.UnprocessableEntity) {
+                    const validationErrorResponse = unknownResponse as IValidationErrorResponse<IFileValidationErrors>;
+
+                    setError(validationErrorResponse.data.message);
+
+                    return;
+                }
+
+                setError('An unexpected error occurred.');
+            }
         }
     };
 
@@ -118,20 +155,24 @@ export const useImageUploaderStore = defineStore('imageUploaderStore', () => {
         console.log('reset uploader...');
 
         image.value = undefined;
+        error.value = undefined;
         state.value = UploaderStateEnum.Waiting;
     };
 
     return {
-        isWaitingState,
-        isUploadingState,
-        isErrorState,
-        isEditingState,
-        isSavingState,
+        isInWaitingState,
+        isInUploadingState,
+        isInErrorState,
+        isInEditingState,
+        isInSavingState,
 
         message,
+        error,
         image,
         uploadImage,
         $setup,
         $reset,
+
+        state,
     };
 });
