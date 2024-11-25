@@ -8,7 +8,7 @@ export interface User {
     isAnonymous: boolean;
 
     // full-fledged user's data
-    data?: UserPersonalData;
+    personalData?: UserPersonalData;
 
     // checkpoint data
     checkpoint: ICheckpoint;

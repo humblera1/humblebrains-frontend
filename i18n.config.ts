@@ -31,6 +31,7 @@ export default defineI18nConfig(() => ({
             saving: 'Сохраняем...',
             select: 'Выбрать',
             save: 'Сохранить',
+            completedProgramsAmount: 'Завершённых программ',
 
             // Sidebar:
             home: 'Главная',
@@ -215,6 +216,7 @@ export default defineI18nConfig(() => ({
             saving: 'Saving...',
             select: 'Select',
             save: 'Save',
+            completedProgramsAmount: 'Programs completed',
 
             // Sidebar:
             home: 'Home',

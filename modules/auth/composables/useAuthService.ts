@@ -3,6 +3,8 @@ import type { ILoginFormFields } from '~/entities/interfaces/forms/login/ILoginF
 import type { IRegisterFormFields } from '~/entities/interfaces/forms/register/IRegisterFormFields';
 import { RequestMethodEnum } from '~/entities/enums/RequestMethodEnum';
 import type { BaseResponse } from '~/entities/interfaces/responses/BaseResponse';
+import type { IProfileFormFields } from '~/entities/interfaces/forms/profile/IProfileFormFields';
+import type { UserPersonalData } from '~/modules/user/entities/interfaces/UserPersonalData';
 
 export const useAuthService = () => {
     const config = useRuntimeConfig();
@@ -23,16 +25,23 @@ export const useAuthService = () => {
         }
     };
 
-    const login = async (fields: ILoginFormFields): Promise<User> => {
+    const login = async (fields: ILoginFormFields): Promise<BaseResponse<User>> => {
         return await sendCredentials('login', fields);
     };
 
-    const register = async (fields: IRegisterFormFields) => {
+    const register = async (fields: IRegisterFormFields): Promise<BaseResponse<User>> => {
         return await sendCredentials('register', fields);
     };
 
-    const sendCredentials = async (path: 'login' | 'register', fields: ILoginFormFields | IRegisterFormFields): Promise<User> => {
-        return await $api<User>(`/v1/users/${path}`, {
+    const update = async (fields: IProfileFormFields): Promise<BaseResponse<User>> => {
+        return await sendCredentials('update', fields);
+    };
+
+    const sendCredentials = async (
+        path: 'login' | 'register' | 'update',
+        fields: ILoginFormFields | IRegisterFormFields | IProfileFormFields,
+    ): Promise<BaseResponse<User>> => {
+        return await $api<BaseResponse<User>>(`/v1/users/${path}`, {
             method: RequestMethodEnum.post,
             credentials: 'include',
             body: fields,
@@ -63,5 +72,5 @@ export const useAuthService = () => {
         return useCookie('XSRF-TOKEN').value ?? '';
     };
 
-    return { setXsrfHeader, login, register, fetchUser };
+    return { setXsrfHeader, login, register, update, fetchUser };
 };

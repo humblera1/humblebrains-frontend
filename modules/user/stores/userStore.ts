@@ -4,6 +4,7 @@ import type { ICheckpoint } from '~/modules/checkpoint/entities/interfaces/IChec
 import type { IProgram } from '~/entities/interfaces/program/IProgram';
 import type { ICheckpointStage } from '~/modules/checkpoint/entities/interfaces/ICheckpointStage';
 import type { ISessionGame } from '~/entities/interfaces/session/ISessionGame';
+import type { UserPersonalData } from '~/modules/user/entities/interfaces/UserPersonalData';
 
 export const useUserStore = defineStore('userStorage', () => {
     const user = ref<User>({} as User);
@@ -11,6 +12,18 @@ export const useUserStore = defineStore('userStorage', () => {
     const setupPromise = ref<Promise<void> | null>(null);
 
     const authService = useAuthService();
+
+    const name = computed((): string => {
+        return user.value.personalData?.firstName ?? '';
+    });
+
+    const username = computed((): string => {
+        return user.value.personalData?.username ?? '';
+    });
+
+    const email = computed((): string => {
+        return user.value.personalData?.email ?? '';
+    });
 
     const program = computed((): IProgram | undefined => {
         return user.value.program;
@@ -40,6 +53,10 @@ export const useUserStore = defineStore('userStorage', () => {
 
     const setUserData = (userData: User) => {
         user.value = userData;
+    };
+
+    const setPersonalData = (personalData: UserPersonalData) => {
+        user.value.personalData = personalData;
     };
 
     const setCheckpointData = (checkpointData: ICheckpoint) => {
@@ -79,6 +96,7 @@ export const useUserStore = defineStore('userStorage', () => {
         getSetupPromise,
         setUser,
         setUserData,
+        setPersonalData,
         setCheckpointData,
         setCheckpointStageData,
         setProgramData,
@@ -87,5 +105,9 @@ export const useUserStore = defineStore('userStorage', () => {
         games,
         stages,
         isCheckpointCompleted,
+
+        name,
+        username,
+        email,
     };
 });
