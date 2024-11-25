@@ -9,11 +9,13 @@ import type { IFileValidationErrors } from '~/entities/interfaces/forms/file/IFi
 export const useImageUploaderStore = defineStore('imageUploaderStore', () => {
     const service = useFileUploadingService();
 
-    const image = ref<string | undefined>(undefined);
+    const image = ref<File | undefined>(undefined);
 
     const state = ref<UploaderStateEnum>(UploaderStateEnum.Waiting);
 
     const error = ref<string | undefined>(undefined);
+
+    const { closeModal } = useHumbleModal();
 
     const message = computed((): string => {
         switch (state.value) {
@@ -109,8 +111,10 @@ export const useImageUploaderStore = defineStore('imageUploaderStore', () => {
 
     const setError = (content: string) => {
         error.value = content;
+    };
 
-        setErrorState();
+    const resetError = () => {
+        error.value = undefined;
     };
 
     const uploadImage = async (imageToUpload: File | undefined) => {
@@ -121,42 +125,59 @@ export const useImageUploaderStore = defineStore('imageUploaderStore', () => {
                 const response = await service.validateFile(imageToUpload);
 
                 if (response.data.success) {
-                    const reader = new FileReader();
+                    image.value = imageToUpload;
 
-                    reader.onload = (e) => {
-                        image.value = e.target?.result as string;
-
-                        setEditingState();
-                    };
-
-                    reader.readAsDataURL(imageToUpload);
+                    resetError();
+                    setEditingState();
                 }
             } catch (errorResponse) {
-                const unknownResponse = errorResponse as FetchError;
+                handleErrorResponse(errorResponse as FetchError);
 
-                if (unknownResponse.statusCode === ResponseStatusCodeEnum.UnprocessableEntity) {
-                    const validationErrorResponse = unknownResponse as IValidationErrorResponse<IFileValidationErrors>;
-
-                    setError(validationErrorResponse.data.message);
-
-                    return;
-                }
-
-                setError('An unexpected error occurred.');
+                setErrorState();
             }
         }
     };
 
+    const uploadCroppedImage = async (imageToUpload: File) => {
+        resetError();
+        setUploadingState();
+
+        try {
+            const validationResponse = await service.validateFile(imageToUpload);
+
+            if (validationResponse.data.success) {
+                setSavingState();
+
+                await service.uploadImage(imageToUpload);
+
+                closeModal();
+            }
+        } catch (errorResponse) {
+            handleErrorResponse(errorResponse as FetchError);
+
+            setEditingState();
+        }
+    };
+
+    const handleErrorResponse = (response: FetchError) => {
+        if (response.statusCode === ResponseStatusCodeEnum.UnprocessableEntity) {
+            const validationErrorResponse = response as IValidationErrorResponse<IFileValidationErrors>;
+
+            setError(validationErrorResponse.data.message);
+
+            return;
+        }
+
+        setError('An unexpected error occurred.');
+    };
+
     const $setup = () => {
-        console.log('setup uploader...');
+        setWaitingState();
     };
 
     const $reset = () => {
-        console.log('reset uploader...');
-
         image.value = undefined;
         error.value = undefined;
-        state.value = UploaderStateEnum.Waiting;
     };
 
     return {
@@ -170,9 +191,9 @@ export const useImageUploaderStore = defineStore('imageUploaderStore', () => {
         error,
         image,
         uploadImage,
+        uploadCroppedImage,
+
         $setup,
         $reset,
-
-        state,
     };
 });

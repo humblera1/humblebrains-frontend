@@ -13,15 +13,21 @@ export const useFileUploadingService = () => {
         return formData;
     };
 
-    const validateFile = async (file: File): Promise<BaseResponse<IFileValidationResponseContent>> => {
-        const formData = getFormDataFromFile(file);
-
-        return await $api<BaseResponse<IFileValidationResponseContent>>('v1/files/validate-file', {
+    const uploadImage = async (file: File) => {
+        return await $api<BaseResponse<IFileValidationResponseContent>>('v1/users/set-avatar', {
             method: RequestMethodEnum.post,
             credentials: 'include',
-            body: formData,
+            body: getFormDataFromFile(file),
         });
     };
 
-    return { validateFile };
+    const validateFile = async (file: File): Promise<BaseResponse<IFileValidationResponseContent>> => {
+        return await $api<BaseResponse<IFileValidationResponseContent>>('v1/files/validate-file', {
+            method: RequestMethodEnum.post,
+            credentials: 'include',
+            body: getFormDataFromFile(file),
+        });
+    };
+
+    return { validateFile, uploadImage };
 };
