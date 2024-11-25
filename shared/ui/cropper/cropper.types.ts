@@ -36,5 +36,6 @@ export type CroppedEventPayload = null | string | File | Blob;
  * Type for the emits.
  */
 export type CroppedEvent = {
+    (e: 'ready'): void;
     (e: 'cropped', payload: CroppedEventPayload): void;
 };

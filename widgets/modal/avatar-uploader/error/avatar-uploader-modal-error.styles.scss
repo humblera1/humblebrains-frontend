@@ -1,0 +1,32 @@
+.error {
+    display: none;
+
+    @include tablet {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 16px;
+    }
+
+    @include mobile {
+        gap: 12px;
+    }
+
+    &__icon {
+        width: 36px;
+        height: 32px;
+
+        color: var(--input-invalid);
+    }
+
+    &__message {
+        text-align: center;
+
+        @include mainFont(500, 14, var(--input-invalid));
+
+        @include mobile {
+            font-size: 12px;
+        }
+    }
+}

@@ -39,7 +39,7 @@
                 ></div>
             </div>
         </div>
-        <img v-if="imageSrc" ref="imageElem" :src="imageSrc" alt="Uploaded Image" />
+        <img v-if="imageSrc" ref="imageElem" :src="imageSrc" alt="Uploaded Image" @load="onImageLoad" />
     </div>
 </template>
 
@@ -62,6 +62,10 @@ const cropSize = ref({ width: 0, height: 0 });
 const cropPosition = ref({ x: 0, y: 0 });
 
 const imageSrc = ref<string | null>(null);
+
+const onImageLoad = () => {
+    emit('ready');
+};
 
 const convertToSrc = (image: string | File | Blob): Promise<string> => {
     if (typeof image === 'string') {

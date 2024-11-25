@@ -1,0 +1,12 @@
+.message {
+    @include mainFont(400, 14, var(--input-invalid));
+    @include lineclamp(2);
+
+    @include tablet {
+        font-size: 12px;
+    }
+
+    @include mobile {
+        max-width: 300px;
+    }
+}
