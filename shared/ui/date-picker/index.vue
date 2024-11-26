@@ -17,10 +17,10 @@
                 <div class="datepicker__wrapper" :class="{ datepicker__wrapper_focused: isActive }">
                     <label :class="['datepicker__label', { datepicker__label_required: required }]">{{ props.label }}</label>
                     <div class="datepicker__content">
-                        {{ formatLocaleDate(value) }}
-                    </div>
-                    <div class="datepicker__icon">
-                        <IconCalendarDays />
+                        {{ type === 'age' ? formatToAge(value) : formatLocaleDate(value) }}
+                        <div class="datepicker__icon">
+                            <IconCalendarDays />
+                        </div>
                     </div>
                     <div v-show="error" class="datepicker__error">
                         <p>{{ error }}</p>
@@ -81,6 +81,24 @@ const dateFormat = computed((): string => {
             return 'MM.dd.yyyy';
     }
 });
+
+const formatToAge = (birthDate: Date | string | undefined): string => {
+    if (!birthDate) {
+        return '';
+    }
+
+    const birth = typeof birthDate === 'string' ? new Date(birthDate) : birthDate;
+
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDifference = today.getMonth() - birth.getMonth();
+
+    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birth.getDate())) {
+        age--;
+    }
+
+    return age.toString();
+};
 
 const formatLocaleDate = (date: Date | string | undefined): string => {
     if (date) {
