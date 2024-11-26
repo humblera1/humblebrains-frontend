@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { WidgetModalAvatarUploader } from '#components';
+import { WidgetModalAvatarUploader, WidgetModalChangePassword } from '#components';
 import { useUserStore } from '~/modules/user/stores/userStore';
 import { ProfileFormStatusEnum } from '~/entities/enums/profile/ProfileFormStatusEnum';
 
@@ -40,7 +40,7 @@ const user = useUserStore();
 const status = ref<ProfileFormStatusEnum | undefined>(undefined);
 
 const handlePasswordChanging = () => {
-    // Implement password changing logic here...
+    openModal(WidgetModalChangePassword);
 };
 </script>
 
