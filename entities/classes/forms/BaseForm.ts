@@ -26,4 +26,17 @@ export class BaseForm<F, E> {
             }
         }
     }
+
+    clearFields(): void {
+        for (const field in this.fields) {
+            if (Object.prototype.hasOwnProperty.call(this.fields, field)) {
+                this.fields[field as keyof F] = '' as F[keyof F];
+            }
+        }
+    }
+
+    reset(): void {
+        this.clearFields();
+        this.clearErrors();
+    }
 }
