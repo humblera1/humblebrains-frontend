@@ -36,6 +36,7 @@
         "@volar/language-core": "^2.4.0-alpha.20",
         "@volar/language-server": "2.4.0-alpha.18",
         "@vue/language-server": "2.0.28",
+        "@vuepic/vue-datepicker": "^10.0.0",
         "@vueuse/components": "^10.11.0",
         "echarts": "^5.5.1",
         "lodash": "^4.17.21",

@@ -12,14 +12,20 @@ import { NuxtLink } from '#components';
 
 const props = withDefaults(defineProps<Button>(), {
     theme: 'pure-blue',
+    size: 'medium',
 });
 
-const classObject = computed(() => ({
-    button: true,
-    untouchable: true,
-    [`button_${props.theme}`]: true,
-    [`button_${props.full}`]: props.full,
-}));
+const classObject = computed(() => {
+    return [
+        'button',
+        'untouchable',
+        `button_${props.theme}`,
+        `button_${props.size}`,
+        {
+            button_full: props.full,
+        },
+    ];
+});
 
 const isLink = () => {
     if (props.to) {

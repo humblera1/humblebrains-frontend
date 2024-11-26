@@ -49,4 +49,7 @@ export default defineNuxtConfig({
         // Disable automatic config generation
         config: false,
     },
+    build: {
+        transpile: ['@vuepic/vue-datepicker'],
+    },
 });

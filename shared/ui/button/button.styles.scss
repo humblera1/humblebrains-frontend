@@ -4,12 +4,20 @@
     justify-content: center;
     align-items: center;
     gap: 8px;
-    padding: 12px 24px;
-    border-radius: 24px;
     cursor: pointer;
     transition: all 0.5s ease-in;
 
-    @include mainFont(600, 14, var(--text-accent-white));
+    &_small {
+        padding: 8px 12px;
+        border-radius: 24px;
+        @include mainFont(600, 12, var(--text-accent-white));
+    }
+
+    &_medium {
+        padding: 12px 24px;
+        border-radius: 24px;
+        @include mainFont(600, 14, var(--text-accent-white));
+    }
 
     // todo: disabled buttons styles
     &:disabled {

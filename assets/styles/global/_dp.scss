@@ -1,0 +1,181 @@
+@use "../collection/_mixins.scss" as mixins;
+@use "../collection/_medias.scss" as medias;
+
+
+:root {
+    .dp {
+        &--header-wrap {
+            margin-bottom: 16px;
+        }
+
+        &__menu {
+            border-radius: 24px;
+            border: unset;
+            background-color: var(--primary-bg);
+            overflow: hidden;
+            @include mixins.mainShadow();
+
+            &:focus {
+                border: unset;
+            }
+
+            &_inner {
+                padding: 24px 16px;
+            }
+        }
+
+        &__arrow_top {
+            border: unset;
+            background-color: var(--primary-bg);
+        }
+
+        &__month_year {
+            &_select {
+                border-radius: 8px;
+                transition: all 250ms ease;
+                @include mixins.mainFont(500, 18, var(--primary-title));
+
+                &:hover {
+                    background-color: var(--bluelight-badge);
+                    color: var(--primary-title-hovered);
+                }
+            }
+        }
+
+        &__inner {
+            &_nav {
+                color: var(--primary-subtitle);
+                transition: all 250ms ease;
+
+                &:hover {
+                    background-color: unset;
+                    color: var(--primary-subtitle-hovered);
+                }
+
+                svg {
+                    width: 18px;
+                    height: 18px;
+                }
+            }
+        }
+
+        &__calendar {
+            &_header {
+                &_separator {
+                    height: unset;
+                }
+
+                &_item {
+                    padding: 4px 8px;
+                    @include mixins.mainFont(500, 14, var(--primary-subtitle));
+                }
+            }
+
+            &_row {
+                gap: 4px;
+            }
+        }
+
+        &__cell {
+            &_inner {
+                border-radius: 8px;
+                background-color: var(--bluelight-badge);
+                transition: all 250ms ease;
+                @include mixins.mainFont(500, 14, var(--primary-subtitle));
+
+                &:hover {
+                    &:not(.dp__active_date) {
+                        color: var(--primary-subtitle-hovered);
+                        background-color: var(--blue-badge);
+                    }
+                }
+            }
+
+            &_disabled {
+                background-color: unset;
+
+                &:hover {
+                    color: var(--primary-subtitle);
+                    background-color: unset;
+                }
+            }
+        }
+
+        &__active_date {
+            color: var(--accent-white);
+            background-color: var(--blue-light);
+        }
+
+        &__overlay {
+            background-color: var(--primary-bg);
+
+            &_container {
+                padding: 24px 16px;
+                gap: 4px;
+            }
+
+            &_row {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 4px;
+            }
+
+            &_col {
+                width: 100%;
+                height: 100%;
+            }
+
+            &_action {
+                --dp-button-height: 50px;
+                padding: 16px 8px;
+                //height: 50px;
+
+                &:hover {
+                    color: var(--primary-subtitle-hovered);
+                    background-color: var(--bluelight-badge);
+                }
+            }
+
+            &_cell {
+                cursor: pointer;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
+                height: 100%;
+                border-radius: 8px;
+                transition: all 250ms ease;
+                @include mixins.mainFont(500, 16, var(--primary-subtitle));
+
+                &:hover {
+                    &:not(.dp__overlay_cell_disabled) {
+                        color: var(--primary-subtitle-hovered);
+                        background-color: var(--bluelight-badge);
+                    }
+                }
+
+                &_disabled {
+                    cursor: not-allowed;
+
+                    &:hover {
+                        color: var(--primary-subtitle);
+                    }
+                }
+
+                &_active {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100%;
+                    border-radius: 8px;
+                    color: var(--accent-white);
+                    background-color: var(--blue-light);
+                }
+            }
+        }
+
+        &__action_row {
+            padding: 0 24px 24px;
+        }
+    }
+}

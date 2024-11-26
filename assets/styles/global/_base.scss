@@ -1,5 +1,6 @@
 @use "../collection/_mixins.scss" as mixins;
 @use "../collection/_medias.scss" as medias;
+@forward "dp";
 
 :root {
     .swiper-pagination-bullet {
