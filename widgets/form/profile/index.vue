@@ -1,5 +1,5 @@
 <template>
-    <form class="profile-form">
+    <form class="profile-form" @submit.prevent>
         <div class="profile-form__group">
             <UiInput
                 id="name"
@@ -8,6 +8,15 @@
                 :label="$t('name')"
                 type="text"
                 theme="outlined"
+                required
+                @change="updateProfile"
+            />
+            <UiDatePicker
+                id="age"
+                v-model:value="form.fields.birthday"
+                v-model:error="form.errors.birthday"
+                :label="$t('age')"
+                type="age"
                 required
                 @change="updateProfile"
             />
@@ -64,7 +73,6 @@ const resetStatus = () => {
 };
 
 const updateProfile = async () => {
-    form.clearErrors();
     resetTimer();
 
     model.value = ProfileFormStatusEnum.Updating;
@@ -121,7 +129,8 @@ onUnmounted(() => {
     gap: 8px;
 
     &__group {
-        display: flex;
+        display: grid;
+        grid-template-columns: 3fr 2fr;
         gap: 8px;
     }
 }

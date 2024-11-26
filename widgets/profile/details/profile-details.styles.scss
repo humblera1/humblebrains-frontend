@@ -1,0 +1,188 @@
+.details {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 300px;
+    max-width: 350px;
+    padding: 32px 36px;
+    border-radius: 36px;
+    background-color: var(--primary-bg);
+
+    @include mainShadow();
+
+    @include tablet {
+        border-radius: 24px;
+        padding: 32px 24px;
+    }
+
+    @include mobile {
+        border-radius: 16px;
+        padding: 24px 16px;
+    }
+
+    &__avatar {
+        cursor: pointer;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 120px;
+        height: 120px;
+        border-radius: 100%;
+        background-color: var(--blue-badge);
+
+        margin-bottom: 16px;
+
+        @include tablet {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 12px;
+        }
+
+        @include mobile {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 8px;
+        }
+    }
+
+    &__info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        margin-bottom: 24px;
+
+        @include tablet {
+            margin-bottom: 16px;
+        }
+    }
+
+    &__astronaut {
+        width: 60px;
+        height: 70px;
+        color: var(--blue);
+
+        @include tablet {
+            width: 55px;
+            height: 65px;
+        }
+
+        @include mobile {
+            width: 50px;
+            height: 60px;
+        }
+    }
+
+    &__badge {
+        position: absolute;
+        top: 12px;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 100%;
+        background-color: var(--primary-bg);
+
+        @include mainShadow();
+
+        svg {
+            width: 8px;
+            height: 8px;
+            color: var(--primary-subtitle);
+        }
+
+        @include tablet {
+            width: 22px;
+            height: 22px;
+        }
+
+        @include mobile {
+            width: 20px;
+            height: 20px;
+        }
+    }
+
+    &__programs {
+        padding: 8px 12px;
+        border-radius: 8px;
+        margin-bottom: 32px;
+        background-color: var(--purple-bg);
+
+        @include mainFont(500, 12, var(--purple));
+
+        @include tablet {
+            margin-bottom: 28px;
+        }
+
+        @include mobile {
+            font-size: 10px;
+            margin-bottom: 24px;
+        }
+    }
+
+    &__form {
+        margin-bottom: 32px;
+
+        @include tablet {
+            margin-bottom: 24px;
+        }
+
+        @include mobile {
+            margin-bottom: 16px;
+        }
+    }
+
+    &__password {
+        cursor: pointer;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 4px;
+        width: 100%;
+        text-decoration: underline;
+        transition: all 200ms ease;
+        color: var(--primary-subtitle);
+
+        @include mainFont(500, 12, var(--primary-subtitle));
+
+        &:hover {
+            color: var(--primary-subtitle-hovered);
+        }
+
+        @include mobile {
+            font-size: 10px;
+        }
+    }
+
+    &__status {
+        position: absolute;
+        left: 32px;
+    }
+
+    &__check {
+        width: 15px;
+        height: 15px;
+        color: var(--green);
+    }
+
+    &__exclamation {
+        width: 15px;
+        height: 15px;
+        color: var(--input-invalid);
+    }
+
+    &__title {
+        text-align: center;
+        @include lineclamp(1);
+        @include mainFont(500, 16, var(--primary-title));
+    }
+
+    &__subtitle {
+        text-align: center;
+        @include lineclamp(1);
+        @include mainFont(500, 12, var(--primary-subtitle));
+    }
+}
