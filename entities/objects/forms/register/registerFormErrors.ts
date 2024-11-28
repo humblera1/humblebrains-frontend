@@ -4,6 +4,5 @@ export const registerFormErrors: IRegisterFormErrors = reactive({
     email: '',
     password: '',
     username: '',
-    firstName: '',
-    secondName: '',
-})
+    name: '',
+});

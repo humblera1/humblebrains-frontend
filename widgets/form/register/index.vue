@@ -7,8 +7,8 @@
                     id="email"
                     v-model:value="form.fields.email"
                     v-model:error="form.errors.email"
-                    label="E-mail"
-                    placeholder="Введите почту"
+                    :label="$t('email')"
+                    :placeholder="$t('enterEmail')"
                     type="text"
                     required
                 >
@@ -20,8 +20,8 @@
                     id="password"
                     v-model:value="form.fields.password"
                     v-model:error="form.errors.password"
-                    label="Password"
-                    placeholder="Введите пароль"
+                    :label="$t('password')"
+                    :placeholder="$t('enterPassword')"
                     type="password"
                     required
                 >
@@ -36,8 +36,8 @@
                     id="username"
                     v-model:value="form.fields.username"
                     v-model:error="form.errors.username"
-                    label="Username"
-                    placeholder="Введите никнейм"
+                    :label="$t('username')"
+                    :placeholder="$t('enterUsername')"
                     type="text"
                 >
                     <template #trailing>
@@ -47,19 +47,10 @@
                 <div class="register-form__inputs">
                     <UiInput
                         id="firstname"
-                        v-model:value="form.fields.firstName"
-                        v-model:error="form.errors.firstName"
-                        label="Firstname"
-                        placeholder="Ваше имя"
-                        theme="outlined"
-                        type="text"
-                    />
-                    <UiInput
-                        id="lastname"
-                        v-model:value="form.fields.secondName"
-                        v-model:error="form.errors.secondName"
-                        label="Lastname"
-                        placeholder="...и фамилия"
+                        v-model:value="form.fields.name"
+                        v-model:error="form.errors.name"
+                        :label="$t('name')"
+                        :placeholder="$t('yourName')"
                         theme="outlined"
                         type="text"
                     />

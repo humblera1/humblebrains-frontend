@@ -37,8 +37,8 @@ export const useGameService = () => {
         }
 
         if (response.data?.program) {
-            hasGameCompletedProgram = response.data.program.lastSession.isCompleted;
-            hasGameCompletedSession = response.data.program.lastSession.games.every((game) => !game.isCompleted);
+            hasGameCompletedProgram = response.data.program.currentSession.isCompleted;
+            hasGameCompletedSession = response.data.program.currentSession.games.every((game) => !game.isCompleted);
 
             user.setProgramData(response.data?.program);
         }

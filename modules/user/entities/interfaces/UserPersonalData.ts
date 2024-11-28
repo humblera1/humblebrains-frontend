@@ -1,7 +1,6 @@
 export interface UserPersonalData {
     username: string;
     email: string;
-    firstName: string;
-    secondName: string;
-    // isEmailVerified: boolean;
+    name: string;
+    isEmailVerified: boolean;
 }

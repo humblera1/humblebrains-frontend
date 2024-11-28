@@ -1,6 +1,6 @@
 <template>
     <NuxtLayout>
-        profile
+        <WidgetProfile />
     </NuxtLayout>
 </template>
 

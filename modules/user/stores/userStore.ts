@@ -14,7 +14,7 @@ export const useUserStore = defineStore('userStorage', () => {
     const authService = useAuthService();
 
     const name = computed((): string => {
-        return user.value.personalData?.firstName ?? '';
+        return user.value.personalData?.name ?? '';
     });
 
     const username = computed((): string => {
@@ -30,9 +30,7 @@ export const useUserStore = defineStore('userStorage', () => {
     });
 
     const isEmailVerified = computed((): boolean => {
-        // todo: implement logic
-
-        return false;
+        return user.value.personalData?.isEmailVerified ?? false;
     });
 
     const games = computed((): ISessionGame[] => {

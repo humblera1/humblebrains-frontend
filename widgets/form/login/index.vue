@@ -7,7 +7,7 @@
                 v-model:value="form.fields.usermail"
                 v-model:error="form.errors.usermail"
                 :label="$t('usermail')"
-                placeholder="Введите почту"
+                :placeholder="$t('usermail')"
                 type="text"
                 required
             >
@@ -20,7 +20,7 @@
                 v-model:value="form.fields.password"
                 v-model:error="form.errors.password"
                 :label="$t('password')"
-                placeholder="Введите пароль"
+                :placeholder="$t('enterPassword')"
                 type="password"
                 required
             >
