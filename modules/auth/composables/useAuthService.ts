@@ -69,6 +69,19 @@ export const useAuthService = () => {
         });
     };
 
+    const sendVerificationNotification = async (): Promise<void> => {
+        return await $api<void>('/v1/users/send-email-verification-notification?XDEBUG_SESSION=XDEBUG_ECLIPSE', {
+            method: RequestMethodEnum.post,
+            credentials: 'include',
+        });
+    };
+
+    const verifyEmail = async (url: string): Promise<void> => {
+        return await $api<void>(url, {
+            credentials: 'include',
+        });
+    };
+
     const sendCredentials = async (
         path: 'login' | 'register',
         fields: ILoginFormFields | IRegisterFormFields,
@@ -104,5 +117,16 @@ export const useAuthService = () => {
         return useCookie('XSRF-TOKEN').value ?? '';
     };
 
-    return { setXsrfHeader, login, register, update, changePassword, forgotPassword, resetPassword, fetchUser };
+    return {
+        setXsrfHeader,
+        login,
+        register,
+        update,
+        changePassword,
+        forgotPassword,
+        resetPassword,
+        sendVerificationNotification,
+        verifyEmail,
+        fetchUser,
+    };
 };

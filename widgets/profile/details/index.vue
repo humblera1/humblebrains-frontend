@@ -25,11 +25,14 @@
                 <IconExclamationTriangle v-else-if="status === ProfileFormStatusEnum.Failure" class="details__exclamation" />
             </Transition>
         </div>
+        <div v-if="!user.isEmailVerified" class="details__verification" @click="handleVerification">
+            <IconExclamationCircle />
+        </div>
     </section>
 </template>
 
 <script setup lang="ts">
-import { WidgetModalAvatarUploader, WidgetModalChangePassword } from '#components';
+import { WidgetModalAvatarUploader, WidgetModalChangePassword, WidgetModalVerifyEmail } from '#components';
 import { useUserStore } from '~/modules/user/stores/userStore';
 import { ProfileFormStatusEnum } from '~/entities/enums/profile/ProfileFormStatusEnum';
 
@@ -41,6 +44,10 @@ const status = ref<ProfileFormStatusEnum | undefined>(undefined);
 
 const handlePasswordChanging = () => {
     openModal(WidgetModalChangePassword);
+};
+
+const handleVerification = () => {
+    openModal(WidgetModalVerifyEmail);
 };
 </script>
 

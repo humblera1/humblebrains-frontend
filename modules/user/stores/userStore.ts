@@ -29,6 +29,12 @@ export const useUserStore = defineStore('userStorage', () => {
         return user.value.program;
     });
 
+    const isEmailVerified = computed((): boolean => {
+        // todo: implement logic
+
+        return false;
+    });
+
     const games = computed((): ISessionGame[] => {
         return user.value.program?.currentSession?.games ?? [];
     });
@@ -105,6 +111,7 @@ export const useUserStore = defineStore('userStorage', () => {
         games,
         stages,
         isCheckpointCompleted,
+        isEmailVerified,
 
         name,
         username,

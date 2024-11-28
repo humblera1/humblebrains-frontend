@@ -1,7 +1,7 @@
 <template>
     <div class="reset-password">
         <Transition name="fade" mode="out-in">
-            <div v-if="true" class="reset-password__success">
+            <div v-if="saved" class="reset-password__success">
                 <IconCheckCircle />
                 <p>{{ $t('newPasswordSuccessfullySaved') }}</p>
             </div>
