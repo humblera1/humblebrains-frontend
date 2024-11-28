@@ -15,7 +15,11 @@
 </template>
 
 <script setup lang="ts">
+import { useUserStore } from '~/modules/user/stores/userStore';
+
 const service = useAuthService();
+
+const user = useUserStore();
 
 const route = useRoute();
 const router = useRouter();
@@ -38,7 +42,11 @@ const resetTimer = () => {
 const verifyEmail = async () => {
     if (url && typeof url === 'string') {
         try {
-            await service.verifyEmail(url);
+            const response = await service.verifyEmail(url);
+
+            if (response.data && response.data.personalData) {
+                user.setPersonalData(response.data.personalData);
+            }
 
             isSuccess.value = true;
 

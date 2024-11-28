@@ -76,8 +76,8 @@ export const useAuthService = () => {
         });
     };
 
-    const verifyEmail = async (url: string): Promise<void> => {
-        return await $api<void>(url, {
+    const verifyEmail = async (url: string): Promise<BaseResponse<User>> => {
+        return await $api<BaseResponse<User>>(url, {
             credentials: 'include',
         });
     };
