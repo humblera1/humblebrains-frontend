@@ -77,6 +77,8 @@ export default defineI18nConfig(() => ({
             oct: 'Окт',
             nov: 'Ноя',
             dec: 'Дек',
+            'action:completeCheckpoint': 'Пройдите контрольную точку!',
+            'action:completeCheckpointDescription': 'Пройдите контрольную точку, чтобы получить программу занятий',
 
             // Sidebar:
             home: 'Главная',
@@ -306,6 +308,8 @@ export default defineI18nConfig(() => ({
             oct: 'Oct',
             nov: 'Nov',
             dec: 'Dec',
+            'action:completeCheckpoint': 'Complete the checkpoint!',
+            'action:completeCheckpointDescription': 'Complete the checkpoint to get the training program',
 
             // Sidebar:
             home: 'Home',
