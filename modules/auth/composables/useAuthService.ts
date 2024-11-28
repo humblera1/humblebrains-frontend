@@ -4,7 +4,9 @@ import type { IRegisterFormFields } from '~/entities/interfaces/forms/register/I
 import { RequestMethodEnum } from '~/entities/enums/RequestMethodEnum';
 import type { BaseResponse } from '~/entities/interfaces/responses/BaseResponse';
 import type { IProfileFormFields } from '~/entities/interfaces/forms/profile/IProfileFormFields';
+import type { IChangePasswordFormFields } from '~/entities/interfaces/forms/change-password/IChangePasswordFormFields';
 import type { IResetPasswordFormFields } from '~/entities/interfaces/forms/reset-password/IResetPasswordFormFields';
+import type { IResetPasswordFormErrors } from '~/entities/interfaces/forms/reset-password/IResetPasswordFormErrors';
 
 export const useAuthService = () => {
     const config = useRuntimeConfig();
@@ -41,7 +43,7 @@ export const useAuthService = () => {
         });
     };
 
-    const changePassword = async (fields: IResetPasswordFormFields): Promise<BaseResponse<void>> => {
+    const changePassword = async (fields: IChangePasswordFormFields): Promise<BaseResponse<void>> => {
         return await $api<BaseResponse<void>>('/v1/auth/change-password', {
             method: RequestMethodEnum.post,
             credentials: 'include',
@@ -56,6 +58,14 @@ export const useAuthService = () => {
             body: {
                 email,
             },
+        });
+    };
+
+    const resetPassword = async (fields: IResetPasswordFormFields): Promise<BaseResponse<IResetPasswordFormErrors>> => {
+        return await $api<BaseResponse<IResetPasswordFormErrors>>('/v1/auth/reset-password', {
+            method: RequestMethodEnum.post,
+            credentials: 'include',
+            body: fields,
         });
     };
 
@@ -94,5 +104,5 @@ export const useAuthService = () => {
         return useCookie('XSRF-TOKEN').value ?? '';
     };
 
-    return { setXsrfHeader, login, register, update, changePassword, forgotPassword, fetchUser };
+    return { setXsrfHeader, login, register, update, changePassword, forgotPassword, resetPassword, fetchUser };
 };
