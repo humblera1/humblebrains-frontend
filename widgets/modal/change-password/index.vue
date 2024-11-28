@@ -83,11 +83,11 @@
 
 <script setup lang="ts">
 import { FetchError } from 'ofetch';
-import { resetPasswordForm as form } from '~/entities/objects/forms/reset-password/resetPasswordForm';
+import { changePasswordForm as form } from '~/entities/objects/forms/change-password/changePasswordForm';
 import { useAuthService } from '~/modules/auth/composables/useAuthService';
 import { ResponseStatusCodeEnum } from '~/entities/enums/ResponseStatusCodeEnum';
 import type { IValidationErrorResponse } from '~/entities/interfaces/responses/auth/IValidationErrorResponse';
-import type { IResetPasswordFormFields } from '~/entities/interfaces/forms/reset-password/IResetPasswordFormFields';
+import type { IChangePasswordFormFields } from '~/entities/interfaces/forms/change-password/IChangePasswordFormFields';
 import { useUserStore } from '~/modules/user/stores/userStore';
 
 const enum PasswordWindowStateEnum {
@@ -174,7 +174,7 @@ const onChange = async () => {
         const unknownResponse = errorResponse as FetchError;
 
         if (unknownResponse.statusCode === ResponseStatusCodeEnum.UnprocessableEntity) {
-            const validationErrorResponse = unknownResponse as IValidationErrorResponse<IResetPasswordFormFields>;
+            const validationErrorResponse = unknownResponse as IValidationErrorResponse<IChangePasswordFormFields>;
 
             form.setErrors(validationErrorResponse.data.errors);
         } else {
