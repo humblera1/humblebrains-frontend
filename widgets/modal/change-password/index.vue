@@ -141,7 +141,7 @@ const onReset = async () => {
 
         timerId = setTimeout(() => {
             closeModal();
-        }, 2000);
+        }, 3000);
     } catch (errorResponse) {
         const unknownResponse = errorResponse as FetchError;
 
