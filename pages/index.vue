@@ -1,22 +1,35 @@
 <template>
-    <NuxtLayout>
-        <UiButton @click="fetch">fetch</UiButton>
-        <div v-if="icons.length">
-            <img v-for="(icon, idx) in icons" :key="idx" :src="icon.path" :alt="icon.name" />
-        </div>
-    </NuxtLayout>
+    <NuxtLayout></NuxtLayout>
 </template>
 
 <script setup lang="ts">
-import { useCheckpointService } from '#imports';
+import { WidgetModalResetPassword, WidgetModalVerifiedEmail } from '#components';
 
-const service = useCheckpointService();
+const route = useRoute();
 
-const icons = ref<string[]>([]);
+const { openModal } = useHumbleModal();
 
-const fetch = async () => {
-    icons.value = await service.fetchIcons(5);
+const token = route.query.token;
+const email = route.query.email;
+
+const url = route.query.url;
+
+const checkPasswordReset = () => {
+    if (token && email && typeof email === 'string' && typeof token === 'string') {
+        openModal(WidgetModalResetPassword);
+    }
 };
+
+const checkEmailVerification = () => {
+    if (url && typeof url === 'string') {
+        openModal(WidgetModalVerifiedEmail);
+    }
+};
+
+onMounted(() => {
+    checkPasswordReset();
+    checkEmailVerification();
+});
 </script>
 
 <style scoped></style>
