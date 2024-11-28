@@ -34,22 +34,36 @@ export const useAuthService = () => {
     };
 
     const update = async (fields: IProfileFormFields): Promise<BaseResponse<User>> => {
-        return await sendCredentials('update', fields);
-    };
-
-    const changePassword = async (fields: IResetPasswordFormFields): Promise<BaseResponse<void>> => {
-        return await $api<BaseResponse<void>>('/v1/users/change-password', {
+        return await $api<BaseResponse<User>>('/v1/users/update', {
             method: RequestMethodEnum.post,
             credentials: 'include',
             body: fields,
         });
     };
 
+    const changePassword = async (fields: IResetPasswordFormFields): Promise<BaseResponse<void>> => {
+        return await $api<BaseResponse<void>>('/v1/auth/change-password', {
+            method: RequestMethodEnum.post,
+            credentials: 'include',
+            body: fields,
+        });
+    };
+
+    const forgotPassword = async (email: string): Promise<BaseResponse<void>> => {
+        return await $api<BaseResponse<void>>('/v1/auth/forgot-password', {
+            method: RequestMethodEnum.post,
+            credentials: 'include',
+            body: {
+                email,
+            },
+        });
+    };
+
     const sendCredentials = async (
-        path: 'login' | 'register' | 'update',
-        fields: ILoginFormFields | IRegisterFormFields | IProfileFormFields,
+        path: 'login' | 'register',
+        fields: ILoginFormFields | IRegisterFormFields,
     ): Promise<BaseResponse<User>> => {
-        return await $api<BaseResponse<User>>(`/v1/users/${path}`, {
+        return await $api<BaseResponse<User>>(`/v1/auth/${path}`, {
             method: RequestMethodEnum.post,
             credentials: 'include',
             body: fields,
@@ -80,5 +94,5 @@ export const useAuthService = () => {
         return useCookie('XSRF-TOKEN').value ?? '';
     };
 
-    return { setXsrfHeader, login, register, update, changePassword, fetchUser };
+    return { setXsrfHeader, login, register, update, changePassword, forgotPassword, fetchUser };
 };
