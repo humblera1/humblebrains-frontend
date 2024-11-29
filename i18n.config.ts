@@ -77,6 +77,7 @@ export default defineI18nConfig(() => ({
             oct: 'Окт',
             nov: 'Ноя',
             dec: 'Дек',
+            checkpointsAmount: 'Контрольных точек',
             'action:completeCheckpoint': 'Пройдите контрольную точку!',
             'action:completeCheckpointDescription': 'Пройдите контрольную точку, чтобы получить программу занятий',
 
@@ -308,6 +309,7 @@ export default defineI18nConfig(() => ({
             oct: 'Oct',
             nov: 'Nov',
             dec: 'Dec',
+            checkpointsAmount: 'Checkpoints amount',
             'action:completeCheckpoint': 'Complete the checkpoint!',
             'action:completeCheckpointDescription': 'Complete the checkpoint to get the training program',
 
