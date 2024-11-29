@@ -67,7 +67,7 @@ const tooltipTextColor = computed((): string => {
 
 const chartOptions = {
     tooltip: {
-        trigger: 'axis',
+        trigger: false,
         formatter: (params) => {
             const value = params[0].data;
             return `${value}%`;
@@ -161,6 +161,9 @@ const initChart = () => {
     if (chart.value && chart.value.clientWidth) {
         // eslint-disable-next-line import/namespace
         statsChart = echarts.init(chart.value);
+
+        chartOptions.tooltip.trigger = isActive ? 'axis' : false;
+
         statsChart.setOption(chartOptions);
     }
 };
@@ -222,12 +225,12 @@ watch(
 
 watch(
     () => isActive,
-    async () => {
+    async (newVal) => {
         showChart.value = false;
 
         await nextTick();
 
-        //todo: clearing timerId
+        // todo: clearing timerId
         setTimeout(() => {
             statsChart?.dispose();
             initChart();
