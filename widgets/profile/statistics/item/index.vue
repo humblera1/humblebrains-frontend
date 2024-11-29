@@ -1,11 +1,13 @@
 <template>
-    <div class="item">
+    <div :class="['item', { item_active: isActive }]">
         <div class="item__header">
             <p class="item__title">{{ $t(type) }}</p>
             <p class="item__subtitle">{{ $t('checkpointsAmount') + ': ' + stagesAmount }}</p>
         </div>
         <div class="item__body">
-            <div v-if="isEnoughData" ref="chart" class="item__chart" />
+            <Transition name="fade" mode="out-in">
+                <div v-show="showChart" ref="chart" class="item__chart" />
+            </Transition>
         </div>
     </div>
 </template>
@@ -14,10 +16,13 @@
 import { type EChartsType } from 'echarts';
 import * as echarts from 'echarts';
 import type { ProfileStatisticsItemProps } from '~/widgets/profile/statistics/item/profile-statistics-item.types';
+import type { ChartData } from '~/entities/types/ChartData';
 
-const { type, data } = defineProps<ProfileStatisticsItemProps>();
+const { type, isActive, data } = defineProps<ProfileStatisticsItemProps>();
 
 const colorMode = useColorMode();
+
+const showChart = ref<boolean>(true);
 
 const chart = ref<HTMLElement | null>(null);
 let statsChart: EChartsType;
@@ -169,8 +174,8 @@ const handleResize = () => {
 watch(colorMode, () => {
     if (statsChart && !statsChart.isDisposed()) {
         // tooltip options
-        chartOptions.tooltip.backgroundColor = tooltipBg.value;
-        chartOptions.tooltip.textStyle.color = tooltipTextColor.value;
+        // chartOptions.tooltip.backgroundColor = tooltipBg.value;
+        // chartOptions.tooltip.textStyle.color = tooltipTextColor.value;
 
         // mark
         chartOptions.series[0].markPoint.data[0].itemStyle.color = color.value;
@@ -193,6 +198,45 @@ watch(colorMode, () => {
     }
 });
 
+const updateChart = (data: ChartData) => {
+    if (chart.value && chart.value.clientWidth && isEnoughData.value) {
+        chartOptions.xAxis.data = data.xAsis;
+        chartOptions.series[0].data = data.yAsis;
+
+        chartOptions.series[0].markPoint.data[0].coord = [0, data.yAsis[0]];
+        chartOptions.series[0].markPoint.data[1].coord = [data.xAsis.length - 1, data.yAsis[data.yAsis.length - 1]];
+
+        statsChart.setOption(chartOptions);
+    }
+};
+
+watch(
+    () => data,
+    async () => {
+        if (data) {
+            await nextTick();
+            updateChart(data);
+        }
+    },
+);
+
+watch(
+    () => isActive,
+    async () => {
+        showChart.value = false;
+
+        await nextTick();
+
+        //todo: clearing timerId
+        setTimeout(() => {
+            statsChart?.dispose();
+            initChart();
+
+            showChart.value = true;
+        }, 250);
+    },
+);
+
 onMounted(() => {
     initChart();
     window.addEventListener('resize', handleResize);
@@ -204,53 +248,4 @@ onUnmounted(() => {
 });
 </script>
 
-<style scoped lang="scss">
-.item {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    width: 290px;
-    height: 210px;
-    padding: 32px 24px;
-    border-radius: 24px;
-    background-color: var(--primary-bg);
-
-    @include mainShadow();
-
-    @include tablet {
-        padding: 24px;
-    }
-
-    @include mobile {
-        border-radius: 16px;
-        padding: 24px 16px 16px;
-    }
-
-    &__header {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-    }
-
-    &__body {
-        position: relative;
-        width: 100%;
-        height: 100%;
-    }
-
-    &__chart {
-        width: 100%;
-        height: 100%;
-        overflow: visible;
-        position: relative;
-    }
-
-    &__title {
-        @include mainFont(500, 16, var(--primary-title));
-    }
-
-    &__subtitle {
-        @include mainFont(500, 12, var(--primary-subtitle));
-    }
-}
-</style>
+<style scoped lang="scss" src="./profile-statistics-item.styles.scss" />
