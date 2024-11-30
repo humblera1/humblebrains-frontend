@@ -94,6 +94,10 @@
 }
 
 .content {
-    width: 100%;
+    overflow: hidden;
+
+    @include mobile {
+        overflow: visible;
+    }
 }
 </style>

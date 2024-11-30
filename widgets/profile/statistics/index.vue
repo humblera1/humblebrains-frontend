@@ -1,7 +1,5 @@
 <template>
     <div class="statistics">
-        {{ previousSlideIndex }}
-        {{ activeSlideIndex }}
         <Swiper
             :modules="[Pagination, Navigation, Mousewheel]"
             :slides-per-view="'auto'"
@@ -29,6 +27,9 @@
                 <WidgetProfileStatisticsItem :data="chartData.data" :type="chartData.type" :is-active="idx === activeSlideIndex" />
             </SwiperSlide>
         </Swiper>
+        <div class="statistics__arrow statistics__arrow_next">
+            <IconChevron />
+        </div>
     </div>
 </template>
 
@@ -39,12 +40,14 @@ import type { Swiper as SwiperClass } from 'swiper/types';
 import type { ICheckpointStatistics } from '~/modules/checkpoint/entities/interfaces/ICheckpointStatistics';
 import type { ChartData } from '~/entities/types/ChartData';
 
+import 'swiper/css';
+import 'swiper/css/pagination';
+
 const statistics: ICheckpointStatistics = {
     stages: [1, 2, 3, 4, 5],
     memory: [65, 45, 34, 89, 12],
     attention: [34, 23, 46, 78, 92],
     logic: [65, 45, 34, 89, 12],
-    test: [65, 45, 34, 89, 12],
 };
 
 const activeSlideIndex = ref<number | undefined>(undefined);
@@ -103,36 +106,104 @@ const onSlideChangeTransitionEnd = (swiper: SwiperClass) => {
 
 <style scoped lang="scss">
 .statistics {
-    width: 100%; // чтобы свайпер занимал всю доступную ширину
+    display: block;
+    position: relative;
+    width: 100%;
     max-width: 100%;
-    padding: 0 16px;
+    padding: 0 48px 0 16px;
     overflow: hidden;
     box-sizing: border-box;
+
+    @include mobile {
+        overflow: hidden;
+        width: calc(100vw - 16px);
+        padding: unset;
+        //margin: 0 -32px;
+        margin-left: -16px;
+        //margin-right: 16px;
+    }
+
+    &__arrow {
+        cursor: pointer;
+        z-index: 11;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 25px;
+        height: 25px;
+        margin: auto;
+        border-radius: 100px;
+        color: var(--accent-white);
+        background-color: var(--blue);
+
+        transition: all 250ms ease;
+
+        @include mobile {
+            display: none;
+        }
+
+        &_next {
+            right: 0;
+            rotate: -90deg;
+        }
+
+        &_disabled {
+            cursor: unset;
+            background-color: var(--gray-absence);
+            //color: var(--gray-absence);
+        }
+
+        &:hover {
+            background-color: var(--blue-hovered);
+        }
+    }
+}
+
+.swiper-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
 }
 
 .swiper-slide {
     display: flex;
-    width: fit-content;
-    //width: 300px;
-    //justify-content: center;
-    box-sizing: border-box;
-
+    align-items: center;
     width: 290px;
-    height: 210px;
-
-    //transition: all 500ms ease;
+    height: 255px;
+    opacity: 0;
+    visibility: hidden;
 
     &-active {
-        width: 375px;
+        width: calc(375px);
+    }
+
+    &-visible {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+.swiper-pagination {
+    display: none;
+
+    @include mobile {
+        display: block;
     }
 }
 
 .swiper {
     display: flex;
-    height: 255px;
-
-    //width: calc(2 * 300px + 16px);
+    align-items: center;
+    height: calc(255px + 16px + 48px);
+    max-width: calc(712px + 32px);
+    padding: 16px 32px 48px 32px;
     overflow: hidden;
-    box-sizing: border-box;
+
+    @include mobile {
+        padding: 16px;
+    }
 }
 </style>
