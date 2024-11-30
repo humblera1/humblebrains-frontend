@@ -3,15 +3,16 @@
         <Swiper
             :modules="[Pagination, Navigation, Mousewheel]"
             :slides-per-view="'auto'"
-            :watch-slides-progress="true"
             :space-between="16"
             :loop="true"
+            :watch-slides-progress="true"
             :slide-to-clicked-slide="true"
             :mousewheel="{
                 invert: false,
                 forceToAxis: true,
             }"
             :pagination="{
+                enabled: device.isMobile,
                 clickable: true,
             }"
             :navigation="{
@@ -50,10 +51,10 @@ const statistics: ICheckpointStatistics = {
     logic: [65, 45, 34, 89, 12],
 };
 
+const device = useDevice();
+
 const activeSlideIndex = ref<number | undefined>(undefined);
 const previousSlideIndex = ref<number | undefined>(undefined);
-
-const swiperInstance = ref<SwiperClass | null>(null);
 
 const chartsData = computed((): { type: string; data: ChartData }[] => {
     const { stages, ...otherFields } = statistics;
@@ -68,9 +69,10 @@ const chartsData = computed((): { type: string; data: ChartData }[] => {
 });
 
 const onSwiper = (swiper: SwiperClass) => {
-    swiperInstance.value = swiper;
     activeSlideIndex.value = swiper.realIndex;
     previousSlideIndex.value = activeSlideIndex.value;
+
+    swiper.update();
 };
 
 const onIndexChange = (swiper: SwiperClass) => {
@@ -81,7 +83,7 @@ const onIndexChange = (swiper: SwiperClass) => {
 const onSlideChangeTransitionEnd = (swiper: SwiperClass) => {
     // todo: width of previous slide
 
-    const slideWidth = 290; // Ширина слайда
+    const slideWidth = 290;
     const gap = 16;
     const translate = slideWidth + gap;
     const totalSlides = swiper.slides.length;
@@ -104,106 +106,4 @@ const onSlideChangeTransitionEnd = (swiper: SwiperClass) => {
 };
 </script>
 
-<style scoped lang="scss">
-.statistics {
-    display: block;
-    position: relative;
-    width: 100%;
-    max-width: 100%;
-    padding: 0 48px 0 16px;
-    overflow: hidden;
-    box-sizing: border-box;
-
-    @include mobile {
-        overflow: hidden;
-        width: calc(100vw - 16px);
-        padding: unset;
-        //margin: 0 -32px;
-        margin-left: -16px;
-        //margin-right: 16px;
-    }
-
-    &__arrow {
-        cursor: pointer;
-        z-index: 11;
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 25px;
-        height: 25px;
-        margin: auto;
-        border-radius: 100px;
-        color: var(--accent-white);
-        background-color: var(--blue);
-
-        transition: all 250ms ease;
-
-        @include mobile {
-            display: none;
-        }
-
-        &_next {
-            right: 0;
-            rotate: -90deg;
-        }
-
-        &_disabled {
-            cursor: unset;
-            background-color: var(--gray-absence);
-            //color: var(--gray-absence);
-        }
-
-        &:hover {
-            background-color: var(--blue-hovered);
-        }
-    }
-}
-
-.swiper-wrapper {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-}
-
-.swiper-slide {
-    display: flex;
-    align-items: center;
-    width: 290px;
-    height: 255px;
-    opacity: 0;
-    visibility: hidden;
-
-    &-active {
-        width: calc(375px);
-    }
-
-    &-visible {
-        opacity: 1;
-        visibility: visible;
-    }
-}
-
-.swiper-pagination {
-    display: none;
-
-    @include mobile {
-        display: block;
-    }
-}
-
-.swiper {
-    display: flex;
-    align-items: center;
-    height: calc(255px + 16px + 48px);
-    max-width: calc(712px + 32px);
-    padding: 16px 32px 48px 32px;
-    overflow: hidden;
-
-    @include mobile {
-        padding: 16px;
-    }
-}
-</style>
+<style scoped lang="scss" src="./profile-statistics.styles.scss" />

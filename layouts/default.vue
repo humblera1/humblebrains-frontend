@@ -39,6 +39,7 @@
         padding: 25px;
         background-color: var(--primary-bg);
         border-radius: 0 48px 48px 0;
+        overflow: hidden;
 
         @include mainShadow();
 
