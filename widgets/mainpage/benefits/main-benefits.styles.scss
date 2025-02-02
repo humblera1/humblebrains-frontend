@@ -1,0 +1,32 @@
+.main-benefits {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: fit-content;
+
+    @include tablet {
+        row-gap: calc(36px + 24px);
+    }
+
+    &__title {
+        text-align: end;
+        @include mainFont(500, 16, var(--primary-subtitle));
+
+        @include tablet {
+            text-align: center;
+        }
+    }
+
+    &__list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+
+        @include tablet {
+            justify-content: center;
+            flex-direction: row-reverse;
+            flex-wrap: wrap;
+            row-gap: calc(36px + 16px);
+        }
+    }
+}

@@ -80,6 +80,10 @@ export default defineI18nConfig(() => ({
             checkpointsAmount: 'Контрольных точек',
             'action:completeCheckpoint': 'Пройдите контрольную точку!',
             'action:completeCheckpointDescription': 'Пройдите контрольную точку, чтобы получить программу занятий',
+            'benefit:health': 'Когнитивные тренировки позитивно влияют на здоровье головного мозга и организма в целом',
+            'benefit:reduceDementiaRisk': 'Могут снизить риск деменции в пожилом возрасте',
+            'benefit:memory': 'Улучшите память, концентрацию, скорость принятия решений и эффективность анализа',
+            whyBrainNeedTraining: 'Зачем мозгу тренировки?',
 
             // Sidebar:
             home: 'Главная',
@@ -312,6 +316,10 @@ export default defineI18nConfig(() => ({
             checkpointsAmount: 'Checkpoints amount',
             'action:completeCheckpoint': 'Complete the checkpoint!',
             'action:completeCheckpointDescription': 'Complete the checkpoint to get the training program',
+            'benefit:health': 'Cognitive training positively affects brain and overall health',
+            'benefit:reduceDementiaRisk': 'May reduce the risk of dementia in old age',
+            'benefit:memory': 'Improve memory, concentration, decision-making speed, and analysis efficiency',
+            whyBrainNeedTraining: 'Why should we exercise?',
 
             // Sidebar:
             home: 'Home',
