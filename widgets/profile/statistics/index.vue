@@ -49,6 +49,7 @@ const statistics: ICheckpointStatistics = {
     memory: [65, 45, 34, 89, 12],
     attention: [34, 23, 46, 78, 92],
     logic: [65, 45, 34, 89, 12],
+    test1: [65, 45, 34, 89, 12],
 };
 
 const device = useDevice();
