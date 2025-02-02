@@ -37,6 +37,10 @@
         @include tablet {
             gap: 24px;
         }
+
+        @include mobile {
+            align-items: center;
+        }
     }
 
     &__subtitle {

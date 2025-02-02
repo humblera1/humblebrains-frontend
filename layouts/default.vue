@@ -95,7 +95,7 @@
 }
 
 .content {
-    overflow: hidden;
+    //overflow: hidden;
 
     @include mobile {
         overflow: visible;
