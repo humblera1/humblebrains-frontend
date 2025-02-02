@@ -84,6 +84,8 @@ export default defineI18nConfig(() => ({
             'benefit:reduceDementiaRisk': 'Могут снизить риск деменции в пожилом возрасте',
             'benefit:memory': 'Улучшите память, концентрацию, скорость принятия решений и эффективность анализа',
             whyBrainNeedTraining: 'Зачем мозгу тренировки?',
+            'swiper:online': 'Доступны онлайн',
+            'swiper:online-subtitle': 'Доступны с любого устройства',
 
             // Sidebar:
             home: 'Главная',
@@ -320,6 +322,8 @@ export default defineI18nConfig(() => ({
             'benefit:reduceDementiaRisk': 'May reduce the risk of dementia in old age',
             'benefit:memory': 'Improve memory, concentration, decision-making speed, and analysis efficiency',
             whyBrainNeedTraining: 'Why should we exercise?',
+            'swiper:online': 'Online',
+            'swiper:online-subtitle': 'Available from any device',
 
             // Sidebar:
             home: 'Home',

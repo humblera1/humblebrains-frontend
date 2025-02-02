@@ -56,6 +56,17 @@ const imageSrc = computed((): string => {
         }
     }
 
+    &__bottom {
+        min-width: 0;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 60px;
+
+        @include tablet {
+            flex-direction: column;
+        }
+    }
+
     &__image {
         width: 100%;
         max-width: 480px;
