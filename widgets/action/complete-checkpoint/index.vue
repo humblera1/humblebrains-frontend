@@ -21,7 +21,7 @@
 import { useElementSize } from '@vueuse/core';
 import type { CompleteCheckpointProps } from '~/widgets/action/complete-checkpoint/complete-checkpoint.types';
 
-const { view = 'medium' } = defineProps<CompleteCheckpointProps>();
+const { view = 'large' } = defineProps<CompleteCheckpointProps>();
 
 const localePath = useLocalePath();
 
@@ -37,10 +37,10 @@ const updateWindowSize = () => {
 };
 
 const computedView = computed((): string => {
-    if (width.value <= 950 && width.value <= 320) {
+    if (width.value <= 450) {
         return 'small';
-    } else if (width.value <= 420) {
-        return 'small';
+    } else if (width.value <= 650) {
+        return 'medium';
     }
 
     return view;

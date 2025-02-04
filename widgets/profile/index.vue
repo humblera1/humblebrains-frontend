@@ -4,16 +4,15 @@
             <WidgetProfileDetails />
         </div>
         <div class="profile__program">
-<!--            <UiInDevelopment />-->
-            <h1 class="title profile__title">{{ $t('currentProgram') + ': ' }}</h1>
+            <h1 class="title">{{ $t('currentProgram') + ': ' }}</h1>
             <div class="profile__content">
-
-                <!-- если нет активных программ -->
-                <!-- <WidgetActionCompleteCheckpoint />-->
-
-                <!-- при наличии активных программ -->
                 <WidgetProfileStatistics />
-<!--                <WidgetGameRow :games="user.games" />-->
+                <template v-if="user.isCheckpointCompleted">
+                    <WidgetGameRow :games="user.games" />
+                </template>
+                <template v-else>
+                    <WidgetActionCompleteCheckpoint />
+                </template>
             </div>
         </div>
     </div>
@@ -29,10 +28,11 @@ const user = useUserStore();
 .profile {
     display: grid;
     grid-template-columns: auto 1fr;
-    //gap: 48px;
+    gap: 48px;
 
-    @include mobile {
-        flex-direction: column;
+    @include tablet {
+        grid-template-columns: unset;
+        justify-items: center;
     }
 
     &__details {
@@ -42,22 +42,21 @@ const user = useUserStore();
     }
 
     &__program {
-        flex-grow: 1;
-        overflow: hidden;
         width: 100%;
         display: flex;
         flex-direction: column;
+        gap: 42px;
     }
 
     &__content {
         display: flex;
         flex-direction: column;
         justify-content: center;
-        overflow: hidden;
-    }
+        gap: 24px;
 
-    &__title {
-        padding-left: 48px;
+        @include tablet {
+            align-items: center;
+        }
     }
 }
 </style>
