@@ -4,4 +4,5 @@ export type ProfileStatisticsItemProps = {
     type: string;
     data: ChartData;
     isActive: boolean;
+    isVisible: boolean;
 };

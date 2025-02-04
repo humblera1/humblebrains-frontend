@@ -25,11 +25,18 @@
             @slide-change-transition-end="onSlideChangeTransitionEnd"
         >
             <SwiperSlide v-for="(chartData, idx) in chartsData" :key="idx">
-                <WidgetProfileStatisticsItem :data="chartData.data" :type="chartData.type" :is-active="idx === activeSlideIndex" />
+                <WidgetProfileStatisticsItem
+                    :data="chartData.data"
+                    :type="chartData.type"
+                    :is-active="idx === activeSlideIndex"
+                    :is-visible="idx === activeSlideIndex || idx === (activeSlideIndex + 1) % chartsData.length"
+                />
             </SwiperSlide>
         </Swiper>
         <div class="statistics__arrow statistics__arrow_next">
-            <IconChevron />
+            <div class="statistics__badge">
+                <IconChevron />
+            </div>
         </div>
     </div>
 </template>
@@ -45,16 +52,15 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 
 const statistics: ICheckpointStatistics = {
-    stages: [1, 2, 3, 4, 5],
+    stages: [1, 2, 3, 4],
     memory: [65, 45, 34, 89, 12],
     attention: [34, 23, 46, 78, 92],
     logic: [65, 45, 34, 89, 12],
-    test1: [65, 45, 34, 89, 12],
 };
 
 const device = useDevice();
 
-const activeSlideIndex = ref<number | undefined>(undefined);
+const activeSlideIndex = ref<number>(0);
 const previousSlideIndex = ref<number | undefined>(undefined);
 
 const chartsData = computed((): { type: string; data: ChartData }[] => {

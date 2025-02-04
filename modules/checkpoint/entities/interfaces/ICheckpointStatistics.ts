@@ -13,4 +13,9 @@ export interface ICheckpointStatistics {
      * Значения счёта для категории "Внимание".
      */
     attention: number[];
+
+    /**
+     * Значения счёта для категории "Логика".
+     */
+    logic: number[];
 }

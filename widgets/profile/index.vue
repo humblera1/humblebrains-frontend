@@ -4,17 +4,17 @@
             <WidgetProfileDetails />
         </div>
         <div class="profile__program">
-            <UiInDevelopment />
-<!--            <h1 class="title">{{ $t('currentProgram') + ': ' }}</h1>-->
-<!--            <div class="profile__content">-->
+<!--            <UiInDevelopment />-->
+            <h1 class="title profile__title">{{ $t('currentProgram') + ': ' }}</h1>
+            <div class="profile__content">
 
                 <!-- если нет активных программ -->
                 <!-- <WidgetActionCompleteCheckpoint />-->
 
                 <!-- при наличии активных программ -->
-<!--                <WidgetProfileStatistics />-->
+                <WidgetProfileStatistics />
 <!--                <WidgetGameRow :games="user.games" />-->
-<!--            </div>-->
+            </div>
         </div>
     </div>
 </template>
@@ -27,11 +27,9 @@ const user = useUserStore();
 
 <style scoped lang="scss">
 .profile {
-    //width: 100%;
-    display: flex;
-
-    //flex-wrap: wrap;
-    gap: 24px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    //gap: 48px;
 
     @include mobile {
         flex-direction: column;
@@ -46,13 +44,6 @@ const user = useUserStore();
     &__program {
         flex-grow: 1;
         overflow: hidden;
-
-        //display: block;
-        //display: flex;
-        //flex-direction: column;
-
-
-        //flex-wrap: wrap;
         width: 100%;
         display: flex;
         flex-direction: column;
@@ -63,6 +54,10 @@ const user = useUserStore();
         flex-direction: column;
         justify-content: center;
         overflow: hidden;
+    }
+
+    &__title {
+        padding-left: 48px;
     }
 }
 </style>

@@ -1,13 +1,11 @@
 <template>
-    <div :class="['item', { item_active: isActive }]">
+    <div :class="['item', { item_active: isActive, item_visible: isVisible }]">
         <div class="item__header">
             <p class="item__title">{{ $t(type) }}</p>
             <p class="item__subtitle">{{ $t('checkpointsAmount') + ': ' + stagesAmount }}</p>
         </div>
         <div class="item__body">
-            <Transition name="fade" mode="out-in">
-                <div v-show="showChart" ref="chart" class="item__chart" />
-            </Transition>
+            <div ref="chart" class="item__chart" :class="{ item__chart_visible: showChart }" />
         </div>
     </div>
 </template>
@@ -158,6 +156,7 @@ const chartOptions = {
 };
 
 const initChart = () => {
+    console.log('chart: ' + Boolean(chart.value.clientWidth));
     if (chart.value && chart.value.clientWidth) {
         // eslint-disable-next-line import/namespace
         statsChart = echarts.init(chart.value);
@@ -236,6 +235,7 @@ watch(
             initChart();
 
             showChart.value = true;
+            console.log('show chart: ' + showChart.value);
         }, 250);
     },
 );

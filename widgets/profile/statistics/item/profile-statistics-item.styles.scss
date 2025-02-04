@@ -21,6 +21,9 @@
     border-radius: 24px;
     background-color: var(--primary-bg);
 
+    opacity: 0;
+    visibility: hidden;
+
     @include mainShadow();
 
     @include tablet {
@@ -42,12 +45,25 @@
             height: calc(100% + 16px);
             margin: 0 -32px -16px;
 
+            opacity: 0;
+            visibility: hidden;
+
+            &_visible {
+                opacity: 1;
+                visibility: visible;
+            }
+
             @include mobile {
                 width: calc(100% + 32px + 16px);
                 height: 100%;
                 margin-left: -24px;
             }
         }
+    }
+
+    &_visible {
+        opacity: 1;
+        visibility: visible;
     }
 
     &__header {
