@@ -3,8 +3,10 @@
     flex-direction: column;
     gap: 24px;
     width: fit-content;
+    min-width: 420px;
 
     @include tablet {
+        min-width: unset;
         row-gap: calc(36px + 24px);
     }
 
