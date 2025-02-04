@@ -1,8 +1,20 @@
 .row {
     position: relative;
-    display: block;
-    width: 100%;
+    display: grid;
+    width: fit-content;
     overflow: hidden;
+
+    &_full {
+        margin-left: -32px;
+
+        @include tablet {
+            margin-left: unset;
+        }
+
+        .swiper {
+            margin: 0;
+        }
+    }
 
     @include mobile {
         width: calc(100% + 32px);
@@ -82,7 +94,6 @@
     margin: 0 32px;
     padding: 36px 32px;
     width: auto;
-    height: 100%;
 
     @include tablet {
         margin: unset;
