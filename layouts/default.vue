@@ -39,7 +39,7 @@
         padding: 25px;
         background-color: var(--primary-bg);
         border-radius: 0 48px 48px 0;
-        overflow: hidden;
+        //overflow: hidden;
 
         @include mainShadow();
 
@@ -95,7 +95,7 @@
 }
 
 .content {
-    //overflow: hidden;
+    width: 100%;
 
     @include mobile {
         overflow: visible;
