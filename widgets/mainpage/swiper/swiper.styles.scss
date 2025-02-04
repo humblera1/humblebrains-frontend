@@ -16,12 +16,7 @@
             width: 225px;
         }
 
-        &-wrapper {
-            display: flex;
-            justify-content: center;
-        }
-
-        &-pagination {
+        :deep .swiper-pagination {
             position: relative;
         }
     }
