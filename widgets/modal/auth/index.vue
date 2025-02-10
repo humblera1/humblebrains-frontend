@@ -18,8 +18,8 @@
                 </div>
             </section>
             <section class="auth-modal__section auth-modal__section_image">
-                <NuxtImg src="/images/modals/auth/sign-up.png" class="auth-modal__image auth-modal__image_signup" />
-                <NuxtImg src="/images/modals/auth/sign-in.png" class="auth-modal__image auth-modal__image_signin" />
+                <NuxtImg :src="signUpImage" class="auth-modal__image auth-modal__image_signup" />
+                <NuxtImg :src="signInImage" class="auth-modal__image auth-modal__image_signin" />
             </section>
             <div class="auth-modal__section auth-modal__section_final">
                 <NuxtImg src="/images/modals/auth/final.png" class="auth-modal__image auth-modal__image_final" />
@@ -34,6 +34,16 @@
 
 <script setup lang="ts">
 const state = useState('authState');
+
+const colorMode = useColorMode();
+
+const signInImage = computed((): string => {
+    return colorMode.value === 'dark' ? '/images/modals/auth/sign-in-dark.png' : '/images/modals/auth/sign-in-light.png';
+});
+
+const signUpImage = computed((): string => {
+    return colorMode.value === 'dark' ? '/images/modals/auth/sign-up-dark.png' : '/images/modals/auth/sign-up-light.png';
+});
 </script>
 
 <style scoped lang="scss" src="./auth-modal.styles.scss"></style>
