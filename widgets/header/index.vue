@@ -18,7 +18,7 @@
                 <WidgetLanguageSelect />
                 <WidgetColorMode />
             </div>
-            <div class="header__buttons">
+            <div v-if="user.user.isAnonymous" class="header__buttons">
                 <UiButton class="header__signin" @click="openSignin">
                     <template #leading>
                         <IconUserLock />
@@ -32,6 +32,15 @@
                     {{ $t('signUp') }}
                 </UiButton>
             </div>
+            <NuxtLink v-else :to="localePath('/profile')" class="header__user">
+                <div class="header__avatar">
+                    <NuxtImg v-if="user.hasAvatar" :src="user.avatar" alt="Avatar" class="details__img" />
+                    <IconAstronautHelmet v-else class="details__astronaut" />
+                </div>
+                <div class="header__username">
+                    <p>{{ user.username }}</p>
+                </div>
+            </NuxtLink>
         </div>
         <div class="header__results">
             <IconTrophy />
@@ -41,11 +50,16 @@
 
 <script setup lang="ts">
 import { WidgetModalAuth, WidgetModalMenu } from '#components';
+import { useUserStore } from '~/modules/user/stores/userStore';
 
 const authState = useState('authState');
 
+const localePath = useLocalePath();
+
 const { openModal } = useHumbleModal();
 const { toggleModal: toggleMenuModal, isSpecificWindowOpen } = useHumbleModal({ withBackdrop: false });
+
+const user = useUserStore();
 
 const openSignin = () => {
     authState.value = 'signin';

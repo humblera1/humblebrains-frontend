@@ -57,6 +57,55 @@
         gap: 16px;
     }
 
+    &__user {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        @include tablet {
+            gap: 10px;
+        }
+    }
+
+    &__avatar {
+        width: 45px;
+        height: 45px;
+        aspect-ratio: 1;
+        border-radius: 100%;
+        background-color: var(--blue-badge);
+
+        img, svg {
+            object-fit: contain;
+            width: 100%;
+            height: 100%;
+        }
+
+        svg {
+            color: var(--blue);
+            padding: 10px;
+        }
+
+        @include tablet {
+            width: 40px;
+            height: 40px;
+        }
+    }
+
+    &__username {
+        display: flex;
+        align-items: center;
+
+        @include mainFont(500, 16, var(--primary-title));
+
+        @include tablet {
+            font-size: 14px;
+        }
+
+        @include mobile {
+            display: none;
+        }
+    }
+
     &__signup {
         @include small-desktop {
             display: none;
