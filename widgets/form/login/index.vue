@@ -34,7 +34,7 @@
             </div>
         </div>
         <div class="login-form__footer">
-            <UiButton theme="blue-outline" @click="login">Войти</UiButton>
+            <UiButton theme="pure-blue" @click="login">Войти</UiButton>
             <p class="login-form__policy">
                 Данный сайт защищен reCAPTCHA с соответствующей <NuxtLink>политикой конфиденциальности Google</NuxtLink>
             </p>

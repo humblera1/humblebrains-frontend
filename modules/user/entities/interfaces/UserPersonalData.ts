@@ -3,4 +3,5 @@ export interface UserPersonalData {
     email: string;
     name: string;
     isEmailVerified: boolean;
+    avatar?: string;
 }

@@ -25,6 +25,10 @@ export const useUserStore = defineStore('userStorage', () => {
         return user.value.personalData?.email ?? '';
     });
 
+    const avatar = computed((): string => {
+        return user.value.personalData?.avatar ?? '';
+    });
+
     const program = computed((): IProgram | undefined => {
         return user.value.program;
     });
@@ -47,6 +51,10 @@ export const useUserStore = defineStore('userStorage', () => {
         }
 
         return true;
+    });
+
+    const hasAvatar = computed((): boolean => {
+        return Boolean(user.value.personalData?.avatar ?? false);
     });
 
     const completeCheckpoint = () => {
@@ -110,7 +118,9 @@ export const useUserStore = defineStore('userStorage', () => {
         stages,
         isCheckpointCompleted,
         isEmailVerified,
+        hasAvatar,
 
+        avatar,
         name,
         username,
         email,

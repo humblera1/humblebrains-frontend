@@ -1,10 +1,15 @@
 <template>
     <section class="details">
         <div class="details__avatar" @click="openModal(WidgetModalAvatarUploader)">
-            <IconAstronautOutlined class="details__astronaut" />
-            <div class="details__badge">
-                <IconPlus />
-            </div>
+            <template v-if="user.hasAvatar">
+                <NuxtImg :src="user.avatar" alt="Avatar" class="details__img" />
+            </template>
+            <template v-else>
+                <IconAstronautOutlined class="details__astronaut" />
+                <div class="details__badge">
+                    <IconPlus />
+                </div>
+            </template>
         </div>
         <div class="details__info">
             <p class="details__title">{{ user.name }}</p>

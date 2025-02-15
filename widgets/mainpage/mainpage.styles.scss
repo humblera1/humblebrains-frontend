@@ -85,10 +85,10 @@
         }
 
         &_mobile {
-            display: none;
+            display: none !important;
 
             @include mobile {
-                display: flex;
+                display: flex !important;
             }
         }
     }
