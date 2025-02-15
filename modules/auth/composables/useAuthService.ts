@@ -70,7 +70,7 @@ export const useAuthService = () => {
     };
 
     const sendVerificationNotification = async (): Promise<void> => {
-        return await $api<void>('/v1/users/send-email-verification-notification?XDEBUG_SESSION=XDEBUG_ECLIPSE', {
+        return await $api<void>('/v1/users/send-email-verification-notification', {
             method: RequestMethodEnum.post,
             credentials: 'include',
         });

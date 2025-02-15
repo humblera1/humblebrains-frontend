@@ -75,6 +75,7 @@ import type { IRegisterFormErrors } from '~/entities/interfaces/forms/register/I
 import { ResponseStatusCodeEnum } from '~/entities/enums/ResponseStatusCodeEnum';
 import type { IAuthorizationErrorResponse } from '~/entities/interfaces/responses/auth/IAuthorizationErrorResponse';
 import type { IValidationErrorResponse } from '~/entities/interfaces/responses/auth/IValidationErrorResponse';
+import type { BaseResponse } from '~/entities/interfaces/responses/BaseResponse';
 
 const authService = useAuthService();
 
@@ -86,8 +87,9 @@ const register = async () => {
     form.clearErrors();
 
     try {
-        const user: User = await authService.register(form.fields);
-        setUserData(user);
+        const user: BaseResponse<User> = await authService.register(form.fields);
+
+        setUserData(user.data);
         emit('success');
     } catch (errorResponse) {
         const unknownResponse = errorResponse as FetchError;

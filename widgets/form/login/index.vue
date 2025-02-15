@@ -1,5 +1,5 @@
 <template>
-    <form class="login-form">
+    <form class="login-form" @submit.prevent>
         <div class="login-form__section">
             <h3 class="login-form__subtitle">Введите почту и пароль</h3>
             <UiInput
@@ -34,7 +34,7 @@
             </div>
         </div>
         <div class="login-form__footer">
-            <UiButton theme="pure-blue" @click="login">Войти</UiButton>
+            <UiButton type="button" theme="pure-blue" @click="login">Войти</UiButton>
             <p class="login-form__policy">
                 Данный сайт защищен reCAPTCHA с соответствующей <NuxtLink>политикой конфиденциальности Google</NuxtLink>
             </p>
@@ -51,6 +51,7 @@ import { loginForm as form } from '~/entities/objects/forms/login/loginForm';
 import { ResponseStatusCodeEnum } from '~/entities/enums/ResponseStatusCodeEnum';
 import type { IAuthorizationErrorResponse } from '~/entities/interfaces/responses/auth/IAuthorizationErrorResponse';
 import type { IValidationErrorResponse } from '~/entities/interfaces/responses/auth/IValidationErrorResponse';
+import type { BaseResponse } from '~/entities/interfaces/responses/BaseResponse';
 
 const authService = useAuthService();
 
@@ -62,8 +63,9 @@ const login = async () => {
     form.clearErrors();
 
     try {
-        const user: User = await authService.login(form.fields);
-        setUserData(user);
+        const user: BaseResponse<User> = await authService.login(form.fields);
+
+        setUserData(user.data);
         emit('success');
     } catch (errorResponse) {
         const unknownResponse = errorResponse as FetchError;
@@ -84,6 +86,8 @@ const login = async () => {
 
             return;
         }
+
+        console.log(errorResponse);
 
         // todo: обработчик неизвестной ошибки
         // eslint-disable-next-line no-console
