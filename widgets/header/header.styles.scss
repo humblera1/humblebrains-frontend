@@ -73,6 +73,7 @@
         aspect-ratio: 1;
         border-radius: 100%;
         background-color: var(--blue-badge);
+        overflow: hidden;
 
         img, svg {
             object-fit: contain;

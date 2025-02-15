@@ -148,9 +148,7 @@ export const useImageUploaderStore = defineStore('imageUploaderStore', () => {
             if (validationResponse.data.success) {
                 setSavingState();
 
-                await service.uploadImage(imageToUpload);
-
-                closeModal();
+                return await service.uploadImage(imageToUpload);
             }
         } catch (errorResponse) {
             handleErrorResponse(errorResponse as FetchError);

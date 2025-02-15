@@ -32,12 +32,19 @@
 <script setup lang="ts">
 import { useImageUploaderStore } from '~/stores/imageUploaderStore';
 import type { CropperExposedMethods } from '~/shared/ui/cropper/cropper.types';
+import type { BaseResponse } from '~/entities/interfaces/responses/BaseResponse';
+import type { User } from '~/modules/user/entities/interfaces/User';
+import { useUserStore } from '~/modules/user/stores/userStore';
 
 const cropper = ref<null | CropperExposedMethods>(null);
 
 const fileInput = ref<HTMLInputElement | null>(null);
 
 const uploader = useImageUploaderStore();
+
+const userStore = useUserStore();
+
+const { closeModal } = useHumbleModal();
 
 const showArea = computed((): boolean => {
     return uploader.isInWaitingState() || uploader.isInErrorState();
@@ -70,7 +77,13 @@ const handleSaving = async () => {
         return;
     }
 
-    await uploader.uploadCroppedImage(file);
+    const user: BaseResponse<User> | undefined = await uploader.uploadCroppedImage(file);
+
+    if (user?.data?.personalData) {
+        userStore.setPersonalData(user.data.personalData);
+    }
+
+    closeModal();
 };
 
 onMounted(() => {
