@@ -1,0 +1,19 @@
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: ./docker/dev.Dockerfile
+    ports:
+      - "${HOST_PORT:-3000}:3000"
+      - "24678:24678"
+    command: ["sh", "-c", "rm -rf /tmp/nitro && npm run dev" ]
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      # Force file watcher polling for rapid detection of local file changes
+      - CHOKIDAR_USEPOLLING=true
+volumes:
+  node_modules:

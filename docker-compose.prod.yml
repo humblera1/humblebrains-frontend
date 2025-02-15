@@ -1,0 +1,28 @@
+services:
+  app:
+    container_name: ${APP_NAME}-app
+    build:
+      context: ./
+      dockerfile: ./docker/prod.Dockerfile
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    networks:
+      - web_network
+
+  nginx:
+    container_name: ${APP_NAME}-nginx
+    image: nginx:1.27.3-alpine
+    ports:
+      - "8181:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/prod:/etc/nginx/conf.d/
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    networks:
+      - web_network
+    depends_on:
+      - app
+
+networks:
+  web_network:

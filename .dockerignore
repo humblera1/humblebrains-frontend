@@ -1,0 +1,18 @@
+/.nuxt
+/.output
+/node_modules
+
+.gitignore
+README.md
+
+# IDE и локальные пользовательские конфигурации
+.fleet
+.idea
+.vscode
+.qodo
+
+# Файлы
+.env
+.env.example
+.env.backup
+.env.production
