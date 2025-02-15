@@ -54,9 +54,9 @@ import type { IValidationErrorResponse } from '~/entities/interfaces/responses/a
 
 const authService = useAuthService();
 
-const { setUserData } = useUserStore();
+const emit = defineEmits(['success']);
 
-const state = useState('authState');
+const { setUserData } = useUserStore();
 
 const login = async () => {
     form.clearErrors();
@@ -64,7 +64,7 @@ const login = async () => {
     try {
         const user: User = await authService.login(form.fields);
         setUserData(user);
-        setFinalState();
+        emit('success');
     } catch (errorResponse) {
         const unknownResponse = errorResponse as FetchError;
 
@@ -94,10 +94,6 @@ const login = async () => {
 const showGeneralError = computed((): boolean => {
     return form.errors.general !== '';
 });
-
-const setFinalState = (): void => {
-    state.value = 'final';
-};
 
 onUnmounted(() => {
     form.clearErrors();

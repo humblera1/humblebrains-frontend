@@ -78,9 +78,9 @@ import type { IValidationErrorResponse } from '~/entities/interfaces/responses/a
 
 const authService = useAuthService();
 
-const { setUserData } = useUserStore();
+const emit = defineEmits(['success']);
 
-const state = useState('authState');
+const { setUserData } = useUserStore();
 
 const register = async () => {
     form.clearErrors();
@@ -88,7 +88,7 @@ const register = async () => {
     try {
         const user: User = await authService.register(form.fields);
         setUserData(user);
-        setFinalState();
+        emit('success');
     } catch (errorResponse) {
         const unknownResponse = errorResponse as FetchError;
 
@@ -113,10 +113,6 @@ const register = async () => {
         // eslint-disable-next-line no-console
         console.log('Неизвестная ошибка');
     }
-};
-
-const setFinalState = (): void => {
-    state.value = 'final';
 };
 </script>
 

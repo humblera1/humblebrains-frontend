@@ -87,6 +87,8 @@ export default defineI18nConfig(() => ({
             'swiper:online': 'Доступны онлайн',
             'swiper:online-subtitle': 'Доступны с любого устройства',
             getFullAccess: 'Получите доступ к полному функционалу сайта',
+            thankYou: 'Благодарим за регистрацию!',
+            checkEmail: 'Для завершения регистрации следуйте инструкциям, отправленным на ваш почтовый ящик',
 
             // Sidebar:
             home: 'Главная',
@@ -325,6 +327,9 @@ export default defineI18nConfig(() => ({
             whyBrainNeedTraining: 'Why should we exercise?',
             'swiper:online': 'Online',
             'swiper:online-subtitle': 'Available from any device',
+            getFullAccess: 'Get access to the full functionality of the site',
+            thankYou: 'Thank you for registration!',
+            checkEmail: 'To complete the registration, please follow the instructions sent to your email',
 
             // Sidebar:
             home: 'Home',
@@ -386,7 +391,6 @@ export default defineI18nConfig(() => ({
             programCompletedInfo: 'You have completed the current program! Go to the assessment section to take the checkpoint.',
             instruction: 'Instructions',
             preparingNextStep: '',
-            getFullAccess: 'Get access to the full functionality of the site',
 
             // Matrix
             remember: 'Remember',
