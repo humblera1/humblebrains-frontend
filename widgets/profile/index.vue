@@ -1,20 +1,25 @@
 <template>
-    <div class="profile">
-        <div class="profile__details">
-            <WidgetProfileDetails />
-        </div>
-        <div class="profile__program">
-            <h1 class="title">{{ $t('currentProgram') + ': ' }}</h1>
-            <div class="profile__content">
-                <WidgetProfileStatistics />
-                <template v-if="user.isCheckpointCompleted">
-                    <WidgetGameRow :games="user.games" />
-                </template>
-                <template v-else>
-                    <WidgetActionCompleteCheckpoint />
-                </template>
+    <div class="profile" :class="user.user.isAnonymous ? 'profile_anonymous' : ''">
+        <template v-if="user.user.isAnonymous">
+            <UiLogin />
+        </template>
+        <template v-else>
+            <div class="profile__details">
+                <WidgetProfileDetails />
             </div>
-        </div>
+            <div class="profile__program">
+                <h1 class="title">{{ $t('currentProgram') + ': ' }}</h1>
+                <div class="profile__content">
+                    <WidgetProfileStatistics />
+                    <template v-if="user.isCheckpointCompleted">
+                        <WidgetGameRow :games="user.games" />
+                    </template>
+                    <template v-else>
+                        <WidgetActionCompleteCheckpoint />
+                    </template>
+                </div>
+            </div>
+        </template>
     </div>
 </template>
 
@@ -29,6 +34,11 @@ const user = useUserStore();
     display: grid;
     grid-template-columns: auto 1fr;
     gap: 48px;
+
+    &_anonymous {
+        display: flex;
+        height: 100%;
+    }
 
     @include tablet {
         grid-template-columns: unset;

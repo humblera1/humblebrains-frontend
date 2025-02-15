@@ -86,6 +86,7 @@ export default defineI18nConfig(() => ({
             whyBrainNeedTraining: 'Зачем мозгу тренировки?',
             'swiper:online': 'Доступны онлайн',
             'swiper:online-subtitle': 'Доступны с любого устройства',
+            getFullAccess: 'Получите доступ к полному функционалу сайта',
 
             // Sidebar:
             home: 'Главная',
@@ -385,6 +386,7 @@ export default defineI18nConfig(() => ({
             programCompletedInfo: 'You have completed the current program! Go to the assessment section to take the checkpoint.',
             instruction: 'Instructions',
             preparingNextStep: '',
+            getFullAccess: 'Get access to the full functionality of the site',
 
             // Matrix
             remember: 'Remember',
