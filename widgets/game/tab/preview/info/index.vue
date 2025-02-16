@@ -46,7 +46,9 @@ const page = useGamePageStore();
 const { $api } = useNuxtApp();
 
 const { status, data } = await useLazyAsyncData('game-detail', async () => {
-    const response = await $api<BaseResponse<IGameDetails>>(`/v1/games/${page.game}`);
+    const response = await $api<BaseResponse<IGameDetails>>(`/v1/games/${page.game}`, {
+        credentials: 'include',
+    });
 
     return response.data;
 });

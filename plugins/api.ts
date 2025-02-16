@@ -1,30 +1,31 @@
 import { RequestMethodEnum } from '~/entities/enums/RequestMethodEnum';
 
-export default defineNuxtPlugin({
-    setup() {
-        const config = useRuntimeConfig();
+export default defineNuxtPlugin((nuxtApp) => {
+    const locale = nuxtApp.$i18n.locale;
 
-        const baseUrl = config.public.api;
+    const config = useRuntimeConfig();
 
-        const api = $fetch.create({
-            baseURL: baseUrl,
-            async onRequest({ options }) {
-                const headers = (options.headers);
+    const baseUrl = config.public.api;
 
-                headers.set('Accept', 'application/json');
+    const api = $fetch.create({
+        baseURL: baseUrl,
+        async onRequest({ options }) {
+            const headers = options.headers || {};
 
-                if (options.method === RequestMethodEnum.post) {
-                    const { setXsrfHeader } = useAuthService();
+            headers.set('X-App-Locale', locale.value);
+            headers.set('Accept', 'application/json');
 
-                    await setXsrfHeader(headers);
-                }
-            },
-        });
+            if (options.method === RequestMethodEnum.post) {
+                const { setXsrfHeader } = useAuthService();
 
-        return {
-            provide: {
-                api,
-            },
-        };
-    },
+                await setXsrfHeader(headers);
+            }
+        },
+    });
+
+    return {
+        provide: {
+            api,
+        },
+    };
 });

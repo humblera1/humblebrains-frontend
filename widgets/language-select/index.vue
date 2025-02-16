@@ -3,17 +3,12 @@
         <button class="language-select__display" @click="toggleOpen">
             <span>{{ locale }}</span>
             <span :class="['language-select__arrow', isOpen ? 'language-select__arrow_active' : '']">
-                    <IconChevron />
+                <IconChevron />
             </span>
         </button>
         <UiPopover v-model="isOpen" :close-button="false" align="right">
             <div class="language-select__controls">
-                <NuxtLink
-                    v-for="lang in locales"
-                    :key="lang"
-                    class="language-select__locale"
-                    @click="() => changeLanguage(lang)"
-                >
+                <NuxtLink v-for="lang in locales" :key="lang" class="language-select__locale" @click="() => changeLanguage(lang)">
                     {{ lang }}
                 </NuxtLink>
             </div>
