@@ -50,15 +50,6 @@ const handleChanges = (): void => {
 
     emit('change');
 };
-
-// watch(
-//     () => props.error,
-//     (newValue) => {
-//         localError.value = newValue;
-//
-//         console.log(props.error);
-//     },
-// );
 </script>
 
 <style scoped lang="scss">
@@ -131,10 +122,10 @@ const handleChanges = (): void => {
         border: none;
         background-color: transparent;
 
-        @include mainFont(600, 14, var(--text-primary));
+        @include mainFont(600, 14, var(--input-text));
 
         @include mobile {
-            @include mainFont(600, 12, var(--text-primary));
+            font-size: 12px;
         }
 
         &::placeholder {

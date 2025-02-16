@@ -9,6 +9,10 @@
     border-radius: 36px;
     background-color: var(--primary-bg);
 
+    &_dark {
+        border: 1px solid var(--border-primary);
+    }
+
     @include mainShadow();
 
     @include tablet {
@@ -68,7 +72,7 @@
     &__astronaut {
         width: 60px;
         height: 70px;
-        color: var(--blue);
+        color: var(--blue-light);
 
         @include tablet {
             width: 55px;

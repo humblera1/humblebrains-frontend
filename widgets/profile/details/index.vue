@@ -1,5 +1,5 @@
 <template>
-    <section class="details">
+    <section class="details" :class="`details_${colorMode.value}`">
         <div class="details__avatar" @click="openModal(WidgetModalAvatarUploader)">
             <template v-if="user.hasAvatar">
                 <NuxtImg :src="user.avatar" alt="Avatar" class="details__img" />
@@ -42,6 +42,8 @@ import { useUserStore } from '~/modules/user/stores/userStore';
 import { ProfileFormStatusEnum } from '~/entities/enums/profile/ProfileFormStatusEnum';
 
 const { openModal } = useHumbleModal();
+
+const colorMode = useColorMode();
 
 const user = useUserStore();
 
