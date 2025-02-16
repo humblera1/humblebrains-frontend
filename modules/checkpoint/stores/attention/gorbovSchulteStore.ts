@@ -4,6 +4,7 @@ import type { GorbovSchulteLevel } from '~/modules/checkpoint/entities/types/gor
 import type { ITestLevels } from '~/modules/checkpoint/entities/interfaces/ITestLevels';
 import { RuleEnum } from '~/modules/checkpoint/entities/enums/gorbov-schulte/RuleEnum';
 import { gorbovSchulteAssessmentTable } from '~/modules/checkpoint/data/gorbovSchulteAssessmentTable';
+import { range, shuffle, chunk } from 'lodash';
 
 export const useGorbovSchulteStore = defineStore('gorbovSchulteStorage', () => {
     /**
@@ -48,7 +49,7 @@ export const useGorbovSchulteStore = defineStore('gorbovSchulteStorage', () => {
 
     const levels: ITestLevels<GorbovSchulteLevel> = {
         1: {
-            dimension: 2,
+            dimension: 7,
         },
     };
 
@@ -64,17 +65,17 @@ export const useGorbovSchulteStore = defineStore('gorbovSchulteStorage', () => {
     });
 
     const availableNumbers = computed((): number[] => {
-        const range = dimension.value ** 2;
+        const rangeValue = dimension.value ** 2;
 
-        return useRange(1, range + 1);
+        return range(1, rangeValue + 1);
     });
 
     const setNumbers = () => {
-        const shuffledNumbers = useShuffle(availableNumbers.value);
+        const shuffledNumbers = shuffle(availableNumbers.value);
 
         const halfLength = Math.ceil(dimension.value ** 2 / 2);
 
-        const chunks = useChunk(shuffledNumbers, halfLength);
+        const chunks = chunk(shuffledNumbers, halfLength);
 
         primaryNumbers.value = chunks[0];
         secondaryNumbers.value = chunks[1] || [];
@@ -252,7 +253,7 @@ export const useGorbovSchulteStore = defineStore('gorbovSchulteStorage', () => {
     };
 
     const hideCellsInstantly = () => {
-        hiddenNumbers.value = useShuffle(availableNumbers.value);
+        hiddenNumbers.value = shuffle(availableNumbers.value);
     };
 
     const showCellsSequentially = (): Promise<void> => {

@@ -59,9 +59,9 @@ export const usePointsStore = defineStore('pointsStorage', () => {
         1: {
             points: 1,
         },
-        // 2: {
-        //     points: 2,
-        // },
+        2: {
+            points: 2,
+        },
     };
 
     /**
@@ -71,12 +71,12 @@ export const usePointsStore = defineStore('pointsStorage', () => {
         1: {
             points: 1,
         },
-        // 2: {
-        //     points: 2,
-        // },
-        // 3: {
-        //     points: 5,
-        // },
+        2: {
+            points: 2,
+        },
+        3: {
+            points: 5,
+        },
     };
 
     const currentLevel = computed((): PointsLevel => {

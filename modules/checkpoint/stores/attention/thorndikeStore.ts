@@ -65,8 +65,8 @@ export const useThorndikeStore = defineStore('thorndikeStorage', () => {
      */
     const levelsToWarmUp: ITestLevels<ThorndikeLevel> = {
         1: {
-            numbersAmount: 1,
-            numbersToFindAmount: 1,
+            numbersAmount: 40,
+            numbersToFindAmount: 5,
         },
     };
 
@@ -75,8 +75,8 @@ export const useThorndikeStore = defineStore('thorndikeStorage', () => {
      */
     const levels: ITestLevels<ThorndikeLevel> = {
         1: {
-            numbersAmount: 1,
-            numbersToFindAmount: 1,
+            numbersAmount: 100,
+            numbersToFindAmount: 10,
         },
     };
 
