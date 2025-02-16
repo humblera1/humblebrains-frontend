@@ -1,20 +1,26 @@
 <template>
     <div class="conclusion">
-        <template v-if="completedStage && completedStage.isCompleted">
-            <h1 class="conclusion__title">
-                {{ $t('stageCompleted') }}
-            </h1>
-            <WidgetCheckpointUiResultTotal :score="score" :is-checkpoint-completed="true" />
-            <div class="conclusion__cards">
-                <WidgetCheckpointUiCard v-if="completedStage" :stage="completedStage" />
-                <WidgetCheckpointUiCard v-if="nextStage" :stage="nextStage" type="checkpoint" />
-            </div>
-        </template>
-        <template v-else-if="isPending">
-            <UiPreloader />
+        <!-- todo: logic-category: -->
+        <template v-if="page.getCategory() === CognitiveCategoryEnum.logic">
+            <UiInDevelopment />
         </template>
         <template v-else>
-            <UiNetworkError @resend="resendResults" />
+            <template v-if="completedStage && completedStage.isCompleted">
+                <h1 class="conclusion__title">
+                    {{ $t('stageCompleted') }}
+                </h1>
+                <WidgetCheckpointUiResultTotal :score="score" :is-checkpoint-completed="true" />
+                <div class="conclusion__cards">
+                    <WidgetCheckpointUiCard v-if="completedStage" :stage="completedStage" />
+                    <WidgetCheckpointUiCard v-if="nextStage" :stage="nextStage" type="checkpoint" />
+                </div>
+            </template>
+            <template v-else-if="isPending">
+                <UiPreloader />
+            </template>
+            <template v-else>
+                <UiNetworkError @resend="resendResults" />
+            </template>
         </template>
     </div>
 </template>
@@ -24,6 +30,7 @@ import type { ICheckpointStage } from '~/modules/checkpoint/entities/interfaces/
 import { useUserStore } from '~/modules/user/stores/userStore';
 import { useCheckpointStore } from '~/modules/checkpoint/stores/checkpointStore';
 import { useCheckpointPageStore } from '~/modules/checkpoint/stores/checkpointPageStore';
+import { CognitiveCategoryEnum } from '~/entities/enums/cognitiveCategoryEnum';
 
 const user = useUserStore();
 const page = useCheckpointPageStore();

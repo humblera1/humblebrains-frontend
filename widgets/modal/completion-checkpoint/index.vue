@@ -43,7 +43,7 @@ import { useUserStore } from '~/modules/user/stores/userStore';
 import type { ICheckpointStage } from '~/modules/checkpoint/entities/interfaces/ICheckpointStage';
 import type { SelectOption } from '~/entities/types/SelectOption';
 import { useCheckpointService } from '#imports';
-import type { CognitiveCategoryEnum } from '~/entities/enums/cognitiveCategoryEnum';
+import { CognitiveCategoryEnum } from '~/entities/enums/cognitiveCategoryEnum';
 
 const user = useUserStore();
 const service = useCheckpointService();
@@ -71,15 +71,24 @@ const hasDuplicateScores = computed((): boolean => {
 });
 
 const priorityStage = computed((): ICheckpointStage => {
-    return user.stages.reduce((minItem, currentItem) => {
+    // todo: logic-category:
+    const eligibleStages = user.stages.filter((stage) => stage.category.name !== CognitiveCategoryEnum.logic);
+
+    // todo: logic-category:
+    return eligibleStages.reduce((minItem, currentItem) => {
         return currentItem.score < minItem.score ? currentItem : minItem;
-    }, user.stages[0]);
+    }, eligibleStages[0]);
 });
 
 const selectOptions = computed((): SelectOption[] => {
     const options: SelectOption[] = [];
 
     for (const stage of user.stages) {
+        // todo: logic-category:
+        if (stage.category.name === CognitiveCategoryEnum.logic) {
+            continue;
+        }
+
         options.push({
             value: stage.category.name,
             label: `${stage.category.label} — ${stage.score}%`,
