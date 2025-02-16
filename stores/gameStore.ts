@@ -41,6 +41,11 @@ export const useGameStore = defineStore('gameStorage', () => {
     const gameName = ref<string>('');
 
     /**
+     * Изображение.
+     */
+    const image = ref<string>('');
+
+    /**
      * Текущий режим игры.
      */
     const regime = ref<GameRegimeEnum>(GameRegimeEnum.default);
@@ -953,7 +958,7 @@ export const useGameStore = defineStore('gameStorage', () => {
     const handleModeSwitching = async () => {
         setTranslatableMessage('warmUpCompleted');
 
-        await setPrompt('gameStartPrompt');
+        await setPrompt('gameStartPrompt', true);
         setGameMode();
         clearMessage();
 
@@ -1250,6 +1255,7 @@ export const useGameStore = defineStore('gameStorage', () => {
         const data: IGameLevels<IBaseGameLevel> = await service.fetchLevels();
 
         gameName.value = data.game;
+        image.value = data.image;
         maxUserLevel.value = data.maxUserLevel;
         currentUserLevel.value = data.lastUserLevel;
         initialUserLevel = data.lastUserLevel;
@@ -1482,6 +1488,7 @@ export const useGameStore = defineStore('gameStorage', () => {
 
         gameData,
         gameName,
+        image,
 
         $setup,
         $reset,

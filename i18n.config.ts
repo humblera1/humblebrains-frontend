@@ -170,13 +170,12 @@ export default defineI18nConfig(() => ({
 
             // Matrix
             remember: 'Запомнил',
-            gameStartPrompt: 'Разминка завершена',
 
             // Checkpoint
             checkpoint: 'Контрольная точка',
             step: 'Шаг',
             warmUpPrompt: 'Вам будет представлено несколько разминочных раундов',
-            gameStartPrompt: 'Теперь играем серьезно',
+            gameStartPrompt: 'Разминка завершена',
             warmUpCompleted: 'Разминка завершена!',
             remembered: 'Запомнил!',
             stageCompleted: 'Этап завершён!',
@@ -432,7 +431,6 @@ export default defineI18nConfig(() => ({
             programCompletedInfo: 'You have completed the current program! Go to the assessment section to take the checkpoint.',
             instruction: 'Instructions',
             preparingNextStep: '',
-            gameStartPrompt: 'Warm-up completed',
 
             // Matrix
             remember: 'Remember',
@@ -441,7 +439,7 @@ export default defineI18nConfig(() => ({
             checkpoint: 'Checkpoint',
             step: 'Step',
             warmUpPrompt: '',
-            gameStartPrompt: '',
+            gameStartPrompt: 'Warm-up completed',
             warmUpCompleted: 'Warm-up completed!',
             remembered: 'Remembered!',
             stageCompleted: 'Stage completed!',

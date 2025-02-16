@@ -10,8 +10,14 @@
             </header>
             <div class="result__body">
                 <section class="result__games">
-                    <WidgetGameTabResultCard :title="game.gameName" :score="score" />
-                    <WidgetGameTabResultCard :title="solitary.label" :current="solitary.userLevel" :max="solitary.maxLevel" />
+                    <WidgetGameTabResultCard :title="game.gameName" :score="score" :image="game.image" />
+                    <WidgetGameTabResultCard
+                        v-if="nextSessionGame"
+                        :title="nextSessionGame.game.label"
+                        :current="nextSessionGame.game.userLevel"
+                        :max="nextSessionGame.game.maxLevel"
+                        :image="nextSessionGame.game.image"
+                    />
                 </section>
                 <section class="result__section" :class="achievementsClass" @animationend="handleAchievementsAnimationEnd">
                     <h2 class="result__subtitle">{{ $t('totalAchievements') }}</h2>
@@ -43,21 +49,25 @@
 <script setup lang="ts">
 import { WidgetModalCompletion } from '#components';
 import { CompletionModalTypeEnum } from '~/entities/enums/games/CompletionModalTypeEnum';
+import { useUserStore } from '~/modules/user/stores/userStore';
+import type { ISessionGame } from '~/entities/interfaces/session/ISessionGame';
 
 const game = useGameStore();
 const service = useGameService();
+const user = useUserStore();
 
 const { openModal } = useHumbleModal();
 
 const isAchievementsVisible = ref<boolean>(false);
 const isStatisticsVisible = ref<boolean>(false);
 
-// todo: next session game
-const solitary = {
-    label: 'Солитария',
-    maxLevel: 23,
-    userLevel: 2,
-};
+const nextSessionGame = computed((): undefined | ISessionGame => {
+    const session = user.program?.currentSession;
+
+    if (session && !session.isCompleted) {
+        return session.games.find((game) => !game.isCompleted);
+    }
+});
 
 const score = computed((): number => {
     return game.gameData?.results?.score ?? 0;
