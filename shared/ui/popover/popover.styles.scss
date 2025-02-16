@@ -29,6 +29,7 @@
     }
 
     &_active {
+        z-index: 101;
         opacity: 1;
         visibility: visible;
     }
