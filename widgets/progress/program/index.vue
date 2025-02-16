@@ -1,7 +1,7 @@
 <template>
     <div v-if="user.program" class="progress-program">
         <header class="progress-program__header">
-            <h1 class="title">{{ $t('currentProgram') + ': ' + user.program.category.label }}</h1>
+            <h1 class="title">{{ $t('currentProgram') + ': ' + $t(user.program.category.name) }}</h1>
             <div class="progress-program__info">
                 <span class="progress-program__text">
                     {{ $t('latestAssessment') + ': ' }}

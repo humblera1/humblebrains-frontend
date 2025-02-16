@@ -2,7 +2,7 @@
     <div class="game-time">
         <div class="game-time__info">
             <template v-if="!game.isGameTimeOver">
-                <p class="game-time__title">Время:</p>
+                <p class="game-time__title">{{ $t('time') }}:</p>
                 <div class="game-time__box">
                     <Transition name="slide-fade" mode="out-in">
                         <IconInfinity v-if="game.isInInfiniteRegime()" class="game-time__infinity" />

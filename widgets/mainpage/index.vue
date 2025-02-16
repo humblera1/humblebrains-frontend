@@ -2,7 +2,7 @@
     <div class="main">
         <div class="main__top">
             <UiButton class="main__button_mobile">
-                Вперёд!
+                {{ $t('main.buttonForward') }}
                 <div id="trailing">
                     <IconArrowLeft />
                 </div>
@@ -13,15 +13,15 @@
             <div class="main__insight">
                 <div class="main__text">
                     <h1 class="main__title">
-                        Станьте лучшей версией себя с
+                        {{ $t('main.titlePrefix') }}
                         <span class="main__gradient">humblebrains</span>
                     </h1>
                     <p class="main__subtitle">
-                        Проходите упражнения на сайте, соревнуйтесь с другими игроками и прокачивайте свои способности
+                        {{ $t('main.subtitle') }}
                     </p>
                 </div>
                 <UiButton class="main__button_desktop">
-                    Вперёд!
+                    {{ $t('main.buttonForward') }}
                     <div id="trailing">
                         <IconArrowLeft />
                     </div>

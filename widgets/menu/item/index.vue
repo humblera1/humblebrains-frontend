@@ -1,10 +1,10 @@
 <template>
-    <NuxtLink :to="to" class="menu-item">
+    <NuxtLink :to="localePath(to)" class="menu-item">
         <div class="menu-item__icon">
             <component :is="icon" />
         </div>
         <span class="menu-item__label">
-            {{ label }}
+            {{ $t(label) }}
         </span>
     </NuxtLink>
 </template>
@@ -14,6 +14,8 @@
 import type { MenuItem } from '~/widgets/menu/item/menu-item.types';
 
 defineProps<MenuItem>();
+
+const localePath = useLocalePath();
 </script>
 
 <style scoped lang="scss" src="./menu-item.styles.scss"></style>

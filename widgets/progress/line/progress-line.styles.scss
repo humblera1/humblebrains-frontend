@@ -2,8 +2,8 @@
     display: flex;
     max-width: 650px;
     padding-bottom: 32px;
-    overflow-x: auto;
-    overflow-y: visible;
+    //overflow-x: auto;
+    //overflow-y: visible;
 
     @include tablet {
         max-width: 450px;
@@ -181,9 +181,11 @@
     }
 
     &__title {
+        text-align: center;
         @include mainFont(500, 16, var(--primary-title));
 
         @include mobile {
+            text-align: left;
             @include mainFont(500, 14, var(--primary-title));
         }
     }

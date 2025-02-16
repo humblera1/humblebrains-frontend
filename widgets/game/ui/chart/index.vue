@@ -7,7 +7,7 @@
                 </p>
                 <p class="chart__subtitle">
                     <template v-if="withFilter">
-                        <span>Период: </span>
+                        <span>{{ $t('period') }}: </span>
                         <span class="chart__period">{{ $t(selectedPeriod) }}</span>
                     </template>
                     <template v-else>

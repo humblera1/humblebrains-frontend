@@ -1,7 +1,7 @@
 <template>
     <form class="login-form" @submit.prevent>
         <div class="login-form__section">
-            <h3 class="login-form__subtitle">Введите почту и пароль</h3>
+            <h3 class="login-form__subtitle">{{ $t('enterEmailAndPassword') }}</h3>
             <UiInput
                 id="email-signin"
                 v-model:value="form.fields.usermail"
@@ -34,9 +34,10 @@
             </div>
         </div>
         <div class="login-form__footer">
-            <UiButton type="button" theme="pure-blue" @click="login">Войти</UiButton>
+            <UiButton type="button" theme="pure-blue" @click="login">{{ $t('signIn') }}</UiButton>
             <p class="login-form__policy">
-                Данный сайт защищен reCAPTCHA с соответствующей <NuxtLink>политикой конфиденциальности Google</NuxtLink>
+                {{ $t('recaptchaNotice') }}
+                <NuxtLink to="https://policies.google.com/privacy">{{ $t('googlePrivacyPolicy') }}</NuxtLink>
             </p>
         </div>
     </form>

@@ -11,16 +11,16 @@
                 </div>
                 <div class="card__description">
                     <div class="card__title">
-                        {{ stage.category.label }}
+                        {{ $t(stage.category.name) }}
                     </div>
                     <div class="card__text">
-                        {{ stage.category.description }}
+                        {{ $t(description) }}
                     </div>
                 </div>
             </div>
             <div class="card__footer">
                 <div v-if="stage.isCompleted" class="card__result">
-                    <p class="card__message">Завершено!</p>
+                    <p class="card__message">{{ $t('completed') }}!</p>
                     <div class="card__points">
                         <div class="card__star">
                             <IconStar />
@@ -34,9 +34,9 @@
                     </div>
                 </div>
                 <div v-else class="card__controls">
-                    <UiButton v-if="type === 'stage'" :to="to"> Пройти </UiButton>
+                    <UiButton v-if="type === 'stage'" :to="to"> {{ $t('start') }} </UiButton>
                     <UiButton v-else :to="to">
-                        К следующему
+                        {{ $t('toTheNext') }}
                         <template #trailing>
                             <IconArrowLeft />
                         </template>
@@ -51,8 +51,8 @@
 </template>
 
 <script setup lang="ts">
-import { CognitiveCategoryEnum } from '../../../../../entities/enums/cognitiveCategoryEnum';
 import type { CheckpointUiCardProps } from '~/modules/checkpoint/widgets/ui/card/checkpoint-ui-card.types';
+import { CognitiveCategoryEnum } from '~/entities/enums/cognitiveCategoryEnum';
 
 const { stage, type = 'stage' } = defineProps<CheckpointUiCardProps>();
 
@@ -68,6 +68,20 @@ const imageSrc = computed((): string => {
 
 const to = computed((): string => {
     return localePath(`/checkpoint/${stage.category.name}`);
+});
+
+// todo: в дальнейшем получаем перевод с бэка
+const description = computed((): string => {
+    switch (stage.category.name) {
+        case CognitiveCategoryEnum.memory:
+            return 'checkpoint:memoryShortDescription';
+        case CognitiveCategoryEnum.attention:
+            return 'checkpoint:attentionShortDescription';
+        case CognitiveCategoryEnum.logic:
+            return 'checkpoint:logicShortDescription';
+    }
+
+    return 'description';
 });
 </script>
 

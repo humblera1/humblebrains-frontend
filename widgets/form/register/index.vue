@@ -2,7 +2,7 @@
     <div class="register-form">
         <form class="register-form__form">
             <div class="register-form__section">
-                <h3 class="register-form__subtitle">Заполните обязательные поля</h3>
+                <h3 class="register-form__subtitle">{{ $t('fillRequiredFields') }}</h3>
                 <UiInput
                     id="email"
                     v-model:value="form.fields.email"
@@ -31,7 +31,7 @@
                 </UiInput>
             </div>
             <div class="register-form__section">
-                <h3 class="register-form__subtitle">Дополнительная информация</h3>
+                <h3 class="register-form__subtitle">{{ $t('additionalInfo') }}</h3>
                 <UiInput
                     id="username"
                     v-model:value="form.fields.username"
@@ -58,9 +58,10 @@
             </div>
         </form>
         <div class="register-form__footer">
-            <UiButton @click="register">Зарегистрироваться</UiButton>
+            <UiButton @click="register">{{ $t('signUp') }}</UiButton>
             <p class="register-form__policy">
-                Данный сайт защищен reCAPTCHA с соответствующей <NuxtLink>политикой конфиденциальности Google</NuxtLink>
+                {{ $t('recaptchaNotice') }}
+                <NuxtLink to="https://policies.google.com/privacy">{{ $t('googlePrivacyPolicy') }}</NuxtLink>
             </p>
         </div>
     </div>

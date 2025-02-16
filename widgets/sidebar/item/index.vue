@@ -1,5 +1,5 @@
 <template>
-    <NuxtLink :to="to" :class="['sidebar-item', { 'sidebar-item_active': linkIsActive }]">
+    <NuxtLink :to="localePath(to)" :class="['sidebar-item', { 'sidebar-item_active': linkIsActive }]">
         <div class="sidebar-item__icon">
             <component :is="icon" />
         </div>
@@ -12,17 +12,19 @@ import type { SidebarItem } from '~/widgets/sidebar/item/sidebar-item.types';
 
 const { title, to } = defineProps<SidebarItem>();
 
+const localePath = useLocalePath();
+
 const route = useRoute();
 const linkIsActive = ref<boolean>(false);
 
 onMounted(() => {
-    if (route.path === '/' && to === '/') {
+    if (localePath(to) === route.path) {
         linkIsActive.value = true;
     }
 
-    if (route.matched.some(({ path }) => path.startsWith(`/${title.toLowerCase()}`))) {
-        linkIsActive.value = true;
-    }
+    // if (route.matched.some(({ path }) => path.endsWith(`/${title.toLowerCase()}`))) {
+    //     linkIsActive.value = true;
+    // }
 });
 </script>
 

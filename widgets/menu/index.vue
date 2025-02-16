@@ -34,17 +34,17 @@ const { width } = useElementSize(menu);
 const menuItems: MenuItem[] = [
     {
         icon: About,
-        label: 'О проекте',
+        label: 'about',
         to: '/about',
     },
     {
         icon: Coins,
-        label: 'Поддержать нас',
+        label: 'support',
         to: '/support',
     },
     {
         icon: Faq,
-        label: 'FAQ',
+        label: 'faq',
         to: '/faq',
     },
 ];

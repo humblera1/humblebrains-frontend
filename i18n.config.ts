@@ -149,9 +149,28 @@ export default defineI18nConfig(() => ({
             programCompleted: 'Программа завершена!',
             sessionCompletedInfo: 'Вы завершили текущую сессию вашей программы! Перейдите в профиль, чтобы посмотреть новые упражнения',
             programCompletedInfo: 'Вы завершили текущую программу! Перейдите в раздел оценки, чтобы пройти контрольную точку.',
+            about: 'О проекте',
+            support: 'Поддержать нас',
+            faq: 'FAQ',
+            completeMoreCheckpoints: 'Завершите две контрольные точки, чтобы разблокировать статистику.',
+            period: 'Период',
+            fillRequiredFields: 'Заполните обязательные поля',
+            additionalInfo: 'Дополнительная информация',
+            enterEmailAndPassword: 'Введите почту и пароль',
+            recaptchaNotice: 'Данный сайт защищен reCAPTCHA с соответствующей',
+            googlePrivacyPolicy: 'политикой конфиденциальности Google',
+            completed: 'Завершено',
+            toTheNext: 'К следующему',
+
+            main: {
+                titlePrefix: 'Станьте лучшей версией себя с',
+                subtitle: 'Проходите упражнения на сайте, соревнуйтесь с другими игроками и прокачивайте свои способности',
+                buttonForward: 'Вперёд!',
+            },
 
             // Matrix
             remember: 'Запомнил',
+            gameStartPrompt: 'Разминка завершена',
 
             // Checkpoint
             checkpoint: 'Контрольная точка',
@@ -187,6 +206,10 @@ export default defineI18nConfig(() => ({
                 'Внимание — это способность сосредотачиваться на определенной задаче, игнорируя отвлекающие факторы. Эта когнитивная способность имеет важное значение, потому что мы используем её ежедневно.\n' +
                 'Внимание необходимо для выполнения задач, требующих концентрации, таких как вождение автомобиля, чтение, работа с документами и участие в совещаниях.\n' +
                 'Развивать внимание можно с помощью медитации, выполнения упражнений на концентрацию, таких как чтение с пониманием, и игр, требующих сосредоточенности.',
+
+            'checkpoint:memoryShortDescription': 'Память помогает сохранять важную информацию.',
+            'checkpoint:logicShortDescription': 'Логика позволяет анализировать информацию и принимать решения.',
+            'checkpoint:attentionShortDescription': 'Внимание помогает сосредоточиться на задаче.',
 
             'points:openCells': 'Откройте все ячейки, где ранее находились точки',
             'points:instruction':
@@ -330,6 +353,24 @@ export default defineI18nConfig(() => ({
             getFullAccess: 'Get access to the full functionality of the site',
             thankYou: 'Thank you for registration!',
             checkEmail: 'To complete the registration, please follow the instructions sent to your email',
+            about: 'About',
+            support: 'Support',
+            faq: 'FAQ',
+            completeMoreCheckpoints: 'Complete two checkpoints to unlock statistics.',
+            period: 'Period',
+            fillRequiredFields: 'Fill in the required fields',
+            additionalInfo: 'Additional information',
+            enterEmailAndPassword: 'Enter your email and password',
+            recaptchaNotice: 'This site is protected by reCAPTCHA and the',
+            googlePrivacyPolicy: 'Google Privacy Policy',
+            completed: 'Completed',
+            toTheNext: 'To the Next',
+
+            main: {
+                titlePrefix: 'Become the best version of yourself with',
+                subtitle: 'Complete exercises on the site, compete with other players, and boost your skills',
+                buttonForward: "Let's go!",
+            },
 
             // Sidebar:
             home: 'Home',
@@ -391,6 +432,7 @@ export default defineI18nConfig(() => ({
             programCompletedInfo: 'You have completed the current program! Go to the assessment section to take the checkpoint.',
             instruction: 'Instructions',
             preparingNextStep: '',
+            gameStartPrompt: 'Warm-up completed',
 
             // Matrix
             remember: 'Remember',
@@ -427,6 +469,10 @@ export default defineI18nConfig(() => ({
                 'Attention is the ability to focus on a specific task while ignoring distractions. This cognitive ability is important because we use it daily.\n' +
                 'Attention is necessary for tasks that require concentration, such as driving, reading, working with documents, and attending meetings.\n' +
                 'Attention can be developed through meditation, concentration exercises such as reading comprehension, and games that require focus.',
+
+            'checkpoint:memoryShortDescription': 'Memory helps retain essential information.',
+            'checkpoint:logicShortDescription': 'Logic enables analyzing information and making decisions.',
+            'checkpoint:attentionShortDescription': 'Attention helps to focus on tasks.',
 
             'points:openCells': 'Open all cells where points were located',
             'points:instruction':

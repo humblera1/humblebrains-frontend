@@ -5,7 +5,7 @@
                 <IconGears />
             </div>
             <p class="in-development__message">{{ $t('sectionInDevelopment') }}</p>
-            <UiButton class="in-development__button">
+            <UiButton :to="localePath('/')" class="in-development__button">
                 <template #leading>
                     <IconHouse />
                 </template>
@@ -15,6 +15,8 @@
     </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const localePath = useLocalePath();
+</script>
 
 <style scoped lang="scss" src="./in-development.styles.scss" />

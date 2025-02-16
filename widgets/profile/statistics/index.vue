@@ -45,7 +45,7 @@
                 <div class="statistics__icon">
                     <IconGameChart />
                 </div>
-                <p class="statistics__message">Завершите две контрольные точки, чтобы разблокировать статистику.</p>
+                <p class="statistics__message">{{ $t('completeMoreCheckpoints') }}</p>
             </div>
         </template>
     </div>

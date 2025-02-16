@@ -5,7 +5,7 @@
                 <p class="pause-modal__title">{{ $t('pause') }}</p>
                 <div class="pause-modal__info">
                     <IconGameTarget />
-                    <p class="pause-modal__subtitle">todo: name of the game</p>
+                    <p class="pause-modal__subtitle">{{ game.gameName }}</p>
                 </div>
             </div>
             <div class="pause-modal__content">
@@ -24,6 +24,8 @@ import { IconGameGraduationCap, IconGameLeftToBracket } from '#components';
 
 const game = useGameStore();
 
+const localePath = useLocalePath();
+
 const { closeModal } = useHumbleModal();
 
 const showRules = () => {
@@ -31,7 +33,8 @@ const showRules = () => {
 };
 
 const quit = () => {
-    // ...
+    closeModal();
+    navigateTo(localePath('/games'));
 };
 
 const close = () => {

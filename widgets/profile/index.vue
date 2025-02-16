@@ -8,7 +8,7 @@
                 <WidgetProfileDetails />
             </div>
             <div class="profile__program">
-                <h1 class="title">{{ $t('currentProgram') + ': ' }}</h1>
+                <h1 class="title">{{ $t('currentProgram') + ': ' + $t(currentProgram) }}</h1>
                 <div class="profile__content">
                     <WidgetProfileStatistics />
                     <template v-if="user.isCheckpointCompleted">
@@ -27,6 +27,10 @@
 import { useUserStore } from '~/modules/user/stores/userStore';
 
 const user = useUserStore();
+
+const currentProgram = computed((): string => {
+    return user?.program?.category?.name ?? '';
+});
 </script>
 
 <style scoped lang="scss">

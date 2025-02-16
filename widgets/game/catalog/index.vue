@@ -27,6 +27,7 @@ const categories = ref<number[]>([]);
 
 const { status, data, refresh } = await useLazyAsyncData('games', async () => {
     const response = await $api<BaseResponse<IGamePreview[]>>('/v1/games', {
+        credentials: 'include',
         params: {
             'categoryIds[]': categories.value,
         },

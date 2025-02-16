@@ -1,11 +1,11 @@
 <template>
-    settings
+    <NuxtLayout>
+        <div class="settings">
+            <UiInDevelopment />
+        </div>
+    </NuxtLayout>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts"></script>
 
-</script>
-
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>
