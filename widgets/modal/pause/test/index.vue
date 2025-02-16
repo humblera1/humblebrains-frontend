@@ -25,6 +25,8 @@ import { useCheckpointStore } from '~/modules/checkpoint/stores/checkpointStore'
 
 const checkpoint = useCheckpointStore();
 
+const localePath = useLocalePath();
+
 const { closeModal } = useHumbleModal();
 
 const showRules = () => {
@@ -32,7 +34,8 @@ const showRules = () => {
 };
 
 const quit = () => {
-    // ...
+    closeModal();
+    navigateTo(localePath('/progress'));
 };
 
 const close = () => {
