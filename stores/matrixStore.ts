@@ -602,6 +602,7 @@ export const useMatrixStore = defineStore('matrixStorage', () => {
     const finishRound = async () => {
         game.handleRoundFinishing();
 
+        // todo: перенести rebuildField() перед game.handleRoundFinishing(): баг с увеличением числа ячеек при переходе на новый уровень
         const [shouldStartNewRound] = await Promise.all([handleRoundFinishing(), clearRoundData()]);
 
         if (shouldStartNewRound) {
