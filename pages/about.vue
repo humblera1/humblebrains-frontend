@@ -1,8 +1,6 @@
 <template>
     <NuxtLayout>
-        <div class="about">
-            <UiInDevelopment />
-        </div>
+        <UiInDevelopment />
     </NuxtLayout>
 </template>
 
