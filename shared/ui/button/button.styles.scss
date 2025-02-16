@@ -10,13 +10,13 @@
     &_small {
         padding: 8px 12px;
         border-radius: 24px;
-        @include mainFont(600, 12, var(--text-accent-white));
+        @include mainFont(600, 12, var(--btn-text));
     }
 
     &_medium {
         padding: 12px 24px;
         border-radius: 24px;
-        @include mainFont(600, 14, var(--text-accent-white));
+        @include mainFont(600, 14, var(--btn-text));
     }
 
     // todo: disabled buttons styles
@@ -37,23 +37,23 @@
         &:hover {
             transition: all 0.25s ease-in;
             z-index: 0;
-            background-color: transparent;
-            border-color: var(--btn-border-blue);
-            color: var(--btn-blue-hovered);
+            background-color: var(--btn-blue-hovered);
+            border-color: var(--btn-blue-hovered);
+            color: var(--btn-text-hovered);
         }
     }
 
     &_outline {
         background-color: transparent;
-        border: 2px solid var(--btn-border-blue);
-        color: var(--blue);
+        border: 2px solid var(--btn-outlined-text);
+        color: var(--btn-outlined-text);
 
         &:hover {
             transition: all 0.25s ease-in;
             z-index: 0;
             background-color: var(--btn-blue-hovered);
             border-color: var(--btn-blue-hovered);
-            color: var(--text-btn-white);
+            color: var(--btn-outlined-text-hovered);
         }
     }
 }
