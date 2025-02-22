@@ -10,7 +10,7 @@
             <div class="profile__program">
                 <h1 class="title">{{ $t('currentProgram') + ': ' + $t(currentProgram) }}</h1>
                 <div class="profile__content">
-                    <WidgetProfileStatistics />
+                    <LazyWidgetProfileStatistics />
                     <template v-if="user.isCheckpointCompleted">
                         <WidgetGameRow :games="user.games" />
                     </template>
@@ -63,9 +63,10 @@ const currentProgram = computed((): string => {
     }
 
     &__content {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
+        display: grid;
+        //display: flex;
+        //flex-direction: column;
+        //justify-content: center;
         gap: 24px;
 
         @include tablet {

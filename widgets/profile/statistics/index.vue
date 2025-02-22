@@ -1,54 +1,59 @@
 <template>
-    <div :class="['statistics', { statistics_empty: !statistics?.stages }]">
-        <template v-if="statistics?.stages">
-            <Swiper
-                :modules="[Pagination, Navigation, Mousewheel]"
-                :slides-per-view="'auto'"
-                :space-between="16"
-                :loop="true"
-                :watch-slides-progress="true"
-                :slide-to-clicked-slide="true"
-                :mousewheel="{
-                    invert: false,
-                    forceToAxis: true,
-                }"
-                :pagination="{
-                    enabled: device.isMobile,
-                    clickable: true,
-                }"
-                :navigation="{
-                    nextEl: '.statistics__arrow_next',
-                    prevEl: '.statistics__arrow_prev',
-                    disabledClass: 'statistics__arrow_disabled',
-                }"
-                @active-index-change="onIndexChange"
-                @swiper="onSwiper"
-                @slide-change-transition-end="onSlideChangeTransitionEnd"
-            >
-                <SwiperSlide v-for="(chartData, idx) in chartsData" :key="idx">
-                    <WidgetProfileStatisticsItem
-                        :data="chartData.data"
-                        :type="chartData.type"
-                        :is-active="idx === activeSlideIndex"
-                        :is-visible="idx === activeSlideIndex || idx === (activeSlideIndex + 1) % chartsData.length"
-                    />
-                </SwiperSlide>
-            </Swiper>
-            <div class="statistics__arrow statistics__arrow_next">
-                <div class="statistics__badge">
-                    <IconChevron />
+    <template v-if="status === 'success'">
+        <div :class="['statistics', { statistics_empty: !isEnoughData }]">
+            <template v-if="isEnoughData">
+                <Swiper
+                    :modules="[Pagination, Navigation, Mousewheel]"
+                    :slides-per-view="'auto'"
+                    :space-between="16"
+                    :loop="true"
+                    :watch-slides-progress="true"
+                    :slide-to-clicked-slide="true"
+                    :mousewheel="{
+                        invert: false,
+                        forceToAxis: true,
+                    }"
+                    :pagination="{
+                        enabled: device.isMobile,
+                        clickable: true,
+                    }"
+                    :navigation="{
+                        nextEl: '.statistics__arrow_next',
+                        prevEl: '.statistics__arrow_prev',
+                        disabledClass: 'statistics__arrow_disabled',
+                    }"
+                    @active-index-change="onIndexChange"
+                    @swiper="onSwiper"
+                    @slide-change-transition-end="onSlideChangeTransitionEnd"
+                >
+                    <SwiperSlide v-for="(chartData, idx) in chartsData" :key="idx">
+                        <WidgetProfileStatisticsItem
+                            :data="chartData.data"
+                            :type="chartData.type"
+                            :is-active="idx === activeSlideIndex"
+                            :is-visible="idx === activeSlideIndex || idx === (activeSlideIndex + 1) % chartsData.length"
+                        />
+                    </SwiperSlide>
+                </Swiper>
+                <div class="statistics__arrow statistics__arrow_next">
+                    <div class="statistics__badge">
+                        <IconChevron />
+                    </div>
                 </div>
-            </div>
-        </template>
-        <template v-else>
-            <div class="statistics__container">
-                <div class="statistics__icon">
-                    <IconGameChart />
+            </template>
+            <template v-else>
+                <div class="statistics__container">
+                    <div class="statistics__icon">
+                        <IconGameChart />
+                    </div>
+                    <p class="statistics__message">{{ $t('completeMoreCheckpoints') }}</p>
                 </div>
-                <p class="statistics__message">{{ $t('completeMoreCheckpoints') }}</p>
-            </div>
-        </template>
-    </div>
+            </template>
+        </div>
+    </template>
+    <template v-else>
+        <UiPreloader />
+    </template>
 </template>
 
 <script setup lang="ts">
@@ -60,31 +65,41 @@ import type { ChartData } from '~/entities/types/ChartData';
 
 import 'swiper/css';
 import 'swiper/css/pagination';
+import type { BaseResponse } from '~/entities/interfaces/responses/BaseResponse';
 
-const statistics: ICheckpointStatistics = {};
+const { $api } = useNuxtApp();
 
-// const statistics: ICheckpointStatistics = {
-//     stages: [1, 2, 3, 4, 5],
-//     memory: [65, 45, 34, 89, 12],
-//     attention: [34, 23, 46, 78, 92],
-//     logic: [65, 45, 34, 89, 12],
-// };
+const { status, data: statistics } = await useLazyAsyncData('games', async () => {
+    const response = await $api<BaseResponse<ICheckpointStatistics>>('/v1/users/statistics', {
+        credentials: 'include',
+    });
+
+    return response.data;
+});
 
 const device = useDevice();
 
 const activeSlideIndex = ref<number>(0);
 const previousSlideIndex = ref<number | undefined>(undefined);
 
-const chartsData = computed((): { type: string; data: ChartData }[] => {
-    const { stages, ...otherFields } = statistics;
+const isEnoughData = computed((): boolean => {
+    return Boolean(statistics.value?.stages && statistics.value.stages.length > 1);
+});
 
-    return Object.entries(otherFields).map(([key, values]) => ({
-        type: key,
-        data: {
-            xAsis: stages,
-            yAsis: values,
-        },
-    }));
+const chartsData = computed((): { type: string; data: ChartData }[] => {
+    if (statistics.value?.stages) {
+        const { stages, ...otherFields } = statistics.value;
+
+        return Object.entries(otherFields).map(([key, values]) => ({
+            type: key,
+            data: {
+                xAsis: stages,
+                yAsis: values,
+            },
+        }));
+    }
+
+    return [];
 });
 
 const onSwiper = (swiper: SwiperClass) => {

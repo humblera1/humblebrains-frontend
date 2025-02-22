@@ -1,12 +1,17 @@
 <template>
     <div :class="['item', { item_active: isActive, item_visible: isVisible }]">
-        <div class="item__header">
-            <p class="item__title">{{ $t(type) }}</p>
-            <p class="item__subtitle">{{ $t('checkpointsAmount') + ': ' + stagesAmount }}</p>
-        </div>
-        <div class="item__body">
-            <div ref="chart" class="item__chart" :class="{ item__chart_visible: showChart }" />
-        </div>
+        <template v-if="type === 'logic'">
+            <UiInDevelopment :with-button="false" />
+        </template>
+        <template v-else>
+            <div class="item__header">
+                <p class="item__title">{{ $t(type) }}</p>
+                <p class="item__subtitle">{{ $t('checkpointsAmount') + ': ' + stagesAmount }}</p>
+            </div>
+            <div class="item__body">
+                <div ref="chart" class="item__chart" :class="{ item__chart_visible: showChart }" />
+            </div>
+        </template>
     </div>
 </template>
 
@@ -156,7 +161,11 @@ const chartOptions = {
 };
 
 const initChart = () => {
-    console.log('chart: ' + Boolean(chart.value.clientWidth));
+    // todo: logic category
+    if (type === 'logic') {
+        return;
+    }
+
     if (chart.value && chart.value.clientWidth) {
         // eslint-disable-next-line import/namespace
         statsChart = echarts.init(chart.value);
@@ -235,7 +244,6 @@ watch(
             initChart();
 
             showChart.value = true;
-            console.log('show chart: ' + showChart.value);
         }, 250);
     },
 );

@@ -5,7 +5,7 @@
                 <IconGears />
             </div>
             <p class="in-development__message">{{ $t('sectionInDevelopment') }}</p>
-            <UiButton :to="localePath('/')" class="in-development__button">
+            <UiButton v-if="withButton" :to="localePath('/')" class="in-development__button">
                 <template #leading>
                     <IconHouse />
                 </template>
@@ -16,6 +16,8 @@
 </template>
 
 <script setup lang="ts">
+const { withButton = true } = defineProps<{ withButton?: boolean }>();
+
 const localePath = useLocalePath();
 </script>
 
