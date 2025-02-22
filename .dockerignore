@@ -16,3 +16,8 @@ README.md
 .env.example
 .env.backup
 .env.production
+
+.git
+.nuxt
+
+tmp

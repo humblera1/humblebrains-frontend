@@ -1,0 +1,73 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-and-push:
+    name: Build and Push Production Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Copy .env
+        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker images using Docker Compose
+        env:
+          APP_NAME: humblebrains
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          COMMIT_TAG: ${{ github.ref_name }}
+        run: |
+          docker compose -f docker-compose.prod.yml build
+          docker compose -f docker-compose.prod.yml push
+
+  deploy:
+    name: Deploy to Production Server
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Copy files to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.TIMEWEB_HOST }}
+          username: ${{ secrets.TIMEWEB_USER }}
+          password: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "docker-compose.prod.yml,docker/"
+          target: "/home/projects/humblebrains/"
+
+      - name: Deploy to Production Server
+        env:
+          APP_NAME: humblebrains
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          COMMIT_TAG: ${{ github.ref_name }}
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.TIMEWEB_HOST }}
+          username: ${{ secrets.TIMEWEB_USER }}
+          password: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: DOCKER_USERNAME,APP_NAME,COMMIT_TAG
+          script: |
+            cd /home/projects/humblebrains
+            echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u $DOCKER_USERNAME --password-stdin
+
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d
+            docker compose -f docker-compose.prod.yml ps

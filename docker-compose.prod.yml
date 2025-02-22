@@ -1,4 +1,27 @@
 services:
+  nginx:
+    container_name: ${APP_NAME}-nginx
+    image: nginx:1.27.3-alpine
+    volumes:
+      - ./docker/nginx/prod:/etc/nginx/conf.d/
+    networks:
+      - web_network
+    depends_on:
+      - app
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_net"
+
+      # HTTP Router (port 80) - redirect to HTTPS
+      - "traefik.http.routers.humblebrains-web.rule=Host(`humblebrains.ru`) || Host(`www.humblebrains.ru`)"
+      - "traefik.http.routers.humblebrains-web.entrypoints=web"
+      - "traefik.http.routers.humblebrains-web.middlewares=redirect-to-https@file"
+
+      # HTTPS Router (port 443) - serve TLS
+      - "traefik.http.routers.humblebrains-secure.rule=Host(`humblebrains.ru`) || Host(`humblebrains.ru`)"
+      - "traefik.http.routers.humblebrains-secure.entrypoints=websecure"
+      - "traefik.http.routers.humblebrains-secure.tls.certresolver=myresolver"
+
   app:
     container_name: ${APP_NAME}-app
     build:
@@ -10,19 +33,7 @@ services:
     networks:
       - web_network
 
-  nginx:
-    container_name: ${APP_NAME}-nginx
-    image: nginx:1.27.3-alpine
-    ports:
-      - "8181:80"
-      - "443:443"
-    volumes:
-      - ./docker/nginx/prod:/etc/nginx/conf.d/
-      - /etc/letsencrypt:/etc/letsencrypt:ro
-    networks:
-      - web_network
-    depends_on:
-      - app
-
 networks:
   web_network:
+  traefik_net:
+    external: true
