@@ -81,15 +81,15 @@
             height: 100%;
         }
 
-        svg {
-            color: var(--blue);
-            padding: 10px;
-        }
-
         @include tablet {
             width: 40px;
             height: 40px;
         }
+    }
+
+    &__astronaut {
+        color: var(--blue-light);
+        padding: 10px;
     }
 
     &__username {
@@ -113,7 +113,6 @@
         }
     }
 
-    &__bars,
     &__results {
         position: relative;
         display: none;

@@ -1,15 +1,7 @@
 <template>
     <div class="header">
         <div class="header__logo"></div>
-        <div
-            :class="['header__bars', { header__bars_active: isSpecificWindowOpen(WidgetModalMenu) }]"
-            @click="toggleMenuModal(WidgetModalMenu)"
-        >
-            <Transition>
-                <IconCross v-if="isSpecificWindowOpen(WidgetModalMenu)" />
-                <IconBars v-else />
-            </Transition>
-        </div>
+        <WidgetHeaderTabletBars />
         <div class="header__content">
             <div class="header__menu">
                 <WidgetMenu />
@@ -35,7 +27,7 @@
             <NuxtLink v-else :to="localePath('/profile')" class="header__user">
                 <div class="header__avatar">
                     <NuxtImg v-if="user.hasAvatar" :src="user.avatar" alt="Avatar" class="details__img" />
-                    <IconAstronautHelmet v-else class="details__astronaut" />
+                    <IconAstronautHelmet v-else class="header__astronaut" />
                 </div>
                 <div class="header__username">
                     <p>{{ user.username }}</p>
@@ -49,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { WidgetModalAuth, WidgetModalMenu } from '#components';
+import { WidgetModalAuth } from '#components';
 import { useUserStore } from '~/modules/user/stores/userStore';
 
 const authState = useState('authState');
@@ -57,7 +49,6 @@ const authState = useState('authState');
 const localePath = useLocalePath();
 
 const { openModal } = useHumbleModal();
-const { toggleModal: toggleMenuModal, isSpecificWindowOpen } = useHumbleModal({ withBackdrop: false });
 
 const user = useUserStore();
 
