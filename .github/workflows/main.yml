@@ -28,7 +28,8 @@ jobs:
 
       - name: Build and push Docker images using Docker Compose
         env:
-          APP_NAME: humblebrains
+          APP_NAME: ${{ secrets.APP_NAME }}
+          API_URL: ${{ secrets.API_URL }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           COMMIT_TAG: ${{ github.ref_name }}
         run: |
@@ -55,7 +56,7 @@ jobs:
 
       - name: Deploy to Production Server
         env:
-          APP_NAME: humblebrains
+          APP_NAME: ${{ secrets.APP_NAME }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           COMMIT_TAG: ${{ github.ref_name }}
         uses: appleboy/ssh-action@v1.2.0

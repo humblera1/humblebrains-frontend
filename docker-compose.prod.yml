@@ -6,6 +6,7 @@ services:
       - ./docker/nginx/prod:/etc/nginx/conf.d/
     networks:
       - web_network
+      - traefik_net
     depends_on:
       - app
     labels:
@@ -18,7 +19,7 @@ services:
       - "traefik.http.routers.humblebrains-web.middlewares=redirect-to-https@file"
 
       # HTTPS Router (port 443) - serve TLS
-      - "traefik.http.routers.humblebrains-secure.rule=Host(`humblebrains.ru`) || Host(`humblebrains.ru`)"
+      - "traefik.http.routers.humblebrains-secure.rule=Host(`humblebrains.ru`) || Host(`www.humblebrains.ru`)"
       - "traefik.http.routers.humblebrains-secure.entrypoints=websecure"
       - "traefik.http.routers.humblebrains-secure.tls.certresolver=myresolver"
 
@@ -27,9 +28,9 @@ services:
     build:
       context: ./
       dockerfile: ./docker/prod.Dockerfile
-    environment:
-      - NODE_ENV=production
-      - PORT=3000
+      args:
+        API_URL: ${API_URL}
+    image: ${DOCKER_USERNAME}/${APP_NAME}:app-${COMMIT_TAG}
     networks:
       - web_network
 

@@ -3,6 +3,9 @@ FROM node:23.6.1-alpine AS builder
 
 WORKDIR /app
 
+ARG API_URL
+ENV API_URL=${API_URL}
+
 COPY package*.json ./
 RUN npm install
 
