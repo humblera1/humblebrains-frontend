@@ -47,7 +47,7 @@
             width: 150px;
 
             @include tablet {
-                top: 36px;
+                top: 20px;
             }
         }
 
@@ -62,7 +62,7 @@
 
     &__content {
         position: absolute;
-        bottom: 32px;
+        top: 230px;
         display: flex;
         flex-direction: column;
         gap: 4px;
@@ -70,7 +70,7 @@
         padding: 0 12px;
 
         @include tablet {
-            bottom: 24px;
+            top: 190px;
         }
     }
 
