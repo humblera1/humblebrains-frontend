@@ -48,33 +48,33 @@ const computedSlidesPerView = computed((): number => {
 const items: MainSwiperItem[] = [
     {
         theme: 'blue',
-        image: 'free',
-        title: 'swiper:online',
-        subtitle: 'swiper:online-subtitle',
+        image: 'online',
+        title: 'swiper.online.title',
+        subtitle: 'swiper.online.subtitle',
     },
     {
         theme: 'pink',
         image: 'free',
-        title: 'swiper:online',
-        subtitle: 'swiper:online-subtitle',
+        title: 'swiper.free.title',
+        subtitle: 'swiper.free.subtitle',
     },
     {
         theme: 'blue',
-        image: 'free',
-        title: 'swiper:online',
-        subtitle: 'swiper:online-subtitle',
+        image: 'time',
+        title: 'swiper.time.title',
+        subtitle: 'swiper.time.subtitle',
+    },
+    {
+        theme: 'pink',
+        image: 'progress',
+        title: 'swiper.progress.title',
+        subtitle: 'swiper.progress.subtitle',
     },
     {
         theme: 'blue',
-        image: 'free',
-        title: 'swiper:online',
-        subtitle: 'swiper:online-subtitle',
-    },
-    {
-        theme: 'blue',
-        image: 'free',
-        title: 'swiper:online',
-        subtitle: 'swiper:online-subtitle',
+        image: 'personalization',
+        title: 'swiper.personalization.title',
+        subtitle: 'swiper.personalization.subtitle',
     },
 ];
 

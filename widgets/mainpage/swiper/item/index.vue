@@ -19,8 +19,12 @@ import type { SwiperItemProps } from '~/widgets/mainpage/swiper/item/swiper-item
 
 const { item } = defineProps<SwiperItemProps>();
 
+const mode = useColorMode();
+
 const imageSrc = computed((): string => {
-    return `/images/main-swiper/${item.image}.png`;
+    const imageName = mode.value === 'dark' ? `${item.image}-dark` : item.image;
+
+    return `/images/main-swiper/${imageName}.png`;
 });
 </script>
 

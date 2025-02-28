@@ -43,8 +43,8 @@
 
         img {
             position: absolute;
-            top: 64px;
-            width: 100px;
+            top: 42px;
+            width: 150px;
 
             @include tablet {
                 top: 36px;
@@ -52,7 +52,7 @@
         }
 
         &_pink {
-            background-color: var(--pink-bg);
+            background-color: var(--swiper-pink);
         }
 
         &_blue {

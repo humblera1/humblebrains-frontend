@@ -90,6 +90,30 @@ export default defineI18nConfig(() => ({
             thankYou: 'Благодарим за регистрацию!',
             checkEmail: 'Для завершения регистрации следуйте инструкциям, отправленным на ваш почтовый ящик',
 
+            // swiper
+            swiper: {
+                online: {
+                    title: 'Онлайн',
+                    subtitle: 'Доступны с любого устройства',
+                },
+                free: {
+                    title: 'Бесплатно. Совсем!',
+                    subtitle: 'Все упражнения бесплатны',
+                },
+                time: {
+                    title: '15 минут в день',
+                    subtitle: 'Занимайтесь всего 15 минут ежедневно',
+                },
+                progress: {
+                    title: 'Виден прогресс',
+                    subtitle: 'Результаты тренировок наглядны',
+                },
+                personalization: {
+                    title: 'Персональный подход',
+                    subtitle: 'Подбираем упражнения специально для вас',
+                },
+            },
+
             // Sidebar:
             home: 'Главная',
             profile: 'Профиль',
@@ -364,6 +388,30 @@ export default defineI18nConfig(() => ({
             googlePrivacyPolicy: 'Google Privacy Policy',
             completed: 'Completed',
             toTheNext: 'To the Next',
+
+            // swiper advantages (translated into English)
+            swiper: {
+                online: {
+                    title: 'Online',
+                    subtitle: 'Accessible from any device',
+                },
+                free: {
+                    title: 'Completely Free!',
+                    subtitle: 'All exercises are free',
+                },
+                time: {
+                    title: '15 Minutes a Day',
+                    subtitle: 'Practice just 15 minutes daily',
+                },
+                progress: {
+                    title: 'Visible Progress',
+                    subtitle: 'Training results are clearly visible',
+                },
+                personalization: {
+                    title: 'Personalized Approach',
+                    subtitle: 'Tailored exercises just for you',
+                },
+            },
 
             main: {
                 titlePrefix: 'Become the best version of yourself with',

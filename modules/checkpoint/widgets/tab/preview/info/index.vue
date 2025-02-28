@@ -22,6 +22,8 @@ import { CognitiveCategoryEnum } from '~/entities/enums/cognitiveCategoryEnum';
 const page = useCheckpointPageStore();
 const currentTab = useState<CheckpointTabEnum>('checkpoint');
 
+const mode = useColorMode();
+
 const selectGameplayTab = (): void => {
     currentTab.value = CheckpointTabEnum.gameplay;
 };
@@ -40,7 +42,9 @@ const description = computed((): string => {
 });
 
 const image = computed((): string => {
-    return `/images/categories/${page.getCategory()}.png`;
+    const imageName = mode.value === 'dark' ? `${page.getCategory()}-dark` : page.getCategory();
+
+    return `/images/categories/${imageName}.png`;
 });
 </script>
 

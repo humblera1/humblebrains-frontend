@@ -58,12 +58,16 @@ const { stage, type = 'stage' } = defineProps<CheckpointUiCardProps>();
 
 const localePath = useLocalePath();
 
+const mode = useColorMode();
+
 const cardClass = computed((): string => {
     return stage.isCompleted ? 'card_completed' : '';
 });
 
 const imageSrc = computed((): string => {
-    return `/images/categories/${stage.category.name}.png`;
+    const imageName = mode.value === 'dark' ? `${stage.category.name}-dark` : stage.category.name;
+
+    return `/images/categories/${imageName}.png`;
 });
 
 const to = computed((): string => {
