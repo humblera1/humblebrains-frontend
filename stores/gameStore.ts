@@ -1276,7 +1276,6 @@ export const useGameStore = defineStore('gameStorage', () => {
      * Сбрасывает информацию об ответах в течение раунда.
      */
     const resetRoundAnswers = () => {
-        console.log('reset answers!');
         isRoundFailedFlag = false;
 
         correctAnswersOnRound = 0;
