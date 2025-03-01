@@ -1,5 +1,17 @@
 export default defineNuxtConfig({
     compatibilityDate: '2024-04-03',
+    app: {
+        head: {
+            title: 'HB',
+            link: [
+                {
+                    rel: 'icon',
+                    type: 'image/png',
+                    href: '/favicon.png',
+                },
+            ],
+        },
+    },
     devtools: { enabled: true },
     modules: [
         '@nuxt/eslint',
