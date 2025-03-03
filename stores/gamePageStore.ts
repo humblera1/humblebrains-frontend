@@ -133,18 +133,23 @@ export const useGamePageStore = defineStore('gamePageStorage', () => {
 
         isLoading.value = true;
 
+        // Используем import.meta.glob для динамического импорта всех компонентов игр
+        const modules = import.meta.glob('../widgets/games/*/index.vue');
+        const componentPath = `../widgets/games/${game.value}/index.vue`;
+
         try {
-            const componentPath = `../widgets/games/${game.value}/index.vue`;
+            if (modules[componentPath]) {
+                const componentModule = (await modules[componentPath]()) as { default: object };
+                await gameStore.$setup();
 
-            /* @vite-ignore */
-            const component = await import(/* @vite-ignore */ componentPath /* @vite-ignore */);
-
-            await gameStore.$setup();
-
-            resolvedComponent.value = component.default;
+                resolvedComponent.value = componentModule.default;
+            } else {
+                console.error('Component module not found for path:', componentPath);
+                resolvedComponent.value = null;
+            }
         } catch (error) {
             console.error('Error loading component:', error);
-            return null;
+            resolvedComponent.value = null;
         } finally {
             isLoading.value = false;
         }

@@ -8,9 +8,7 @@
 import type { thorndikeItemProps } from '~/modules/checkpoint/widgets/attention/thorndike/item/thorndike-item.types';
 import { useThorndikeStore } from '~/modules/checkpoint/stores/attention/thorndikeStore';
 
-const { number, withBadge } = withDefaults(defineProps<thorndikeItemProps>(), {
-    withBadge: false,
-});
+const { number, withBadge = false } = defineProps<thorndikeItemProps>();
 
 const thorndike = useThorndikeStore();
 

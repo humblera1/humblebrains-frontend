@@ -19,8 +19,13 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        flex-wrap: wrap;
         gap: 32px;
         width: 100%;
+
+        @include mobile {
+            flex-direction: column;
+        }
     }
 
     &__body {

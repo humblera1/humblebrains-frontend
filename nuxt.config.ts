@@ -47,6 +47,10 @@ export default defineNuxtConfig({
         defaultLocale: 'ru',
         locales: ['ru', 'en'],
     },
+    colorMode: {
+        preference: 'light',
+        fallback: 'light',
+    },
     vite: {
         css: {
             preprocessorOptions: {

@@ -15,7 +15,7 @@
                         clickable: true,
                     }"
                 >
-                    <SwiperSlide v-for="stage in user.stages" :key="stage.id">
+                    <SwiperSlide v-for="stage in user.stages.reverse()" :key="stage.id">
                         <WidgetCheckpointUiCard :stage="stage" />
                     </SwiperSlide>
                 </Swiper>

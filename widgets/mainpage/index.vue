@@ -20,7 +20,7 @@
                         {{ $t('main.subtitle') }}
                     </p>
                 </div>
-                <UiButton class="main__button_desktop">
+                <UiButton :to="localePath('/games')" class="main__button_desktop">
                     {{ $t('main.buttonForward') }}
                     <div id="trailing">
                         <IconArrowLeft />
@@ -37,6 +37,8 @@
 
 <script setup lang="ts">
 const colorMode = useColorMode();
+
+const localePath = useLocalePath();
 
 const imageSrc = computed((): string => {
     return colorMode.value === 'dark' ? '/images/main-dark.png' : '/images/main-light.png';

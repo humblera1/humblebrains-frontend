@@ -1,6 +1,8 @@
 <template>
     <div class="header">
-        <div class="header__logo"></div>
+        <div class="header__logo">
+            <NuxtImg src="images/logo.png" alt="Logo" />
+        </div>
         <WidgetHeaderTabletBars />
         <div class="header__content">
             <div class="header__menu">
