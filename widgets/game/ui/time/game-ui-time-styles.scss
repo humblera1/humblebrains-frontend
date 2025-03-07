@@ -13,10 +13,12 @@
     @include mainShadow();
 
     @include mobile {
+        width: fit-content;
         height: 60px;
-        border-radius: 12px;
-        padding: 16px;
+        padding: unset;
         gap: 8px;
+        background-color: transparent;
+        box-shadow: unset;
     }
 
     &__info {

@@ -29,7 +29,7 @@ const localePath = useLocalePath();
 const { closeModal } = useHumbleModal();
 
 const showRules = () => {
-    // ...
+    // todo...
 };
 
 const quit = () => {

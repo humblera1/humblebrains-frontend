@@ -28,7 +28,8 @@
             display: none;
         }
 
-        img {
+        svg {
+            color: var(--blue-light);
             object-fit: contain;
             width: 100%;
             height: 100%;

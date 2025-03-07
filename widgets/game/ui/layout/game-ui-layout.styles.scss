@@ -10,7 +10,7 @@
     padding: 48px 36px;
 
     @include mobile {
-        padding: 24px 12px;
+        padding: 16px 12px;
     }
 
     &__inner {
@@ -37,6 +37,15 @@
         align-items: center;
         justify-content: center;
         gap: 20px;
+
+        @include mobile {
+            gap: 12px;
+            height: 60px;
+            border-radius: 16px;
+            background-color: var(--badge-bg);
+
+            @include mainShadowMobile();
+        }
     }
 
     &__timeline {

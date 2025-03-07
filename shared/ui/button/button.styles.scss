@@ -21,7 +21,16 @@
 
     // todo: disabled buttons styles
     &:disabled {
-        background-color: gray;
+        cursor: not-allowed;
+        border: 2px solid var(--blue-badge);
+        background-color: var(--blue-badge);
+        color: var(--primary-subtitle);
+
+        &:hover {
+            border: 2px solid var(--blue-badge);
+            background-color: var(--blue-badge);
+            color: var(--primary-subtitle);
+        }
     }
 
     svg {

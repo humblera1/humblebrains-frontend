@@ -21,15 +21,17 @@
     }
 
     @include mobile {
+        padding-top: 8px;
+        right: 24px;
         min-width: 30px;
         width: 30px;
         height: 30px;
-
-        @include mainShadowMobile();
+        background-color: transparent;
+        box-shadow: unset;
     }
 
     svg {
-        color: var(--blue);
+        color: var(--blue-light);
         width: 14px;
         height: 16px;
 
@@ -39,8 +41,8 @@
         }
 
         @include mobile {
-            width: 9px;
-            height: 11px;
+            width: 11px;
+            height: 12px;
         }
     }
 }

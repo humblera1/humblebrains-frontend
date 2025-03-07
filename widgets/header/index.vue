@@ -1,7 +1,7 @@
 <template>
     <div class="header">
         <div class="header__logo">
-            <NuxtImg src="images/logo.png" alt="Logo" />
+            <IconLogo />
         </div>
         <WidgetHeaderTabletBars />
         <div class="header__content">
