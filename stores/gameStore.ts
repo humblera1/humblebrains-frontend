@@ -1030,6 +1030,8 @@ export const useGameStore = defineStore('gameStorage', () => {
             await getPausePromise();
         }
 
+        stopRoundTimer();
+
         setRoundTime(currentLevel.value.timeToAnswer);
         setInteractiveState();
 
@@ -1079,7 +1081,6 @@ export const useGameStore = defineStore('gameStorage', () => {
             storeAndResetReactionTime();
         }
 
-        resetRoundAnswers();
         stopRoundTimer();
 
         if (isInWarmUpMode()) {
@@ -1102,6 +1103,7 @@ export const useGameStore = defineStore('gameStorage', () => {
             failedRoundsStreak.value++;
         }
 
+        resetRoundAnswers();
         setFailedRoundFinishingState();
     };
 
@@ -1114,6 +1116,7 @@ export const useGameStore = defineStore('gameStorage', () => {
             successfulRoundsStreak.value++;
         }
 
+        resetRoundAnswers();
         setSuccessfulRoundFinishingState();
     };
 

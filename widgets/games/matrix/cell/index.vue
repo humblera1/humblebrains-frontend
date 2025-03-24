@@ -2,7 +2,7 @@
     <div :class="cellClasses" @click="matrix.handleCellOpening(number)">
         <div class="cell__inner" :style="innerStyles">
             <div class="cell__front" :style="frontStyles">
-                <span v-show="showCellFrontNumber">
+                <span v-show="showCellFrontNumber" :style="iconStyles">
                     {{ cellOrderedNumber }}
                 </span>
             </div>
