@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { debounce } from 'lodash';
+import { debounce } from 'lodash-es';
 import type { IBaseGameLevel } from '~/entities/interfaces/games/IBaseGameLevel';
 
 const game = useGameStore();

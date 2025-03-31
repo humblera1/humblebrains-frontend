@@ -49,14 +49,14 @@ git clone https://github.com/humblera1/humblebrains-frontend.git
 Build and start the development containers using the development Docker Compose file:
 
 ```bash
-docker compose -f docker-compose.dev.yml up --d
+docker compose -f docker-compose.dev.yml up -d
 ```
 
 ## Production Environment Setup
 Build and start the production containers using the production Docker Compose file:
 
 ```bash
-docker compose -f docker-compose.prod.yml up --d
+docker compose -f docker-compose.prod.yml up -d
 ```
 
 ## Deployment with GitHub Actions

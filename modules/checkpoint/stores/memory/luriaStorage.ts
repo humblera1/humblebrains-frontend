@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { sample, shuffle } from 'lodash';
+import { sample, shuffle } from 'lodash-es';
 import { useCheckpointStore } from '~/modules/checkpoint/stores/checkpointStore';
 import { useCheckpointPageStore } from '~/modules/checkpoint/stores/checkpointPageStore';
 import type { Icon } from '~/modules/checkpoint/entities/types/Icon';

@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia';
+import { range, shuffle, chunk } from 'lodash-es';
 import { useCheckpointStore } from '~/modules/checkpoint/stores/checkpointStore';
 import type { GorbovSchulteLevel } from '~/modules/checkpoint/entities/types/gorbov-schulte/GorbovSchulteLevel';
 import type { ITestLevels } from '~/modules/checkpoint/entities/interfaces/ITestLevels';
 import { RuleEnum } from '~/modules/checkpoint/entities/enums/gorbov-schulte/RuleEnum';
 import { gorbovSchulteAssessmentTable } from '~/modules/checkpoint/data/gorbovSchulteAssessmentTable';
-import { range, shuffle, chunk } from 'lodash';
 
 export const useGorbovSchulteStore = defineStore('gorbovSchulteStorage', () => {
     /**

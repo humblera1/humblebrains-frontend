@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { range, sample, shuffle } from 'lodash';
+import { range, sample, shuffle } from 'lodash-es';
 import { MatrixStateEnum } from '~/entities/enums/games/matrix/MatrixStateEnum';
 import type { IMatrixLevel } from '~/entities/interfaces/games/matrix/IMatrixLevel';
 

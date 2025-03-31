@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { map, max } from 'lodash';
+import { map, max } from 'lodash-es';
 import { useCheckpointStore } from '~/modules/checkpoint/stores/checkpointStore';
 import type { ITestLevels } from '~/modules/checkpoint/entities/interfaces/ITestLevels';
 import type { SymbolsLevel } from '~/modules/checkpoint/entities/types/symbols/symbolsLevel';

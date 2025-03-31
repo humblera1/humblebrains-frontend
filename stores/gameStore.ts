@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { mean } from 'lodash';
+import { mean } from 'lodash-es';
 import { GameStateEnum } from '~/entities/enums/games/GameStateEnum';
 import type { IGameLevels } from '~/entities/interfaces/games/IGameLevels';
 import type { IGameLevel } from '~/entities/interfaces/games/IGameLevel';

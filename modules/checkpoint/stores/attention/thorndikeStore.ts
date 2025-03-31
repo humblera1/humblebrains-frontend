@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { difference, random, shuffle } from 'lodash';
+import { difference, random, shuffle } from 'lodash-es';
 import { useCheckpointStore } from '~/modules/checkpoint/stores/checkpointStore';
 import type { ITestLevels } from '~/modules/checkpoint/entities/interfaces/ITestLevels';
 import type { ThorndikeLevel } from '~/modules/checkpoint/entities/types/thorndike/ThorndikeLevel';

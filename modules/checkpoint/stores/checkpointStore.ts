@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { mean } from 'lodash';
+import { mean } from 'lodash-es';
 import { TestModeEnum } from '~/modules/checkpoint/entities/enums/TestModeEnum';
 import { TestStateEnum } from '~/modules/checkpoint/entities/enums/TestStateEnum';
 import { useCheckpointPageStore } from '~/modules/checkpoint/stores/checkpointPageStore';
